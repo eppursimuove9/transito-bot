@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Shield, Car, Camera, MapPin, ExternalLink, RefreshCw, EyeOff, Store, Home, ArrowLeft } from 'lucide-react';
+import { Send, Shield, Car, Camera, MapPin, ExternalLink, RefreshCw, EyeOff, Store, Home, ArrowLeft, Trash2 } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -18,7 +18,7 @@ Selecciona el área de tu trámite:
 
 1️⃣ 🚗 *Tránsito y Vehículos* (Permisos, Duplicados, Licencias, Multas)
 2️⃣ 🏪 *Negocios y Rentas* (Patentes Comerciales, Ferias, Certificados)
-3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Reporte de Caminos 100% Anónimo)
+3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Caminos, Ramas y Retiro de Chatarra)
 
 _Escribe el número de tu opción (1, 2 o 3)._`;
 
@@ -125,10 +125,27 @@ export default function PurranqueDemoPage() {
     }
   };
 
-  const handleSendPhotoSimulation = () => {
+  // Simulación Foto Camino
+  const handleSendCaminoPhoto = () => {
     handleSendMessage(
-      "📸 Camino sector Hueyusca con bache profundo tras temporal",
+      "📸 Camino sector Hueyusca con bache profundo",
       "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80"
+    );
+  };
+
+  // Simulación Foto Ramas / Escombros
+  const handleSendRamasPhoto = () => {
+    handleSendMessage(
+      "📸 Ramas y escombros de poda acumulados en Corte Alto",
+      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80"
+    );
+  };
+
+  // Simulación Foto Chatarra y Baterías
+  const handleSendChatarraPhoto = () => {
+    handleSendMessage(
+      "📸 Chatarra, fierros y 2 baterías viejas para reciclar",
+      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&auto=format&fit=crop&q=80"
     );
   };
 
@@ -156,16 +173,16 @@ export default function PurranqueDemoPage() {
           Ventanilla Única WhatsApp Purranque
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Plataforma de trámites categorizados para adultos mayores y sectores rurales de la comuna.
+          Plataforma modular para vecinos urbanos y rurales con soporte de fotos y feedback.
         </p>
       </header>
 
       <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        {/* Panel Izquierdo: Casos de Prueba Listos */}
+        {/* Panel Izquierdo: Casos de Prueba */}
         <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 className="font-semibold text-sm text-slate-200 flex items-center gap-2">
-              Pruebas Rápidas por Área
+              Pruebas Rápidas (Demo)
             </h2>
             <button
               onClick={restartDemo}
@@ -178,8 +195,8 @@ export default function PurranqueDemoPage() {
 
           <div className="space-y-2">
             {/* Categoría 1: Tránsito */}
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Car className="w-3.5 h-3.5 text-emerald-400" /> Tránsito y Vehículos
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <Car className="w-3.5 h-3.5 text-emerald-400" /> Tránsito
             </div>
             
             <button
@@ -187,8 +204,8 @@ export default function PurranqueDemoPage() {
               className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-emerald-400">
-                <span>Pago Express Permiso (ABCD12)</span>
-                <span className="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded">Corte Alto</span>
+                <span>Pago Express Permiso</span>
+                <span className="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded">ABCD12</span>
               </div>
             </button>
 
@@ -198,22 +215,12 @@ export default function PurranqueDemoPage() {
             >
               <div className="flex justify-between items-center text-xs font-semibold text-indigo-400">
                 <span>Duplicado de Permiso (PDF)</span>
-                <span className="text-[9px] bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded">Descarga</span>
-              </div>
-            </button>
-
-            <button
-              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("4"), 400); }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-sky-400">
-                <span>Licencia + ClaveÚnica</span>
-                <span className="text-[9px] bg-sky-950 text-sky-300 px-1.5 py-0.5 rounded">Pre-chequeo</span>
+                <span className="text-[9px] bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded">+ Feedback</span>
               </div>
             </button>
 
             {/* Categoría 2: Negocios */}
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-3 flex items-center gap-1">
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
               <Store className="w-3.5 h-3.5 text-amber-400" /> Rentas y Comercio
             </div>
 
@@ -222,26 +229,17 @@ export default function PurranqueDemoPage() {
               className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-amber-400">
-                <span>Patente Comercial (76.123.456-7)</span>
+                <span>Patente Comercial (RUT)</span>
                 <span className="text-[9px] bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded">Quesería</span>
               </div>
             </button>
 
-            {/* Categoría 3: Vecinos */}
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-3 flex items-center gap-1">
-              <Home className="w-3.5 h-3.5 text-orange-400" /> Vecinos y Hogar
+            {/* Categoría 3: Vecinos y Medio Ambiente */}
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
+              <Home className="w-3.5 h-3.5 text-orange-400" /> Vecinos y Operaciones
             </div>
 
-            <button
-              onClick={() => { handleSendMessage("3"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("123-45"), 800); }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-teal-400">
-                <span>Aseo Domiciliario (Rol 123-45)</span>
-                <span className="text-[9px] bg-teal-950 text-teal-300 px-1.5 py-0.5 rounded">P. Montt</span>
-              </div>
-            </button>
-
+            {/* Subida Foto Camino */}
             <button
               onClick={() => {
                 handleSendMessage("3");
@@ -249,7 +247,7 @@ export default function PurranqueDemoPage() {
                   handleSendMessage("2");
                   setTimeout(() => {
                     handleSendMessage("Hueyusca");
-                    setTimeout(() => handleSendPhotoSimulation(), 500);
+                    setTimeout(() => handleSendCaminoPhoto(), 500);
                   }, 500);
                 }, 500);
               }}
@@ -261,7 +259,47 @@ export default function PurranqueDemoPage() {
               </div>
             </button>
 
-            {/* Botón Universal Volver */}
+            {/* Subida Foto Ramas */}
+            <button
+              onClick={() => {
+                handleSendMessage("3");
+                setTimeout(() => {
+                  handleSendMessage("3");
+                  setTimeout(() => {
+                    handleSendMessage("Corte Alto, frente a la plaza");
+                    setTimeout(() => handleSendRamasPhoto(), 500);
+                  }, 500);
+                }, 500);
+              }}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-teal-400">
+                <span>Retiro de Ramas + Foto</span>
+                <span className="text-[9px] bg-teal-950 text-teal-300 px-1.5 py-0.5 rounded">Operaciones</span>
+              </div>
+            </button>
+
+            {/* Subida Foto Chatarra */}
+            <button
+              onClick={() => {
+                handleSendMessage("3");
+                setTimeout(() => {
+                  handleSendMessage("4");
+                  setTimeout(() => {
+                    handleSendMessage("Crucero, parcela 12");
+                    setTimeout(() => handleSendChatarraPhoto(), 500);
+                  }, 500);
+                }, 500);
+              }}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-rose-400">
+                <span className="flex items-center gap-1"><Trash2 className="w-3 h-3" /> Retiro Chatarra + Foto</span>
+                <span className="text-[9px] bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded">Reciclaje</span>
+              </div>
+            </button>
+
+            {/* Botón Volver */}
             <button
               onClick={() => handleSendMessage("0")}
               className="w-full text-center p-1.5 mt-2 rounded-xl bg-slate-800/30 hover:bg-slate-800/70 border border-slate-700/40 text-xs font-semibold text-slate-300 transition flex items-center justify-center gap-1"
@@ -269,15 +307,10 @@ export default function PurranqueDemoPage() {
               <ArrowLeft className="w-3 h-3" /> Volver al Menú (Escribe 0)
             </button>
           </div>
-
-          <div className="p-2.5 bg-blue-950/30 border border-blue-900/40 rounded-xl text-[11px] text-blue-300">
-            <div className="font-semibold flex items-center gap-1"><MapPin className="w-3 h-3" /> Impacto Purranque:</div>
-            <div>Atención categorizada en 3 puertas claras para facilitar el uso a adultos mayores.</div>
-          </div>
         </aside>
 
         {/* Panel Derecho: WhatsApp */}
-        <main className="md:col-span-7 bg-slate-900 border-4 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[650px]">
+        <main className="md:col-span-7 bg-slate-900 border-4 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[660px]">
           {/* Header de WhatsApp */}
           <div className="bg-[#075E54] text-white p-3.5 flex items-center gap-3 shadow-md">
             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm border border-white/20">
@@ -346,15 +379,15 @@ export default function PurranqueDemoPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Formulario de Entrada */}
+          {/* Formulario de Entrada con Botón de Cámara */}
           <form
             onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
             className="p-3 bg-[#202c33] flex items-center gap-2 border-t border-slate-800"
           >
             <button
               type="button"
-              onClick={handleSendPhotoSimulation}
-              title="Adjuntar foto (Caminos / Luminarias)"
+              onClick={handleSendChatarraPhoto}
+              title="Adjuntar foto de chatarra / baterías"
               className="w-9 h-9 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-full flex items-center justify-center transition shrink-0"
             >
               <Camera className="w-4 h-4" />
@@ -364,7 +397,7 @@ export default function PurranqueDemoPage() {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Escribe una opción (1, 2, 3), RUT, patente o '0'..."
+              placeholder="Escribe una opción (1, 2, 3), nota (1 a 7) o '0'..."
               className="flex-1 bg-[#2a3942] text-white placeholder-slate-400 text-xs md:text-sm px-3.5 py-2.5 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00a884]"
             />
             <button
