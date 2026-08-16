@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Shield, Car, Camera, MapPin, ExternalLink, RefreshCw, EyeOff, ArrowLeft } from 'lucide-react';
+import { Send, Shield, Car, Camera, MapPin, ExternalLink, RefreshCw, EyeOff, Store, Home, ArrowLeft } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -14,15 +14,13 @@ interface Message {
 
 const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱
 
-¿Qué trámite deseas realizar?
+Selecciona el área de tu trámite:
 
-1️⃣ Pagar Permiso de Circulación (Pago Express)
-2️⃣ Obtener Duplicado de Permiso (Instantáneo)
-3️⃣ Agendar Licencia (Pre-chequeo rural sin filas)
-4️⃣ Consultar / Pagar Patente Comercial
-5️⃣ Reportar estado de camino o luminaria (100% Anónimo)
+1️⃣ 🚗 *Tránsito y Vehículos* (Permisos, Duplicados, Licencias, Multas)
+2️⃣ 🏪 *Negocios y Rentas* (Patentes Comerciales, Ferias, Certificados)
+3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Reporte de Caminos 100% Anónimo)
 
-_Responde con el número de tu opción (1-5) o escribe MENU en cualquier momento para volver._`;
+_Escribe el número de tu opción (1, 2 o 3)._`;
 
 export default function PurranqueDemoPage() {
   const [messages, setMessages] = useState<Message[]>([
@@ -59,7 +57,7 @@ export default function PurranqueDemoPage() {
           {
             id: Date.now().toString(),
             sender: 'bot',
-            text: `✅ *Identidad Confirmada con ClaveÚnica*\n\nHola *${parsed.nombre}* (Sector ${parsed.sector}).\n\nHemos validado tu Hoja de Vida del Conductor y Cédula.\n\n📅 *Horas Disponibles en Tránsito (Pedro Montt 249):*\n• Mañana martes 09:30 hrs\n• Jueves 11:00 hrs (Especial rural con bus de conexión)\n\n_Escribe el día de tu preferencia o *MENU* para volver._`,
+            text: `✅ *Identidad Validada con ClaveÚnica*\n\nHola *${parsed.nombre}* (Sector ${parsed.sector}).\n\nHemos pre-chequeado tu Hoja de Vida y Cédula.\n\n📅 *Horas Disponibles en Pedro Montt 249:*\n• Mañana martes 09:30 hrs\n• Jueves 11:00 hrs (Conexión especial bus rural)\n\n_Escribe el día de tu preferencia o *0* para volver al menú._`,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }
         ]);
@@ -127,10 +125,9 @@ export default function PurranqueDemoPage() {
     }
   };
 
-  // Simular envío de foto de camino rural
   const handleSendPhotoSimulation = () => {
     handleSendMessage(
-      "📸 Camino sector Hueyusca con bache profundo tras la lluvia",
+      "📸 Camino sector Hueyusca con bache profundo tras temporal",
       "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80"
     );
   };
@@ -159,16 +156,16 @@ export default function PurranqueDemoPage() {
           Ventanilla Única WhatsApp Purranque
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Canal automatizado para vecinos de Corte Alto, Hueyusca, Crucero y Purranque centro.
+          Plataforma de trámites categorizados para adultos mayores y sectores rurales de la comuna.
         </p>
       </header>
 
       <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        {/* Panel Izquierdo: Casos de Prueba */}
+        {/* Panel Izquierdo: Casos de Prueba Listos */}
         <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h2 className="font-semibold text-sm text-slate-200 flex items-center gap-2">
-              <Car className="w-4 h-4 text-emerald-400" /> Casos de Borde (Demo)
+              Pruebas Rápidas por Área
             </h2>
             <button
               onClick={restartDemo}
@@ -179,93 +176,107 @@ export default function PurranqueDemoPage() {
             </button>
           </div>
 
-          <p className="text-xs text-slate-400">
-            Haz clic en los botones para simular cada trámite en vivo:
-          </p>
-
           <div className="space-y-2">
-            {/* Botón 1: Pago Express */}
+            {/* Categoría 1: Tránsito */}
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
+              <Car className="w-3.5 h-3.5 text-emerald-400" /> Tránsito y Vehículos
+            </div>
+            
             <button
-              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("ABCD12"), 600); }}
-              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("ABCD12"), 800); }}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-emerald-400">
-                <span>1. Pago Express (ABCD12)</span>
-                <span className="text-[10px] bg-emerald-950/80 text-emerald-300 px-2 py-0.5 rounded">Al Día</span>
+                <span>Pago Express Permiso (ABCD12)</span>
+                <span className="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded">Corte Alto</span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-0.5">Corte Alto • Liquidación y pago Webpay</p>
             </button>
 
-            {/* Botón 2: Duplicado Instantáneo */}
             <button
-              onClick={() => { handleSendMessage("2"); setTimeout(() => handleSendMessage("ABCD12"), 600); }}
-              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("2"), 400); setTimeout(() => handleSendMessage("ABCD12"), 800); }}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-indigo-400">
-                <span>2. Duplicado de Permiso</span>
-                <span className="text-[10px] bg-indigo-950/80 text-indigo-300 px-2 py-0.5 rounded">PDF Directo</span>
+                <span>Duplicado de Permiso (PDF)</span>
+                <span className="text-[9px] bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded">Descarga</span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-0.5">Descarga copia histórica sin ir al municipio</p>
             </button>
 
-            {/* Botón 3: Licencia con ClaveÚnica */}
             <button
-              onClick={() => handleSendMessage("3")}
-              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("4"), 400); }}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-sky-400">
-                <span>3. Licencia + ClaveÚnica</span>
-                <span className="text-[10px] bg-sky-950/80 text-sky-300 px-2 py-0.5 rounded">Pre-chequeo</span>
+                <span>Licencia + ClaveÚnica</span>
+                <span className="text-[9px] bg-sky-950 text-sky-300 px-1.5 py-0.5 rounded">Pre-chequeo</span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-0.5">Evita el viaje rural si faltan papeles</p>
             </button>
 
-            {/* Botón 4: Patente Comercial */}
+            {/* Categoría 2: Negocios */}
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-3 flex items-center gap-1">
+              <Store className="w-3.5 h-3.5 text-amber-400" /> Rentas y Comercio
+            </div>
+
             <button
-              onClick={() => { handleSendMessage("4"); setTimeout(() => handleSendMessage("76123456-7"), 600); }}
-              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+              onClick={() => { handleSendMessage("2"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("76123456-7"), 800); }}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-amber-400">
-                <span>4. Patente Comercial (RUT)</span>
-                <span className="text-[10px] bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded">Rentas</span>
+                <span>Patente Comercial (76.123.456-7)</span>
+                <span className="text-[9px] bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded">Quesería</span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-0.5">Microempresa Quesería Corte Alto</p>
             </button>
 
-            {/* Botón 5: Reporte Anónimo con Foto */}
+            {/* Categoría 3: Vecinos */}
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-3 flex items-center gap-1">
+              <Home className="w-3.5 h-3.5 text-orange-400" /> Vecinos y Hogar
+            </div>
+
+            <button
+              onClick={() => { handleSendMessage("3"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("123-45"), 800); }}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-teal-400">
+                <span>Aseo Domiciliario (Rol 123-45)</span>
+                <span className="text-[9px] bg-teal-950 text-teal-300 px-1.5 py-0.5 rounded">P. Montt</span>
+              </div>
+            </button>
+
             <button
               onClick={() => {
-                handleSendMessage("5");
+                handleSendMessage("3");
                 setTimeout(() => {
-                  handleSendMessage("Hueyusca");
-                  setTimeout(() => handleSendPhotoSimulation(), 600);
-                }, 600);
+                  handleSendMessage("2");
+                  setTimeout(() => {
+                    handleSendMessage("Hueyusca");
+                    setTimeout(() => handleSendPhotoSimulation(), 500);
+                  }, 500);
+                }, 500);
               }}
-              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-orange-400">
-                <span className="flex items-center gap-1"><EyeOff className="w-3.5 h-3.5" /> 5. Reporte Anónimo + Foto</span>
-                <span className="text-[10px] bg-orange-950/80 text-orange-300 px-2 py-0.5 rounded">Sin Funas</span>
+                <span className="flex items-center gap-1"><EyeOff className="w-3 h-3" /> Reporte Camino + Foto</span>
+                <span className="text-[9px] bg-orange-950 text-orange-300 px-1.5 py-0.5 rounded">Anónimo</span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-0.5">Envío de foto de camino rural a Operaciones</p>
             </button>
 
-            {/* Botón de Cancelar / Volver al Menú */}
+            {/* Botón Universal Volver */}
             <button
               onClick={() => handleSendMessage("0")}
-              className="w-full text-center p-2 rounded-xl bg-slate-800/30 hover:bg-slate-800/70 border border-slate-700/40 text-xs font-semibold text-slate-300 transition flex items-center justify-center gap-1.5"
+              className="w-full text-center p-1.5 mt-2 rounded-xl bg-slate-800/30 hover:bg-slate-800/70 border border-slate-700/40 text-xs font-semibold text-slate-300 transition flex items-center justify-center gap-1"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Probar botón "Volver al Menú" (Escribe 0)
+              <ArrowLeft className="w-3 h-3" /> Volver al Menú (Escribe 0)
             </button>
           </div>
 
-          <div className="p-3 bg-blue-950/30 border border-blue-900/40 rounded-xl text-[11px] text-blue-300 space-y-1">
-            <div className="font-semibold flex items-center gap-1"><MapPin className="w-3 h-3" /> Impacto en Purranque:</div>
-            <div>Canal confidencial directo con el municipio que sustituye la exposición en Facebook/Instagram.</div>
+          <div className="p-2.5 bg-blue-950/30 border border-blue-900/40 rounded-xl text-[11px] text-blue-300">
+            <div className="font-semibold flex items-center gap-1"><MapPin className="w-3 h-3" /> Impacto Purranque:</div>
+            <div>Atención categorizada en 3 puertas claras para facilitar el uso a adultos mayores.</div>
           </div>
         </aside>
 
-        {/* Panel Derecho: Mock del Teléfono Celular (WhatsApp) */}
+        {/* Panel Derecho: WhatsApp */}
         <main className="md:col-span-7 bg-slate-900 border-4 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[650px]">
           {/* Header de WhatsApp */}
           <div className="bg-[#075E54] text-white p-3.5 flex items-center gap-3 shadow-md">
@@ -280,7 +291,7 @@ export default function PurranqueDemoPage() {
             </div>
           </div>
 
-          {/* Área de Mensajes */}
+          {/* Mensajes */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0b141a] text-sm">
             {messages.map((m) => (
               <div
@@ -294,16 +305,14 @@ export default function PurranqueDemoPage() {
                       : 'bg-[#202c33] text-slate-100 rounded-tl-none border border-slate-700/40'
                   }`}
                 >
-                  {/* Foto adjunta si el mensaje la tiene */}
                   {m.imageUrl && (
                     <div className="mb-2 rounded-lg overflow-hidden border border-emerald-700/50">
-                      <img src={m.imageUrl} alt="Evidencia Camino" className="w-full h-36 object-cover" />
+                      <img src={m.imageUrl} alt="Evidencia" className="w-full h-36 object-cover" />
                     </div>
                   )}
 
                   {m.text}
 
-                  {/* Botón de ClaveÚnica */}
                   {m.authUrl && (
                     <div className="mt-3 pt-2 border-t border-slate-700/60">
                       <a
@@ -337,16 +346,15 @@ export default function PurranqueDemoPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input de Envío con Botón de Cámara para Adjuntar Evidencia */}
+          {/* Formulario de Entrada */}
           <form
             onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
             className="p-3 bg-[#202c33] flex items-center gap-2 border-t border-slate-800"
           >
-            {/* Botón de Cámara para simular subida de imagen */}
             <button
               type="button"
               onClick={handleSendPhotoSimulation}
-              title="Adjuntar foto de evidencia (Caminos / Luminarias)"
+              title="Adjuntar foto (Caminos / Luminarias)"
               className="w-9 h-9 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-full flex items-center justify-center transition shrink-0"
             >
               <Camera className="w-4 h-4" />
@@ -356,7 +364,7 @@ export default function PurranqueDemoPage() {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Escribe un mensaje, opción o '0' para menú..."
+              placeholder="Escribe una opción (1, 2, 3), RUT, patente o '0'..."
               className="flex-1 bg-[#2a3942] text-white placeholder-slate-400 text-xs md:text-sm px-3.5 py-2.5 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00a884]"
             />
             <button
