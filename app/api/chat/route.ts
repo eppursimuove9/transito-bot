@@ -81,47 +81,85 @@ const PATENTES_COMERCIALES_DB: Record<string, any> = {
   }
 };
 
-export async function POST(req: Request) {
-  const { message, step } = await req.json();
-  const cleanMsg = message.trim().toUpperCase();
+const MENU_TEXT = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱
 
-  // Menú Principal
+¿Qué trámite deseas realizar?
+
+1️⃣ Pagar Permiso de Circulación (Pago Express)
+2️⃣ Obtener Duplicado de Permiso (Instantáneo)
+3️⃣ Agendar Licencia (Pre-chequeo rural sin filas)
+4️⃣ Consultar / Pagar Patente Comercial
+5️⃣ Reportar estado de camino o luminaria (100% Anónimo)
+
+_Responde con el número de tu opción (1-5) o escribe MENU en cualquier momento para volver._`;
+
+export async function POST(req: Request) {
+  const { message, step, hasImage } = await req.json();
+  const cleanMsg = (message || '').trim().toUpperCase();
+
+  // COMANDO UNIVERSAL: Regresar al menú desde cualquier parte
+  if (['0', 'MENU', 'VOLVER', 'CANCELAR', 'INICIO', 'HOLA', 'SALIR'].includes(cleanMsg)) {
+    return NextResponse.json({
+      reply: MENU_TEXT,
+      next_step: 'INIT'
+    });
+  }
+
+  // Paso Inicial: Menú Principal
   if (step === 'INIT') {
-    if (cleanMsg === '1' || cleanMsg.includes('PAGAR PERMISO')) {
+    if (cleanMsg === '1' || cleanMsg.includes('PAGAR')) {
       return NextResponse.json({
-        reply: "🚗 *Pago de Permiso de Circulación (Pago Express Purranque)*\n\nPor favor, escribe la *Placa Patente (PPU)* de tu vehículo (ej: `ABCD12`, `GFHY45`, `KJTR88`):",
+        reply: "🚗 *Pago de Permiso de Circulación (Pago Express Purranque)*\n\nPor favor, escribe la *Placa Patente (PPU)* de tu vehículo (ej: `ABCD12`, `GFHY45`):\n\n_Escribe *0* o *VOLVER* para regresar al menú._",
         next_step: 'AWAIT_PATENTE'
       });
     }
     if (cleanMsg === '2' || cleanMsg.includes('DUPLICADO')) {
       return NextResponse.json({
-        reply: "📄 *Obtener Duplicado de Permiso de Circulación*\n\nIngresa la *Patente* del vehículo para buscar tu documento histórico:",
+        reply: "📄 *Obtener Duplicado de Permiso de Circulación*\n\nIngresa la *Patente* del vehículo para buscar tu documento histórico:\n\n_Escribe *0* o *VOLVER* para regresar al menú._",
         next_step: 'AWAIT_DUPLICADO'
       });
     }
     if (cleanMsg === '3' || cleanMsg.includes('LICENCIA')) {
       return NextResponse.json({
-        reply: "🪪 *Licencias de Conducir - Pre-chequeo Rural*\n\nPara validar tu documentación antes de viajar a Purranque centro, necesitamos verificar tu identidad vía *ClaveÚnica*:",
+        reply: "🪪 *Licencias de Conducir - Pre-chequeo Rural*\n\nPara validar tu hoja de conductor antes de viajar a Purranque, requerimos autenticación vía *ClaveÚnica*:",
         requires_auth: true,
         tramite_id: "LIC-2026-PURR",
         next_step: 'AUTH_PENDING'
       });
     }
-    if (cleanMsg === '4' || cleanMsg.includes('COMERCIAL') || cleanMsg.includes('RENTA')) {
+    if (cleanMsg === '4' || cleanMsg.includes('COMERCIAL')) {
       return NextResponse.json({
-        reply: "🏪 *Patentes Comerciales e Industriales*\n\nIngresa el RUT de la empresa o titular (ej: `76123456-7`):",
+        reply: "🏪 *Patentes Comerciales e Industriales*\n\nIngresa el RUT de la empresa o titular (ej: `76123456-7`):\n\n_Escribe *0* o *VOLVER* para regresar al menú._",
         next_step: 'AWAIT_RUT_COMERCIAL'
       });
     }
-    if (cleanMsg === '5' || cleanMsg.includes('REPORTE') || cleanMsg.includes('CAMINO')) {
+    if (cleanMsg === '5' || cleanMsg.includes('REPORTE') || cleanMsg.includes('CAMINO') || cleanMsg.includes('ANONIMO')) {
       return NextResponse.json({
-        reply: "🚜 *Reportes de Caminos Rurales y Servicios Municipales*\n\n¿En qué sector se presenta el problema?\n1. Corte Alto\n2. Hueyusca\n3. Concordia / Crucero\n4. Manquemapu\n\n_Escribe el nombre del sector y una breve descripción:_ ",
-        next_step: 'AWAIT_REPORTE'
+        reply: "🚜 *Reportes de Caminos y Servicios Rurales (100% Anónimo)*\n\n🛡️ _Este canal es directo y privado con la Dirección de Operaciones de Purranque. Tu identidad está protegida para evitar exposiciones o funas en redes sociales._\n\n¿En qué sector rural está el incidente? (Corte Alto, Hueyusca, Concordia, Crucero, Manquemapu, etc.):\n\n_Escribe *0* o *VOLVER* para cancelar._",
+        next_step: 'AWAIT_SECTOR_REPORTE'
       });
     }
 
     return NextResponse.json({
-      reply: "👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱\n\n¿Qué trámite deseas realizar?\n\n1️⃣ Pagar Permiso de Circulación (Pago Express)\n2️⃣ Obtener Duplicado de Permiso (Instantáneo)\n3️⃣ Agendar Licencia (Pre-chequeo rural sin filas)\n4️⃣ Consultar / Pagar Patente Comercial\n5️⃣ Reportar estado de camino o luminaria rural\n\n_Responde con el número de tu opción._",
+      reply: `⚠️ Opción no reconocida.\n\n${MENU_TEXT}`,
+      next_step: 'INIT'
+    });
+  }
+
+  // Flujo Reporte Rural Anónimo: Paso 1 (Sector)
+  if (step === 'AWAIT_SECTOR_REPORTE') {
+    return NextResponse.json({
+      reply: `📍 Sector registrado: *${message}*.\n\n📸 Por favor, describe brevemente el problema y *adjunta una fotografía del camino o luminaria* (usa el botón de la cámara 📷 en el chat para enviar la imagen).\n\n_Escribe *0* o *VOLVER* para cancelar._`,
+      next_step: 'AWAIT_FOTO_REPORTE',
+      sector: message
+    });
+  }
+
+  // Flujo Reporte Rural Anónimo: Paso 2 (Foto y Confirmación)
+  if (step === 'AWAIT_FOTO_REPORTE') {
+    const folio = "REP-" + Math.floor(1000 + Math.random() * 9000);
+    return NextResponse.json({
+      reply: `✅ *Reporte Recibido y Foliado (#${folio})*\n\n📸 *Evidencia fotográfica:* Adjuntada correctamente.\n🛡️ *Privacidad:* Registro anónimo sin datos públicos.\n🚜 *Derivación:* Cuadrilla de Maquinaria y Caminos Rurales asignada.\n\nTe notificaremos por este canal cuando el equipo municipal inspeccione el terreno.\n\n_Escribe *MENU* para realizar otro trámite._`,
       next_step: 'INIT'
     });
   }
@@ -131,12 +169,12 @@ export async function POST(req: Request) {
     const v = VEHICULOS_DB[cleanMsg];
     if (!v) {
       return NextResponse.json({
-        reply: `⚠️ No se encontró registro histórico para la patente *${cleanMsg}* en Purranque. Escribe *HOLA* para volver.`,
-        next_step: 'INIT'
+        reply: `⚠️ No se encontró registro para la patente *${cleanMsg}*.\n\n_Escribe otra patente o escribe *0* para volver al menú principal._`,
+        next_step: 'AWAIT_DUPLICADO'
       });
     }
     return NextResponse.json({
-      reply: `✅ *Duplicado Encontrado*\n\nVehículo: *${v.marca} ${v.modelo}*\nFolio SUBDERE: *${v.folio_anterior}*\nPropietario: *${v.propietario}* (RUN: ${v.propietario_run})\n\n📄 Tu copia digital timbrada está lista:\n👉 [Descargar_Duplicado_${v.ppu}.pdf]\n\n_Válido para presentar ante Carabineros o Juzgados._`,
+      reply: `✅ *Duplicado Encontrado*\n\nVehículo: *${v.marca} ${v.modelo}*\nFolio SUBDERE: *${v.folio_anterior}*\nPropietario: *${v.propietario}* (RUN: ${v.propietario_run})\n\n📄 Tu copia oficial digital:\n👉 [Descargar_Duplicado_${v.ppu}.pdf]\n\n_Escribe *MENU* para volver al inicio._`,
       next_step: 'INIT'
     });
   }
@@ -147,21 +185,13 @@ export async function POST(req: Request) {
     const p = PATENTES_COMERCIALES_DB[rawRut];
     if (!p) {
       return NextResponse.json({
-        reply: `⚠️ RUT no encontrado en el catastro de Rentas. Para la demo usa el RUT: \`76123456-7\` (Quesería Corte Alto).`,
+        reply: `⚠️ RUT no encontrado en catastro. (Demo: usa \`76123456-7\`).\n\n_Escribe otro RUT o *0* para volver al menú._`,
         next_step: 'AWAIT_RUT_COMERCIAL'
       });
     }
     return NextResponse.json({
-      reply: `🏪 *Patente Comercial Encontrada*\n\n• Razón Social: *${p.razon_social}*\n• Rol: *${p.rol_patente}*\n• Tipo: *${p.tipo}*\n• Estado: *AL DÍA*\n• Valor 1er Semestre 2026: *$${p.monto_semestre.toLocaleString('es-CL')}*\n\n¿Deseas pagar en línea este semestre? Responde *SI* o escribe *HOLA* para volver.`,
+      reply: `🏪 *Patente Comercial Encontrada*\n\n• Razón Social: *${p.razon_social}*\n• Rol: *${p.rol_patente}*\n• Tipo: *${p.tipo}*\n• Estado: *AL DÍA*\n• Valor 1er Semestre 2026: *$${p.monto_semestre.toLocaleString('es-CL')}*\n\n¿Deseas pagar en línea este semestre? Responde *SI* o escribe *0* para volver.`,
       next_step: 'CONFIRM_PAYMENT'
-    });
-  }
-
-  // Flujo Reportes Rurales
-  if (step === 'AWAIT_REPORTE') {
-    return NextResponse.json({
-      reply: `📋 *Ticket Municipal Registrado (#REC-2026-1092)*\n\nTu solicitud fue derivada a la *Dirección de Operaciones y Caminos Rurales de Purranque*.\n\nTe notificaremos por este mismo chat cuando la cuadrilla municipal acuda al lugar. ¡Gracias por colaborar con la comuna! 🌾`,
-      next_step: 'INIT'
     });
   }
 
@@ -171,14 +201,14 @@ export async function POST(req: Request) {
 
     if (!vehiculo) {
       return NextResponse.json({
-        reply: `⚠️ La patente *${cleanMsg}* no figura en Purranque.\n\nPatentes de prueba demo:\n• \`ABCD12\` (Al día - Corte Alto)\n• \`GFHY45\` (Con multas JPL - Hueyusca)\n• \`KJTR88\` (Revisión Vencida)\n• \`LLPP90\` (Traslado desde Osorno)`,
+        reply: `⚠️ La patente *${cleanMsg}* no figura en Purranque.\n\nPatentes de prueba demo:\n• \`ABCD12\` (Al día - Corte Alto)\n• \`GFHY45\` (Con multas JPL - Hueyusca)\n• \`KJTR88\` (Revisión Vencida)\n\n_Escribe otra patente o *0* para volver al menú._`,
         next_step: 'AWAIT_PATENTE'
       });
     }
 
     if (!vehiculo.prt_vigente) {
       return NextResponse.json({
-        reply: `🛑 *Trámite Bloqueado por Revisión Técnica*\n\nVehículo: *${vehiculo.marca} ${vehiculo.modelo}*\nSector: *${vehiculo.sector}*\n\nTu Revisión Técnica figura *VENCIDA (${vehiculo.prt_vence})*.\n\nℹ️ Para no viajar en vano al centro de Purranque, debes regularizarla en una planta PRT autorizada antes de pagar.`,
+        reply: `🛑 *Trámite Bloqueado por Revisión Técnica*\n\nVehículo: *${vehiculo.marca} ${vehiculo.modelo}*\nSector: *${vehiculo.sector}*\n\nTu Revisión Técnica figura *VENCIDA (${vehiculo.prt_vence})*.\n\nℹ️ Para no perder el viaje a Purranque, debes regularizarla en una planta PRT autorizada antes de pagar.\n\n_Escribe *MENU* para volver al inicio._`,
         next_step: 'INIT'
       });
     }
@@ -200,7 +230,7 @@ export async function POST(req: Request) {
     }
 
     detalle += `• *TOTAL A PAGAR: $${totalPagar.toLocaleString('es-CL')}*\n\n`;
-    detalle += `¿Deseas pagar ahora con Webpay / Tesorería?\n\nResponde *SI* para confirmar o *NO* para cancelar.`;
+    detalle += `¿Deseas pagar ahora vía Webpay?\n\nResponde *SI* para confirmar o *0* para volver al menú.`;
 
     return NextResponse.json({
       reply: detalle,
@@ -208,29 +238,31 @@ export async function POST(req: Request) {
     });
   }
 
-  // Confirmación de pago
+  // Confirmación de Pago
   if (step === 'CONFIRM_PAYMENT') {
     if (cleanMsg === 'SI' || cleanMsg === 'SÍ') {
       return NextResponse.json({
-        reply: `💳 *Pasarela Segura Municipal*\n\nAccede a pagar con Webpay / Débito / Tarjetas:\n🔗 https://pagos.purranque.cl/pay/tx_998234\n\n⏳ _Expira en 15 minutos._\n\n*(Escribe 'PAGADO' para simular la confirmación bancaria)*`,
+        reply: `💳 *Pasarela Segura Municipal*\n\nAccede a pagar con Webpay / Débito / Tarjetas:\n🔗 https://pagos.purranque.cl/pay/tx_998234\n\n⏳ _Expira en 15 minutos._\n\n*(Escribe 'PAGADO' para simular la confirmación bancaria o '0' para cancelar)*`,
         next_step: 'AWAIT_WEBHOOK'
       });
     }
     return NextResponse.json({
-      reply: "Operación cancelada. Escribe 'HOLA' para volver al inicio.",
+      reply: `Operación cancelada.\n\n${MENU_TEXT}`,
       next_step: 'INIT'
     });
   }
 
   if (step === 'AWAIT_WEBHOOK') {
-    return NextResponse.json({
-      reply: `🎉 *¡Pago Aprobado Exitosamente!* (Folio SUBDERE: #PUR-2026-9041)\n\nAdjuntamos tu *Permiso de Circulación 2026* timbrado digitalmente.\n\n📄 [Descargar Permiso_2026_ABCD12.pdf]\n\n¡Gracias por aportar a los caminos y progreso de Purranque! 🚜`,
-      next_step: 'INIT'
-    });
+    if (cleanMsg === 'PAGADO') {
+      return NextResponse.json({
+        reply: `🎉 *¡Pago Aprobado Exitosamente!* (Folio SUBDERE: #PUR-2026-9041)\n\nAdjuntamos tu *Permiso de Circulación 2026* con firma electrónica.\n\n📄 [Descargar Permiso_2026_ABCD12.pdf]\n\n¡Gracias por aportar al progreso de Purranque! 🚜\n\n_Escribe *MENU* para realizar otro trámite._`,
+        next_step: 'INIT'
+      });
+    }
   }
 
   return NextResponse.json({
-    reply: "Escribe *HOLA* para ver el menú de trámites.",
+    reply: MENU_TEXT,
     next_step: 'INIT'
   });
 }
