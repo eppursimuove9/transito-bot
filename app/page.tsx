@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Shield, Car, Camera, MapPin, ExternalLink, RefreshCw, EyeOff, Store, Home, ArrowLeft, Trash2 } from 'lucide-react';
+import { Send, Shield, Car, Camera, MapPin, ExternalLink, RefreshCw, EyeOff, Store, Home, ArrowLeft, Trash2, PhoneCall } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -19,8 +19,9 @@ Selecciona el área de tu trámite:
 1️⃣ 🚗 *Tránsito y Vehículos* (Permisos, Duplicados, Licencias, Multas)
 2️⃣ 🏪 *Negocios y Rentas* (Patentes Comerciales, Ferias, Certificados)
 3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Caminos, Ramas y Retiro de Chatarra)
+0️⃣ 👤 *Solicitar que un funcionario municipal me llame*
 
-_Escribe el número de tu opción (1, 2 o 3)._`;
+_Escribe el número de tu opción (1, 2, 3 o 0)._`;
 
 export default function PurranqueDemoPage() {
   const [messages, setMessages] = useState<Message[]>([
@@ -57,7 +58,7 @@ export default function PurranqueDemoPage() {
           {
             id: Date.now().toString(),
             sender: 'bot',
-            text: `✅ *Identidad Validada con ClaveÚnica*\n\nHola *${parsed.nombre}* (Sector ${parsed.sector}).\n\nHemos pre-chequeado tu Hoja de Vida y Cédula.\n\n📅 *Horas Disponibles en Pedro Montt 249:*\n• Mañana martes 09:30 hrs\n• Jueves 11:00 hrs (Conexión especial bus rural)\n\n_Escribe el día de tu preferencia o *0* para volver al menú._`,
+            text: `✅ *Identidad Validada con ClaveÚnica*\n\nHola *${parsed.nombre}* (Sector ${parsed.sector}).\n\nHemos pre-chequeado tu Hoja de Vida y Cédula.\n\n📅 *Horas Disponibles en Pedro Montt 249:*\n• Mañana martes 09:30 hrs\n• Jueves 11:00 hrs (Conexión especial bus rural)\n\n_Escribe el día de tu preferencia o *MENU* para volver._`,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }
         ]);
@@ -173,7 +174,7 @@ export default function PurranqueDemoPage() {
           Ventanilla Única WhatsApp Purranque
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Plataforma modular para vecinos urbanos y rurales con soporte de fotos y feedback.
+          Plataforma de trámites municipales con fotos de evidencia, derivación telefónica y feedback ciudadano.
         </p>
       </header>
 
@@ -234,7 +235,7 @@ export default function PurranqueDemoPage() {
               </div>
             </button>
 
-            {/* Categoría 3: Vecinos y Medio Ambiente */}
+            {/* Categoría 3: Vecinos y Operaciones */}
             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
               <Home className="w-3.5 h-3.5 text-orange-400" /> Vecinos y Operaciones
             </div>
@@ -299,12 +300,28 @@ export default function PurranqueDemoPage() {
               </div>
             </button>
 
-            {/* Botón Volver */}
+            {/* Categoría 4: Asistencia Humana */}
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
+              <PhoneCall className="w-3.5 h-3.5 text-purple-400" /> Asistencia Municipal
+            </div>
+
             <button
               onClick={() => handleSendMessage("0")}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-purple-400">
+                <span className="flex items-center gap-1">📞 Solicitar Llamado (Callback)</span>
+                <span className="text-[9px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded">Ticket #ATN</span>
+              </div>
+              <p className="text-[10px] text-slate-300 mt-0.5">Orden de contacto telefónico para funcionario</p>
+            </button>
+
+            {/* Botón Universal Volver */}
+            <button
+              onClick={() => handleSendMessage("MENU")}
               className="w-full text-center p-1.5 mt-2 rounded-xl bg-slate-800/30 hover:bg-slate-800/70 border border-slate-700/40 text-xs font-semibold text-slate-300 transition flex items-center justify-center gap-1"
             >
-              <ArrowLeft className="w-3 h-3" /> Volver al Menú (Escribe 0)
+              <ArrowLeft className="w-3 h-3" /> Volver al Menú (Escribe MENU)
             </button>
           </div>
         </aside>
@@ -379,7 +396,7 @@ export default function PurranqueDemoPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Formulario de Entrada con Botón de Cámara */}
+          {/* Formulario de Entrada */}
           <form
             onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
             className="p-3 bg-[#202c33] flex items-center gap-2 border-t border-slate-800"
@@ -387,7 +404,7 @@ export default function PurranqueDemoPage() {
             <button
               type="button"
               onClick={handleSendChatarraPhoto}
-              title="Adjuntar foto de chatarra / baterías"
+              title="Adjuntar foto (Cámara)"
               className="w-9 h-9 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-full flex items-center justify-center transition shrink-0"
             >
               <Camera className="w-4 h-4" />
@@ -397,7 +414,7 @@ export default function PurranqueDemoPage() {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Escribe una opción (1, 2, 3), nota (1 a 7) o '0'..."
+              placeholder="Escribe una opción (1, 2, 3, 0) o 'MENU'..."
               className="flex-1 bg-[#2a3942] text-white placeholder-slate-400 text-xs md:text-sm px-3.5 py-2.5 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00a884]"
             />
             <button
