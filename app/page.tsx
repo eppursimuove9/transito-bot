@@ -11,12 +11,24 @@ interface Message {
   authUrl?: string;
 }
 
+const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱
+
+¿Qué trámite deseas realizar?
+
+1️⃣ Pagar Permiso de Circulación (Pago Express)
+2️⃣ Obtener Duplicado de Permiso (Instantáneo)
+3️⃣ Agendar Licencia (Pre-chequeo rural sin filas)
+4️⃣ Consultar / Pagar Patente Comercial
+5️⃣ Reportar estado de camino o luminaria rural
+
+_Responde con el número de tu opción o tu patente directamente._`;
+
 export default function PurranqueDemoPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       sender: 'bot',
-      text: "👋 ¡Hola! Bienvenido al asistente oficial de la *Ilustre Municipalidad de Purranque* 🇨🇱\n\n¿Qué trámite deseas realizar?\n\n1️⃣ Pagar Permiso de Circulación\n2️⃣ Agendar Licencia (Pre-chequeo rural sin filas)\n3️⃣ Consultar estado de caminos y OIRS\n\n_Escribe el número de tu opción o tu patente directamente._",
+      text: MENSAJE_INICIAL,
       timestamp: '10:00'
     }
   ]);
@@ -118,7 +130,7 @@ export default function PurranqueDemoPage() {
       {
         id: '1',
         sender: 'bot',
-        text: "👋 ¡Hola! Bienvenido al asistente oficial de la *Ilustre Municipalidad de Purranque* 🇨🇱\n\n¿Qué trámite deseas realizar?\n\n1️⃣ Pagar Permiso de Circulación\n2️⃣ Agendar Licencia (Pre-chequeo rural sin filas)\n3️⃣ Consultar estado de caminos y OIRS\n\n_Escribe el número de tu opción o tu patente directamente._",
+        text: MENSAJE_INICIAL,
         timestamp: '10:00'
       }
     ]);
@@ -127,20 +139,20 @@ export default function PurranqueDemoPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4">
       {/* Encabezado de la Demo */}
-      <header className="max-w-4xl w-full text-center mb-6">
+      <header className="max-w-5xl w-full text-center mb-6">
         <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300 mb-3">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           Piloto de Transformación Digital • I. Municipalidad de Purranque
         </div>
         <h1 className="text-3xl font-bold text-white tracking-tight">
-          Asistente de Tránsito & Conectividad Rural
+          Ventanilla Única WhatsApp Purranque
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Simulador en vivo del canal de WhatsApp para vecinos de Corte Alto, Hueyusca, Crucero y Purranque centro.
+          Simulador en vivo del canal de atención ciudadana para Corte Alto, Hueyusca, Crucero y Purranque centro.
         </p>
       </header>
 
-      <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+      <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
         {/* Panel Izquierdo: Casos de Prueba Listos para Probar */}
         <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -161,48 +173,64 @@ export default function PurranqueDemoPage() {
           </p>
 
           <div className="space-y-2">
+            {/* Botón 1: Pago Express */}
             <button
               onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("ABCD12"), 500); }}
-              className="w-full text-left p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition group"
+              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-emerald-400">
-                <span>ABCD12 • Hilux 4x4</span>
+                <span>1. Pago Express (ABCD12)</span>
                 <span className="text-[10px] bg-emerald-950/80 text-emerald-300 px-2 py-0.5 rounded">Al Día</span>
               </div>
-              <p className="text-xs text-slate-300 mt-1">Corte Alto • Sin multas • Pago directo</p>
+              <p className="text-[11px] text-slate-300 mt-0.5">Corte Alto • Liquidación y pago Webpay</p>
             </button>
 
+            {/* Botón 2: Duplicado Instantáneo */}
             <button
-              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("GFHY45"), 500); }}
-              className="w-full text-left p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+              onClick={() => { handleSendMessage("2"); setTimeout(() => handleSendMessage("ABCD12"), 500); }}
+              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
-              <div className="flex justify-between items-center text-xs font-semibold text-amber-400">
-                <span>GFHY45 • Terrano</span>
-                <span className="text-[10px] bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded">Con Multas</span>
+              <div className="flex justify-between items-center text-xs font-semibold text-indigo-400">
+                <span>2. Duplicado de Permiso</span>
+                <span className="text-[10px] bg-indigo-950/80 text-indigo-300 px-2 py-0.5 rounded">PDF Directo</span>
               </div>
-              <p className="text-xs text-slate-300 mt-1">Hueyusca • Multa JPL $35.000 liquidada</p>
+              <p className="text-[11px] text-slate-300 mt-0.5">Descarga copia histórica sin ir al municipio</p>
             </button>
 
+            {/* Botón 3: Licencia con ClaveÚnica */}
             <button
-              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("KJTR88"), 500); }}
-              className="w-full text-left p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-rose-400">
-                <span>KJTR88 • Chevrolet</span>
-                <span className="text-[10px] bg-rose-950/80 text-rose-300 px-2 py-0.5 rounded">Revisión Vencida</span>
-              </div>
-              <p className="text-xs text-slate-300 mt-1">Crucero • Alerta para evitar viaje en vano</p>
-            </button>
-
-            <button
-              onClick={() => handleSendMessage("2")}
-              className="w-full text-left p-3 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+              onClick={() => handleSendMessage("3")}
+              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-sky-400">
-                <span>Licencia con ClaveÚnica</span>
-                <span className="text-[10px] bg-sky-950/80 text-sky-300 px-2 py-0.5 rounded">OIDC / PKCE</span>
+                <span>3. Licencia + ClaveÚnica</span>
+                <span className="text-[10px] bg-sky-950/80 text-sky-300 px-2 py-0.5 rounded">Pre-chequeo</span>
               </div>
-              <p className="text-xs text-slate-300 mt-1">Pre-chequeo rural con autenticación estatal</p>
+              <p className="text-[11px] text-slate-300 mt-0.5">Evita el viaje rural si faltan papeles</p>
+            </button>
+
+            {/* Botón 4: Patente Comercial */}
+            <button
+              onClick={() => { handleSendMessage("4"); setTimeout(() => handleSendMessage("76123456-7"), 500); }}
+              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-amber-400">
+                <span>4. Patente Comercial (RUT)</span>
+                <span className="text-[10px] bg-amber-950/80 text-amber-300 px-2 py-0.5 rounded">Rentas</span>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5">Microempresa Quesería Corte Alto</p>
+            </button>
+
+            {/* Botón 5: Reporte Rural */}
+            <button
+              onClick={() => { handleSendMessage("5"); setTimeout(() => handleSendMessage("Hueyusca camino con barro"), 500); }}
+              className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-orange-400">
+                <span>5. Reporte Camino Rural</span>
+                <span className="text-[10px] bg-orange-950/80 text-orange-300 px-2 py-0.5 rounded">Operaciones</span>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5">Ticket automático para cuadrilla municipal</p>
             </button>
           </div>
 
@@ -213,14 +241,14 @@ export default function PurranqueDemoPage() {
         </aside>
 
         {/* Panel Derecho: Mock del Teléfono Celular (WhatsApp) */}
-        <main className="md:col-span-7 bg-slate-900 border-4 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[620px]">
+        <main className="md:col-span-7 bg-slate-900 border-4 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[640px]">
           {/* Header de WhatsApp */}
           <div className="bg-[#075E54] text-white p-3.5 flex items-center gap-3 shadow-md">
             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm border border-white/20">
               🇨🇱
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm leading-tight truncate">Muni Purranque • Tránsito</h3>
+              <h3 className="font-semibold text-sm leading-tight truncate">Muni Purranque • Ventanilla Única</h3>
               <p className="text-[11px] text-emerald-200 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-300"></span> Bot Oficial Verificado
               </p>
@@ -286,7 +314,7 @@ export default function PurranqueDemoPage() {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Escribe un mensaje o patente..."
+              placeholder="Escribe una opción, RUT o patente..."
               className="flex-1 bg-[#2a3942] text-white placeholder-slate-400 text-xs md:text-sm px-3.5 py-2.5 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00a884]"
             />
             <button
