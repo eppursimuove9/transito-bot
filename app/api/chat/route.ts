@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+// --- BASE DE DATOS TRANSACCIONAL ---
 const VEHICULOS_DB: Record<string, any> = {
   "ABCD12": {
     ppu: "ABCD12",
@@ -75,16 +76,37 @@ const ASEO_DOMICILIARIO_DB: Record<string, any> = {
   }
 };
 
+// --- BASE DE CONOCIMIENTO MUNICIPAL (RAG SIMULADO) ---
+const KNOWLEDGE_BASE = [
+  {
+    keywords: ["EVENTO", "VERANO", "FIESTA", "COSTUMBRISTA", "FESTIVAL", "SEMANA", "SHOW"],
+    response: `🎭 *Eventos y Actividades de Verano 2026*\n\n• *Festival Costumbrista de Hueyusca:* Sábado y Domingo en Recinto Los Castaños (Música en vivo, gastronomía típica y artesanía).\n• *Feria de Tradiciones Corte Alto:* Próximo fin de semana en Plaza de Armas.\n• *Noche Purranquina:* Cierre del verano con artistas nacionales en el Gimnasio Municipal.\n\n📄 [Descargar_Programa_Completo_Verano_2026.pdf]\n\n_Escribe otra pregunta o *MENU* para volver._`
+  },
+  {
+    keywords: ["FARMACIA", "TURNO", "MEDICAMENTO", "REMEDIO", "SALUD"],
+    response: `💊 *Farmacia de Turno en Purranque*\n\n• *Farmacia Cruz Verde (Pedro Montt 210)*\n• *Turno:* 24 Horas disponible hoy.\n• *Fono Central:* +56 64 235 1200\n• *CESFAM Purranque Urgencias (SAPU):* Abierto 24/7 en 21 de Mayo 450.\n\n_Escribe otra pregunta o *MENU* para volver._`
+  },
+  {
+    keywords: ["TELEFONO", "ANEXO", "NUMERO", "CONTACTO", "DIDECO", "OBRAS", "DOM", "ALCALDIA"],
+    response: `📞 *Directorio y Anexos Telefónicos Municipales*\n\n• *Central Telefónica:* +56 64 235 1200\n• *DIDECO (Social y Subsidios):* Anexo 104 • \`dideco@purranque.cl\`\n• *Dirección de Obras (DOM):* Anexo 108 • \`obras@purranque.cl\`\n• *Tránsito y Licencias:* Anexo 112 • \`transito@purranque.cl\`\n• *Seguridad Ciudadana & Cuadrante:* +56 9 8765 4321 (24/7)\n\n_Escribe otra pregunta o *MENU* para volver._`
+  },
+  {
+    keywords: ["SUBSIDIO", "AGUA", "RSH", "REGISTRO SOCIAL", "LEÑA", "AYUDA SOCIAL"],
+    response: `🤝 *Subsidios y Beneficios Sociales DIDECO*\n\n• *Subsidio al Agua Potable Rural (APR):* Postulaciones abiertas en DIDECO (Requisito: RSH hasta el 60%).\n• *Actualización de Registro Social de Hogares:* Atención de lunes a viernes de 08:30 a 14:00 hrs.\n\n📄 [Descargar_Guia_Postulacion_Subsidios_2026.pdf]\n\n_Escribe otra pregunta o *MENU* para volver._`
+  }
+];
+
 const MENU_PRINCIPAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱
 
 Selecciona el área de tu trámite:
 
 1️⃣ 🚗 *Tránsito y Vehículos* (Permisos, Duplicados, Licencias, Multas)
 2️⃣ 🏪 *Negocios y Rentas* (Patentes Comerciales, Ferias, Certificados)
-3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Caminos, Ramas y Retiro de Chatarra)
-0️⃣ 👤 *Hablar con un funcionario municipal*
+3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Caminos, Ramas y Chatarra)
+4️⃣ ℹ️ *Información, Eventos y Guía Comunal* (Preguntas Libres / RAG)
+0️⃣ 👤 *Solicitar que un funcionario municipal me llame*
 
-_Escribe el número de tu opción (1, 2, 3 o 0)._`;
+_Escribe el número de tu opción (1, 2, 3, 4 o 0)._`;
 
 const MENU_TRANSITO = `🚗 *Dirección de Tránsito - Municipalidad de Purranque*
 
@@ -120,7 +142,7 @@ export async function POST(req: Request) {
   if (['0', 'EJECUTIVO', 'HUMANO', 'PERSONA', 'FUNCIONARIO', 'SECRETARIA', 'AYUDA'].includes(cleanMsg)) {
     const ticketId = "ATN-" + Math.floor(1000 + Math.random() * 9000);
     return NextResponse.json({
-      reply: `👤 *Transferencia a Ejecutivo Municipal (#${ticketId})*\n\nTe estamos conectando con un funcionario de la Municipalidad de Purranque.\n\n⏰ *Horario de Atención:* Lunes a Viernes de 08:30 a 14:00 hrs.\n\n_Tu conversación fue asignada a la bandeja de entrada municipal. Un ejecutivo responderá en breve por este mismo chat._\n\n*(Escribe 'MENU' en cualquier momento si deseas volver al asistente automatizado)*`,
+      reply: `👤 *Solicitud de Contacto Telefónico (#${ticketId})*\n\nUn funcionario municipal se comunicará contigo al teléfono asociado a este chat.\n\n⏰ *Horario de Atención:* Lunes a Viernes de 08:30 a 14:00 hrs.\n\n_Tu orden fue enviada a la bandeja institucional con todo el historial de la conversación._\n\n*(Escribe 'MENU' para volver al asistente automatizado)*`,
       next_step: 'AWAIT_HUMAN_CHAT'
     });
   }
@@ -135,7 +157,7 @@ export async function POST(req: Request) {
 
   if (step === 'AWAIT_HUMAN_CHAT') {
     return NextResponse.json({
-      reply: `📩 *Mensaje recibido por el equipo municipal:* "${message}"\n\nEl funcionario asignado está revisando tus antecedentes en el sistema.\n\n_Escribe *MENU* para volver a la atención automática._`,
+      reply: `📩 *Mensaje anexado al ticket:* "${message}"\n\nEl funcionario revisará tus antecedentes antes de llamarte.\n\n_Escribe *MENU* para volver al menú principal._`,
       next_step: 'AWAIT_HUMAN_CHAT'
     });
   }
@@ -143,21 +165,27 @@ export async function POST(req: Request) {
   // --- 1. MENÚ PRINCIPAL ---
   if (step === 'INIT') {
     if (cleanMsg === '1' || cleanMsg.includes('TRANSITO') || cleanMsg.includes('VEHICULO')) {
-      return NextResponse.json({
-        reply: MENU_TRANSITO,
-        next_step: 'SUBMENU_TRANSITO'
-      });
+      return NextResponse.json({ reply: MENU_TRANSITO, next_step: 'SUBMENU_TRANSITO' });
     }
     if (cleanMsg === '2' || cleanMsg.includes('COMERCIO') || cleanMsg.includes('RENTA') || cleanMsg.includes('NEGOCIO')) {
-      return NextResponse.json({
-        reply: MENU_RENTAS,
-        next_step: 'SUBMENU_RENTAS'
-      });
+      return NextResponse.json({ reply: MENU_RENTAS, next_step: 'SUBMENU_RENTAS' });
     }
     if (cleanMsg === '3' || cleanMsg.includes('VECINO') || cleanMsg.includes('HOGAR') || cleanMsg.includes('ASEO') || cleanMsg.includes('CAMINO') || cleanMsg.includes('CHATARRA')) {
+      return NextResponse.json({ reply: MENU_VECINOS, next_step: 'SUBMENU_VECINOS' });
+    }
+    if (cleanMsg === '4' || cleanMsg.includes('INFO') || cleanMsg.includes('EVENTO') || cleanMsg.includes('GUIA') || cleanMsg.includes('PREGUNTA')) {
       return NextResponse.json({
-        reply: MENU_VECINOS,
-        next_step: 'SUBMENU_VECINOS'
+        reply: `ℹ️ *Centro de Información, Eventos y Guía Comunal (RAG)*\n\nPregúntame lo que necesites en lenguaje natural, por ejemplo:\n• _"¿Qué eventos hay este fin de semana?"_\n• _"¿Cuál es la farmacia de turno hoy?"_\n• _"¿Qué número tiene DIDECO u Obras?"_\n• _"¿Cómo postular al subsidio de agua potable?"_\n\n_Escribe tu consulta o *MENU* para volver._`,
+        next_step: 'AWAIT_RAG_QUERY'
+      });
+    }
+
+    // Si el usuario escribe una pregunta abierta directamente en el inicio, intentamos procesarla vía RAG
+    const ragMatch = KNOWLEDGE_BASE.find(item => item.keywords.some(kw => cleanMsg.includes(kw)));
+    if (ragMatch) {
+      return NextResponse.json({
+        reply: `${ragMatch.response}`,
+        next_step: 'AWAIT_RAG_QUERY'
       });
     }
 
@@ -167,11 +195,29 @@ export async function POST(req: Request) {
     });
   }
 
+  // --- RAG: PROCESAMIENTO DE PREGUNTAS LIBRES ---
+  if (step === 'AWAIT_RAG_QUERY') {
+    const match = KNOWLEDGE_BASE.find(item => item.keywords.some(kw => cleanMsg.includes(kw)));
+    
+    if (match) {
+      return NextResponse.json({
+        reply: `${match.response}`,
+        next_step: 'AWAIT_RAG_QUERY'
+      });
+    }
+
+    // Guardrail: Protección de tokens fuera de contexto municipal
+    return NextResponse.json({
+      reply: `🏛️ *Asistente Municipal de Purranque*\n\nNo encontré información oficial sobre "${message}". Recuerda que solo puedo resolver consultas sobre trámites, eventos, directorios y beneficios de la comuna.\n\n💡 *Puedes consultar por:* Eventos de verano, Farmacias de turno, Teléfonos de departamentos o Subsidios.\n\n_O escribe *0* para solicitar que un funcionario te llame._`,
+      next_step: 'AWAIT_RAG_QUERY'
+    });
+  }
+
   // --- 2. SUBMENÚ TRÁNSITO ---
   if (step === 'SUBMENU_TRANSITO') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: "🚗 *Pago Express de Permiso de Circulación*\n\nIngresa la *Placa Patente (PPU)* de tu vehículo (ej: `ABCD12`, `GFHY45`):\n\n_Escribe *MENU* para volver o *0* para hablar con un funcionario._",
+        reply: "🚗 *Pago Express de Permiso de Circulación*\n\nIngresa la *Placa Patente (PPU)* de tu vehículo (ej: `ABCD12`, `GFHY45`):\n\n_Escribe *MENU* para volver o *0* para un funcionario._",
         next_step: 'AWAIT_PATENTE'
       });
     }
@@ -247,7 +293,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // --- PROCESAMIENTO DE CASOS ESPECÍFICOS ---
+  // --- CASOS ESPECÍFICOS TRANSACCIONALES ---
 
   // Tránsito: Pago Express
   if (step === 'AWAIT_PATENTE') {
@@ -348,7 +394,7 @@ export async function POST(req: Request) {
     });
   }
 
-  // Vecinos: Reporte Anónimo Camino (Paso 1)
+  // Vecinos: Reporte Anónimo Camino
   if (step === 'AWAIT_SECTOR_REPORTE') {
     return NextResponse.json({
       reply: `📍 Sector registrado: *${message}*.\n\n📸 Describe brevemente el problema y adjunta una fotografía (usa el botón de la cámara 📷 en el chat):\n\n_Escribe *MENU* para cancelar._`,
@@ -356,7 +402,6 @@ export async function POST(req: Request) {
     });
   }
 
-  // Vecinos: Reporte Anónimo Camino (Paso 2 con Foto)
   if (step === 'AWAIT_FOTO_REPORTE') {
     const folio = "REP-" + Math.floor(1000 + Math.random() * 9000);
     return NextResponse.json({

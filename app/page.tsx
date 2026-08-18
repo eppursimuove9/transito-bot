@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Shield, Car, Camera, MapPin, ExternalLink, RefreshCw, EyeOff, Store, Home, ArrowLeft, Trash2, PhoneCall } from 'lucide-react';
+import { Send, Shield, Car, Camera, MapPin, ExternalLink, RefreshCw, EyeOff, Store, Home, ArrowLeft, Trash2, PhoneCall, Sparkles, BookOpen } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -18,10 +18,11 @@ Selecciona el área de tu trámite:
 
 1️⃣ 🚗 *Tránsito y Vehículos* (Permisos, Duplicados, Licencias, Multas)
 2️⃣ 🏪 *Negocios y Rentas* (Patentes Comerciales, Ferias, Certificados)
-3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Caminos, Ramas y Retiro de Chatarra)
+3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Caminos, Ramas y Chatarra)
+4️⃣ ℹ️ *Información, Eventos y Guía Comunal* (Preguntas Libres / RAG)
 0️⃣ 👤 *Solicitar que un funcionario municipal me llame*
 
-_Escribe el número de tu opción (1, 2, 3 o 0)._`;
+_Escribe el número de tu opción (1, 2, 3, 4 o 0)._`;
 
 export default function PurranqueDemoPage() {
   const [messages, setMessages] = useState<Message[]>([
@@ -126,26 +127,23 @@ export default function PurranqueDemoPage() {
     }
   };
 
-  // Simulación Foto Camino
   const handleSendCaminoPhoto = () => {
     handleSendMessage(
-      "📸 Camino sector Hueyusca con bache profundo",
+      "📸 Camino sector Hueyusca con bache profundo tras temporal",
       "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80"
     );
   };
 
-  // Simulación Foto Ramas / Escombros
   const handleSendRamasPhoto = () => {
     handleSendMessage(
-      "📸 Ramas y escombros de poda acumulados en Corte Alto",
+      "📸 Ramas y escombros acumulados en Corte Alto frente a la plaza",
       "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80"
     );
   };
 
-  // Simulación Foto Chatarra y Baterías
   const handleSendChatarraPhoto = () => {
     handleSendMessage(
-      "📸 Chatarra, fierros y 2 baterías viejas para reciclar",
+      "📸 Chatarra, fierros viejos y 2 baterías en desuso para reciclaje",
       "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&auto=format&fit=crop&q=80"
     );
   };
@@ -174,7 +172,7 @@ export default function PurranqueDemoPage() {
           Ventanilla Única WhatsApp Purranque
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Plataforma de trámites municipales con fotos de evidencia, derivación telefónica y feedback ciudadano.
+          Plataforma modular con RAG inteligente, soporte fotográfico, callbacks telefónicos y encuestas.
         </p>
       </header>
 
@@ -195,8 +193,35 @@ export default function PurranqueDemoPage() {
           </div>
 
           <div className="space-y-2">
-            {/* Categoría 1: Tránsito */}
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+            {/* Categoría: RAG / Base de Conocimiento Inteligente */}
+            <div className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5" /> 4. RAG / Preguntas Libres
+            </div>
+
+            <button
+              onClick={() => handleSendMessage("¿Qué eventos y fiestas costumbristas hay este verano en Purranque?")}
+              className="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-700/50 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-cyan-300">
+                <span>Eventos de Verano 2026</span>
+                <span className="text-[9px] bg-cyan-900 text-cyan-200 px-1.5 py-0.5 rounded">RAG + PDF</span>
+              </div>
+              <p className="text-[10px] text-slate-300 mt-0.5">Hueyusca, Corte Alto y descarga de programa</p>
+            </button>
+
+            <button
+              onClick={() => handleSendMessage("¿Cuál es el anexo o fono de DIDECO y Dirección de Obras?")}
+              className="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-700/50 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-cyan-300">
+                <span>Guía de Anexos Telefónicos</span>
+                <span className="text-[9px] bg-cyan-900 text-cyan-200 px-1.5 py-0.5 rounded">Directorio</span>
+              </div>
+              <p className="text-[10px] text-slate-300 mt-0.5">Enrutador inteligente para evitar rebotes</p>
+            </button>
+
+            {/* Categoría: Tránsito */}
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
               <Car className="w-3.5 h-3.5 text-emerald-400" /> Tránsito
             </div>
             
@@ -220,27 +245,11 @@ export default function PurranqueDemoPage() {
               </div>
             </button>
 
-            {/* Categoría 2: Negocios */}
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Store className="w-3.5 h-3.5 text-amber-400" /> Rentas y Comercio
-            </div>
-
-            <button
-              onClick={() => { handleSendMessage("2"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("76123456-7"), 800); }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-amber-400">
-                <span>Patente Comercial (RUT)</span>
-                <span className="text-[9px] bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded">Quesería</span>
-              </div>
-            </button>
-
-            {/* Categoría 3: Vecinos y Operaciones */}
+            {/* Categoría: Vecinos y Operaciones */}
             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
               <Home className="w-3.5 h-3.5 text-orange-400" /> Vecinos y Operaciones
             </div>
 
-            {/* Subida Foto Camino */}
             <button
               onClick={() => {
                 handleSendMessage("3");
@@ -260,34 +269,13 @@ export default function PurranqueDemoPage() {
               </div>
             </button>
 
-            {/* Subida Foto Ramas */}
-            <button
-              onClick={() => {
-                handleSendMessage("3");
-                setTimeout(() => {
-                  handleSendMessage("3");
-                  setTimeout(() => {
-                    handleSendMessage("Corte Alto, frente a la plaza");
-                    setTimeout(() => handleSendRamasPhoto(), 500);
-                  }, 500);
-                }, 500);
-              }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-teal-400">
-                <span>Retiro de Ramas + Foto</span>
-                <span className="text-[9px] bg-teal-950 text-teal-300 px-1.5 py-0.5 rounded">Operaciones</span>
-              </div>
-            </button>
-
-            {/* Subida Foto Chatarra */}
             <button
               onClick={() => {
                 handleSendMessage("3");
                 setTimeout(() => {
                   handleSendMessage("4");
                   setTimeout(() => {
-                    handleSendMessage("Crucero, parcela 12");
+                    handleSendMessage("Crucero parcela 12");
                     setTimeout(() => handleSendChatarraPhoto(), 500);
                   }, 500);
                 }, 500);
@@ -300,7 +288,7 @@ export default function PurranqueDemoPage() {
               </div>
             </button>
 
-            {/* Categoría 4: Asistencia Humana */}
+            {/* Categoría: Callback Telefónico */}
             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
               <PhoneCall className="w-3.5 h-3.5 text-purple-400" /> Asistencia Municipal
             </div>
@@ -313,10 +301,9 @@ export default function PurranqueDemoPage() {
                 <span className="flex items-center gap-1">📞 Solicitar Llamado (Callback)</span>
                 <span className="text-[9px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded">Ticket #ATN</span>
               </div>
-              <p className="text-[10px] text-slate-300 mt-0.5">Orden de contacto telefónico para funcionario</p>
             </button>
 
-            {/* Botón Universal Volver */}
+            {/* Botón Volver */}
             <button
               onClick={() => handleSendMessage("MENU")}
               className="w-full text-center p-1.5 mt-2 rounded-xl bg-slate-800/30 hover:bg-slate-800/70 border border-slate-700/40 text-xs font-semibold text-slate-300 transition flex items-center justify-center gap-1"
@@ -414,7 +401,7 @@ export default function PurranqueDemoPage() {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Escribe una opción (1, 2, 3, 0) o 'MENU'..."
+              placeholder="Escribe una pregunta libre, trámite (1,2,3,4) o '0'..."
               className="flex-1 bg-[#2a3942] text-white placeholder-slate-400 text-xs md:text-sm px-3.5 py-2.5 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00a884]"
             />
             <button
