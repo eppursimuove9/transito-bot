@@ -119,6 +119,14 @@ export default function AdminDashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
+  // Estado para Alertas Territoriales Masivas
+  const [broadcastSector, setBroadcastSector] = useState('Sector Puerto Nuevo (APR y Ribera)');
+  const [broadcastMessage, setBroadcastMessage] = useState(
+    'Corte programado de agua rural por mantención de bombas APR entre 14:00 y 18:00 hrs.'
+  );
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [broadcastSuccess, setBroadcastSuccess] = useState(false);
+
   const markAsResolved = (id: string) => {
     setTickets(prev =>
       prev.map(t => (t.id === id ? { ...t, status: 'ATENDIDO' } : t))
@@ -150,6 +158,21 @@ export default function AdminDashboard() {
 
       setTimeout(() => setUploadSuccess(false), 4000);
     }, 1200);
+  };
+
+  const handleSendBroadcast = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastMessage.trim()) return;
+
+    setIsBroadcasting(true);
+    setBroadcastSuccess(false);
+
+    // Simulación de despacho por Meta Cloud API
+    setTimeout(() => {
+      setIsBroadcasting(false);
+      setBroadcastSuccess(true);
+      setTimeout(() => setBroadcastSuccess(false), 5000);
+    }, 1000);
   };
 
   const filteredTickets = filter === 'ALL' ? tickets : tickets.filter(t => t.type === filter);
@@ -396,6 +419,85 @@ export default function AdminDashboard() {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* MODULO: GENERADOR DE ALERTAS TERRITORIALES MASIVAS POR WHATSAPP */}
+        <div className="bg-slate-800/70 border border-amber-500/30 rounded-xl p-6 shadow-xl relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b border-slate-700 pb-3">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded text-xs font-bold uppercase mb-1">
+                <span>📢 Difusión Oficial Directa</span>
+              </div>
+              <h2 className="text-lg font-bold text-white">Generar Alerta Territorial Masiva por WhatsApp</h2>
+              <p className="text-xs text-slate-400">
+                Envío instantáneo de avisos oficiales georreferenciados a los teléfonos de los vecinos registrados.
+              </p>
+            </div>
+            <span className="text-xs bg-slate-900 text-amber-400 font-mono px-3 py-1 rounded-lg border border-amber-500/20">
+              Meta Broadcast API Activa
+            </span>
+          </div>
+
+          <form onSubmit={handleSendBroadcast} className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="md:col-span-4">
+              <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
+                Sector Territorial Destino
+              </label>
+              <select
+                value={broadcastSector}
+                onChange={e => setBroadcastSector(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+              >
+                <option>Sector Puerto Nuevo (APR y Ribera)</option>
+                <option>Sector Mashue (Caminos Rurales)</option>
+                <option>Sector Choroico (Zona Agrícola)</option>
+                <option>Sector Trumao / Llancacura</option>
+                <option>Radio Urbano Completo (La Unión Centro)</option>
+                <option>Toda la Comuna (Cadena Municipal)</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-6">
+              <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
+                Contenido del Comunicado Oficial
+              </label>
+              <input
+                type="text"
+                value={broadcastMessage}
+                onChange={e => setBroadcastMessage(e.target.value)}
+                placeholder="Escribe el mensaje de emergencia o aviso de servicio..."
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div className="md:col-span-2 flex items-end">
+              <button
+                type="submit"
+                disabled={isBroadcasting || !broadcastMessage.trim()}
+                className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-slate-700 text-slate-950 font-black py-2 px-4 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-lg"
+              >
+                {isBroadcasting ? (
+                  <>
+                    <span className="h-3 w-3 rounded-full border-2 border-slate-950 border-t-transparent animate-spin"></span>
+                    <span>Despachando...</span>
+                  </>
+                ) : (
+                  <span>⚡ Enviar Alerta</span>
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Feedback de Alerta Despachada */}
+          {broadcastSuccess && (
+            <div className="mt-4 p-3 bg-amber-500/20 border border-amber-500/40 rounded-lg text-xs text-amber-200 flex items-center gap-2 animate-fadeIn">
+              <span>🚀</span>
+              <span>
+                <strong>Alerta oficial despachada:</strong> Mensaje transmitido con éxito a los vecinos conectados en{' '}
+                <strong>{broadcastSector}</strong> vía canal verificado de WhatsApp.
+              </span>
+            </div>
+          )}
         </div>
 
         {/* TABLA DE TICKETS Y BANDEJA OPERATIVA */}

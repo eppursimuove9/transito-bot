@@ -1,63 +1,63 @@
 import { NextResponse } from 'next/server';
 
-// --- BASE DE DATOS TRANSACCIONAL ---
+// --- BASE DE DATOS TRANSACCIONAL (ADAPTADA A LA UNIÓN) ---
 const VEHICULOS_DB: Record<string, any> = {
   "ABCD12": {
     ppu: "ABCD12",
     marca: "Toyota",
     modelo: "Hilux 4x4",
     anio: 2021,
-    comuna: "Purranque",
-    sector: "Corte Alto",
-    propietario: "Juan Carlos Gallardo",
+    comuna: "La Unión",
+    sector: "Puerto Nuevo",
+    propietario: "Héctor Manqui",
     propietario_run: "17.894.562-K",
     prt_vigente: true,
     prt_vence: "30-Nov-2026",
     soap_vigente: true,
     multas: [],
     valor_permiso: 54200,
-    folio_anterior: "PUR-2025-08912"
+    folio_anterior: "UNI-2025-08912"
   },
   "GFHY45": {
     ppu: "GFHY45",
     marca: "Nissan",
     modelo: "Terrano",
     anio: 2018,
-    comuna: "Purranque",
-    sector: "Hueyusca",
-    propietario: "María Elena Soto",
+    comuna: "La Unión",
+    sector: "Mashue",
+    propietario: "Gladys Monsalve",
     propietario_run: "15.432.987-4",
     prt_vigente: true,
     prt_vence: "31-Oct-2026",
     soap_vigente: true,
     multas: [
-      { juzgado: "JPL Purranque", motivo: "Estacionar sobre acera", monto: 35000 }
+      { juzgado: "JPL La Unión", motivo: "Estacionar sobre acera en Arturo Prat", monto: 35000 }
     ],
     valor_permiso: 38000,
-    folio_anterior: "PUR-2025-04311"
+    folio_anterior: "UNI-2025-04311"
   },
   "KJTR88": {
     ppu: "KJTR88",
     marca: "Chevrolet",
     modelo: "Sail",
     anio: 2017,
-    comuna: "Purranque",
-    sector: "Crucero",
-    propietario: "Pedro Almonacid",
+    comuna: "La Unión",
+    sector: "Choroico",
+    propietario: "Juan Pablo Ortiz",
     propietario_run: "18.765.432-1",
     prt_vigente: false,
     prt_vence: "31-Mar-2026 (VENCIDA)",
     soap_vigente: true,
     multas: [],
     valor_permiso: 31000,
-    folio_anterior: "PUR-2025-01290"
+    folio_anterior: "UNI-2025-01290"
   }
 };
 
 const PATENTES_COMERCIALES_DB: Record<string, any> = {
   "76123456-7": {
     rut: "76.123.456-7",
-    razon_social: "Agrícola y Quesos Corte Alto SpA",
+    razon_social: "Agrícola y Lácteos Puerto Nuevo SpA",
     rol: "ROL-COM-2026-412",
     tipo: "Microempresa Familiar (MEF) / Agro",
     estado: "AL_DIA",
@@ -69,34 +69,34 @@ const PATENTES_COMERCIALES_DB: Record<string, any> = {
 const ASEO_DOMICILIARIO_DB: Record<string, any> = {
   "123-45": {
     rol: "123-45",
-    direccion: "Pedro Montt 340, Purranque",
-    titular: "Héctor Barría",
+    direccion: "Arturo Prat 450, La Unión",
+    titular: "Carlos Vera",
     cuotas_pendientes: 2,
     monto_total: 18400
   }
 };
 
-// --- BASE DE CONOCIMIENTO MUNICIPAL (RAG SIMULADO) ---
+// --- BASE DE CONOCIMIENTO MUNICIPAL (RAG SIMULADO - LA UNIÓN) ---
 const KNOWLEDGE_BASE = [
   {
-    keywords: ["EVENTO", "VERANO", "FIESTA", "COSTUMBRISTA", "FESTIVAL", "SEMANA", "SHOW"],
-    response: `🎭 *Eventos y Actividades de Verano 2026*\n\n• *Festival Costumbrista de Hueyusca:* Sábado y Domingo en Recinto Los Castaños (Música en vivo, gastronomía típica y artesanía).\n• *Feria de Tradiciones Corte Alto:* Próximo fin de semana en Plaza de Armas.\n• *Noche Purranquina:* Cierre del verano con artistas nacionales en el Gimnasio Municipal.\n\n📄 [Descargar_Programa_Completo_Verano_2026.pdf]\n\n_Escribe otra pregunta o *MENU* para volver._`
+    keywords: ["EVENTO", "VERANO", "FIESTA", "COSTUMBRISTA", "FESTIVAL", "SEMANA", "SHOW", "TRUMAO"],
+    response: `🎭 *Eventos y Actividades en La Unión 2026*\n\n• *Feria Fluvial y Tradiciones de Trumao:* Sábado y Domingo en el Puerto de Trumao (Paseos por el Río Bueno, gastronomía y artesanía).\n• *Semana Unionina:* Actividades en Plaza de la Concordia y Parque Municipal.\n• *Muestra Costumbrista Puerto Nuevo:* Próximo fin de semana a orillas del Lago Ranco.\n\n📄 [Descargar_Programa_Completo_La_Union_2026.pdf]\n\n_Escribe otra pregunta o *MENU* para volver._`
   },
   {
-    keywords: ["FARMACIA", "TURNO", "MEDICAMENTO", "REMEDIO", "SALUD"],
-    response: `💊 *Farmacia de Turno en Purranque*\n\n• *Farmacia Cruz Verde (Pedro Montt 210)*\n• *Turno:* 24 Horas disponible hoy.\n• *Fono Central:* +56 64 235 1200\n• *CESFAM Purranque Urgencias (SAPU):* Abierto 24/7 en 21 de Mayo 450.\n\n_Escribe otra pregunta o *MENU* para volver._`
+    keywords: ["FARMACIA", "TURNO", "MEDICAMENTO", "REMEDIO", "SALUD", "CESFAM", "HOSPITAL"],
+    response: `💊 *Farmacia de Turno y Salud en La Unión*\n\n• *Farmacia Cruz Verde (Calle Comercio 310)*\n• *Turno:* 24 Horas disponible hoy.\n• *Fono Central:* +56 64 232 2000\n• *Hospital de La Unión (Urgencias):* 24/7 en Los Canelos s/n.\n• *CESFAM Dr. Alfredo Gantz Mann:* Atención diurna y urgencia SAPU.\n\n_Escribe otra pregunta o *MENU* para volver._`
   },
   {
     keywords: ["TELEFONO", "ANEXO", "NUMERO", "CONTACTO", "DIDECO", "OBRAS", "DOM", "ALCALDIA"],
-    response: `📞 *Directorio y Anexos Telefónicos Municipales*\n\n• *Central Telefónica:* +56 64 235 1200\n• *DIDECO (Social y Subsidios):* Anexo 104 • \`dideco@purranque.cl\`\n• *Dirección de Obras (DOM):* Anexo 108 • \`obras@purranque.cl\`\n• *Tránsito y Licencias:* Anexo 112 • \`transito@purranque.cl\`\n• *Seguridad Ciudadana & Cuadrante:* +56 9 8765 4321 (24/7)\n\n_Escribe otra pregunta o *MENU* para volver._`
+    response: `📞 *Directorio y Anexos Municipales • La Unión*\n\n• *Central Telefónica Municipal:* +56 64 232 2000\n• *DIDECO (Social y Subsidios):* Anexo 104 • \`dideco@munilaunion.cl\`\n• *Dirección de Obras (DOM):* Anexo 108 • \`obras@munilaunion.cl\`\n• *Tránsito y Licencias:* Anexo 112 • \`transito@munilaunion.cl\`\n• *Seguridad Pública y Cuadrante:* +56 64 276 5230 (24/7)\n\n_Escribe otra pregunta o *MENU* para volver._`
   },
   {
-    keywords: ["SUBSIDIO", "AGUA", "RSH", "REGISTRO SOCIAL", "LEÑA", "AYUDA SOCIAL"],
-    response: `🤝 *Subsidios y Beneficios Sociales DIDECO*\n\n• *Subsidio al Agua Potable Rural (APR):* Postulaciones abiertas en DIDECO (Requisito: RSH hasta el 60%).\n• *Actualización de Registro Social de Hogares:* Atención de lunes a viernes de 08:30 a 14:00 hrs.\n\n📄 [Descargar_Guia_Postulacion_Subsidios_2026.pdf]\n\n_Escribe otra pregunta o *MENU* para volver._`
+    keywords: ["SUBSIDIO", "AGUA", "RSH", "REGISTRO SOCIAL", "LEÑA", "AYUDA SOCIAL", "APR"],
+    response: `🤝 *Subsidios y Beneficios Sociales DIDECO La Unión*\n\n• *Subsidio al Agua Potable Rural (APR):* Postulaciones abiertas para comités de Puerto Nuevo, Mashue y Choroico (RSH hasta 60%).\n• *Actualización Registro Social de Hogares:* De lunes a viernes de 08:30 a 14:00 hrs en Manuel Montt 530.\n\n📄 [Descargar_Guia_Postulacion_Subsidios_2026.pdf]\n\n_Escribe otra pregunta o *MENU* para volver._`
   }
 ];
 
-const MENU_PRINCIPAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱
+const MENU_PRINCIPAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de La Unión* 🇨🇱
 
 Selecciona el área de tu trámite:
 
@@ -104,11 +104,12 @@ Selecciona el área de tu trámite:
 2️⃣ 🏪 *Negocios y Rentas* (Patentes Comerciales, Ferias, Certificados)
 3️⃣ 🏡 *Vecinos y Hogar* (Aseo, Caminos, Ramas y Chatarra)
 4️⃣ ℹ️ *Información, Eventos y Guía Comunal* (Preguntas Libres / RAG)
+5️⃣ 👵 *Modo Asistido / Adulto Mayor* (Texto claro y sencillo)
 0️⃣ 👤 *Solicitar que un funcionario municipal me llame*
 
-_Escribe el número de tu opción (1, 2, 3, 4 o 0)._`;
+_Escribe el número de tu opción (1-5 o 0). Para emergencias escribe *SOS*._`;
 
-const MENU_TRANSITO = `🚗 *Dirección de Tránsito - Municipalidad de Purranque*
+const MENU_TRANSITO = `🚗 *Dirección de Tránsito - Municipalidad de La Unión*
 
 1️⃣ Pagar Permiso de Circulación (Pago Express por Patente)
 2️⃣ Obtener Duplicado de Permiso (PDF Oficial)
@@ -136,13 +137,56 @@ _Escribe tu opción (1-4), *0* para funcionario o *MENU* para volver._`;
 
 export async function POST(req: Request) {
   const { message, step } = await req.json();
-  const cleanMsg = (message || '').trim().toUpperCase();
+  const rawMessage = (message || '').trim();
+  const cleanMsg = rawMessage.toUpperCase();
+
+  // --- INTERCEPTOR DE EMERGENCIA INMEDIATA (SOS) ---
+  if (['SOS', 'EMERGENCIA', 'URGENCIA', 'BOMBEROS', 'CARABINEROS', 'AMBULANCIA'].some(k => cleanMsg.includes(k))) {
+    const sosReply = `🚨 *CENTRAL DE EMERGENCIAS • LA UNIÓN* 🚨\n\nSi estás en una situación de riesgo vital o peligro inminente, comunícate de inmediato:\n\n📞 *Seguridad Pública Municipal:* +56 64 232 2000\n🚒 *Bomberos La Unión:* 132\n🚓 *Carabineros (3ª Comisaría La Unión):* 133 / +56 64 276 5230\n🚓 *Retén Puerto Nuevo:* +56 64 276 5240\n🚑 *Ambulancia SAMU:* 131\n\n_Escribe *MENU* o *0* en cualquier momento para volver a los trámites municipales._`;
+    return NextResponse.json({ reply: sosReply, next_step: 'INIT' });
+  }
+
+  // --- CONMUTADOR DE MODO ASISTIDO / ADULTO MAYOR ---
+  if (cleanMsg === 'MODO SIMPLE' || cleanMsg === '5') {
+    const seniorMenu = `👵👴 *MODO ASISTIDO ACTIVADO (Lenguaje Claro y Letra Grande)*\n\nBienvenido(a) a la Municipalidad de La Unión. Aquí le ayudamos paso a paso con sus trámites:\n\n1️⃣ *Pagar el Permiso de su Auto o Camioneta* (con su tarjeta del banco)\n2️⃣ *Pedir que una persona de la Municipalidad le llame por teléfono a su casa*\n3️⃣ *Avisar de un camino con hoyos, basura o luminaria apagada*\n4️⃣ *Saber las farmacias de turno y horas de atención*\n\n👉 Responda escribiendo solamente el número de lo que necesita (por ejemplo: *1*).\nSi necesita ayuda urgente, escriba *SOS*. Escriba *MENU* para salir.`;
+    return NextResponse.json({ reply: seniorMenu, next_step: 'AWAITING_SENIOR_OPTION' });
+  }
+
+  // Submenú para Modo Asistido
+  if (step === 'AWAITING_SENIOR_OPTION') {
+    if (cleanMsg === '1') {
+      return NextResponse.json({
+        reply: "🚗 *Pago de Permiso*\n\nPor favor, escriba la patente de su vehículo (por ejemplo: ABCD12):\n\n_Escribe *MENU* para volver._",
+        next_step: 'AWAIT_PATENTE'
+      });
+    }
+    if (cleanMsg === '2') {
+      const ticketId = "ATN-" + Math.floor(1000 + Math.random() * 9000);
+      return NextResponse.json({
+        reply: `📞 *Solicitud Registrada (#${ticketId})*\n\nUna persona de la Municipalidad le llamará por teléfono en horario hábil para ayudarle con lo que necesita con mucha paciencia.\n\n_Escriba *MENU* para volver al inicio._`,
+        next_step: 'INIT'
+      });
+    }
+    if (cleanMsg === '3') {
+      return NextResponse.json({
+        reply: "🚜 *Aviso de Caminos o Luminarias*\n\n¿En qué sector se ubica el problema? (Por ejemplo: Puerto Nuevo, Mashue, Choroico o La Unión Centro):\n\n_Escribe *MENU* para volver._",
+        next_step: 'AWAIT_SECTOR_REPORTE'
+      });
+    }
+    if (cleanMsg === '4') {
+      const farmaciaInfo = KNOWLEDGE_BASE.find(k => k.keywords.includes("FARMACIA"));
+      return NextResponse.json({
+        reply: farmaciaInfo ? farmaciaInfo.response : "Farmacia de Turno: Cruz Verde (Calle Comercio 310).",
+        next_step: 'INIT'
+      });
+    }
+  }
 
   // COMANDO DE TRANSFERENCIA A EJECUTIVO / FUNCIONARIO HUMANO
   if (['0', 'EJECUTIVO', 'HUMANO', 'PERSONA', 'FUNCIONARIO', 'SECRETARIA', 'AYUDA'].includes(cleanMsg)) {
     const ticketId = "ATN-" + Math.floor(1000 + Math.random() * 9000);
     return NextResponse.json({
-      reply: `👤 *Solicitud de Contacto Telefónico (#${ticketId})*\n\nUn funcionario municipal se comunicará contigo al teléfono asociado a este chat.\n\n⏰ *Horario de Atención:* Lunes a Viernes de 08:30 a 14:00 hrs.\n\n_Tu orden fue enviada a la bandeja institucional con todo el historial de la conversación._\n\n*(Escribe 'MENU' para volver al asistente automatizado)*`,
+      reply: `👤 *Solicitud de Contacto Telefónico (#${ticketId})*\n\nUn funcionario municipal de La Unión se comunicará contigo al teléfono asociado a este chat.\n\n⏰ *Horario de Atención:* Lunes a Viernes de 08:30 a 14:00 hrs.\n\n_Tu orden fue enviada al Dashboard de Gestión con todo el historial de la conversación._\n\n*(Escribe 'MENU' para volver al asistente automatizado)*`,
       next_step: 'AWAIT_HUMAN_CHAT'
     });
   }
@@ -180,7 +224,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // Si el usuario escribe una pregunta abierta directamente en el inicio, intentamos procesarla vía RAG
+    // Procesamiento RAG en el inicio
     const ragMatch = KNOWLEDGE_BASE.find(item => item.keywords.some(kw => cleanMsg.includes(kw)));
     if (ragMatch) {
       return NextResponse.json({
@@ -206,9 +250,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // Guardrail: Protección de tokens fuera de contexto municipal
     return NextResponse.json({
-      reply: `🏛️ *Asistente Municipal de Purranque*\n\nNo encontré información oficial sobre "${message}". Recuerda que solo puedo resolver consultas sobre trámites, eventos, directorios y beneficios de la comuna.\n\n💡 *Puedes consultar por:* Eventos de verano, Farmacias de turno, Teléfonos de departamentos o Subsidios.\n\n_O escribe *0* para solicitar que un funcionario te llame._`,
+      reply: `🏛️ *Asistente Municipal de La Unión*\n\nNo encontré información oficial sobre "${message}". Recuerda que solo puedo resolver consultas sobre trámites, eventos, directorios y beneficios de la comuna.\n\n💡 *Puedes consultar por:* Eventos en Trumao o Puerto Nuevo, Farmacias de turno, Teléfonos municipales o Subsidios APR.\n\n_O escribe *0* para solicitar que un funcionario te llame._`,
       next_step: 'AWAIT_RAG_QUERY'
     });
   }
@@ -229,7 +272,7 @@ export async function POST(req: Request) {
     }
     if (cleanMsg === '3') {
       return NextResponse.json({
-        reply: "⚖️ *Consulta de Multas - Juzgado de Policía Local Purranque*\n\nIngresa la *Placa Patente* a consultar (ej: `GFHY45`):\n\n_Escribe *MENU* para volver._",
+        reply: "⚖️ *Consulta de Multas - Juzgado de Policía Local La Unión*\n\nIngresa la *Placa Patente* a consultar (ej: `GFHY45`):\n\n_Escribe *MENU* para volver._",
         next_step: 'AWAIT_PATENTE_MULTA'
       });
     }
@@ -237,7 +280,7 @@ export async function POST(req: Request) {
       return NextResponse.json({
         reply: "🪪 *Licencias de Conducir - Pre-chequeo Rural*\n\nPara revisar tu hoja de vida del conductor y evitar traslados en vano, requerimos autenticación vía *ClaveÚnica*:",
         requires_auth: true,
-        tramite_id: "LIC-2026-PURR",
+        tramite_id: "LIC-2026-UNION",
         next_step: 'AUTH_PENDING'
       });
     }
@@ -253,7 +296,7 @@ export async function POST(req: Request) {
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: "🧺 *Pago de Derechos de Feria Libre / Ambulante*\n\nIngresa tu RUN de comerciante registrado en Purranque:\n\n_Escribe *MENU* para volver._",
+        reply: "🧺 *Pago de Derechos de Feria Libre / Ambulante*\n\nIngresa tu RUN de comerciante registrado en La Unión:\n\n_Escribe *MENU* para volver._",
         next_step: 'AWAIT_RUN_FERIA'
       });
     }
@@ -275,7 +318,7 @@ export async function POST(req: Request) {
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: "🚜 *Reportes de Caminos Rurales y Luminarias (100% Anónimo)*\n\n🛡️ _Este canal es directo y privado con la Dirección de Operaciones._\n\n¿En qué sector se ubica el problema? (Corte Alto, Hueyusca, Crucero, Concordia, Manquemapu):\n\n_Escribe *MENU* para volver._",
+        reply: "🚜 *Reportes de Caminos Rurales y Luminarias (100% Anónimo)*\n\n🛡️ _Este canal es directo y privado con la Dirección de Operaciones._\n\n¿En qué sector se ubica el problema? (Puerto Nuevo, Mashue, Choroico, Trumao, Llancacura, Centro):\n\n_Escribe *MENU* para volver._",
         next_step: 'AWAIT_SECTOR_REPORTE'
       });
     }
@@ -300,13 +343,13 @@ export async function POST(req: Request) {
     const vehiculo = VEHICULOS_DB[cleanMsg];
     if (!vehiculo) {
       return NextResponse.json({
-        reply: `⚠️ La patente *${cleanMsg}* no registra en Purranque. Patentes de prueba: \`ABCD12\` (Al día), \`GFHY45\` (Multa JPL).\n\n_Escribe otra patente, *MENU* para volver o *0* para un funcionario._`,
+        reply: `⚠️ La patente *${cleanMsg}* no registra en La Unión. Patentes demo: \`ABCD12\` (Al día), \`GFHY45\` (Multa JPL).\n\n_Escribe otra patente, *MENU* para volver o *0* para un funcionario._`,
         next_step: 'AWAIT_PATENTE'
       });
     }
     if (!vehiculo.prt_vigente) {
       return NextResponse.json({
-        reply: `🛑 *Trámite Bloqueado: Revisión Técnica Vencida*\n\nVehículo: *${vehiculo.marca} ${vehiculo.modelo}*\nSector: *${vehiculo.sector}*\nEstado: *${vehiculo.prt_vence}*\n\nℹ️ Para no perder el viaje a Purranque, regulariza en planta PRT antes de pagar.\n\n_Escribe *MENU* para volver._`,
+        reply: `🛑 *Trámite Bloqueado: Revisión Técnica Vencida*\n\nVehículo: *${vehiculo.marca} ${vehiculo.modelo}*\nSector: *${vehiculo.sector}*\nEstado: *${vehiculo.prt_vence}*\n\nℹ️ Para no perder el viaje al centro de La Unión, regulariza en planta PRT antes de pagar.\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
@@ -318,11 +361,11 @@ export async function POST(req: Request) {
     d += `• Patente: *${vehiculo.ppu}*\n`;
     d += `• Propietario: *${vehiculo.propietario}*\n`;
     d += `• Sector: *${vehiculo.sector}*\n\n`;
-    d += `💰 *Liquidación:*\n`;
+    d += `💰 *Liquidación Oficial:*\n`;
     d += `• Permiso: *$${vehiculo.valor_permiso.toLocaleString('es-CL')}*\n`;
     if (totalMultas > 0) d += `• Multas JPL: *$${totalMultas.toLocaleString('es-CL')}*\n`;
     d += `• *TOTAL A PAGAR: $${totalPagar.toLocaleString('es-CL')}*\n\n`;
-    d += `¿Deseas pagar ahora vía Webpay? Responde *SI* o escribe *MENU* para cancelar.`;
+    d += `¿Deseas pagar ahora vía Webpay seguro? Responde *SI* o escribe *MENU* para cancelar.`;
 
     return NextResponse.json({ reply: d, next_step: 'CONFIRM_PAYMENT' });
   }
@@ -337,7 +380,7 @@ export async function POST(req: Request) {
       });
     }
     return NextResponse.json({
-      reply: `✅ *Duplicado Oficial Encontrado*\n\nVehículo: *${v.marca} ${v.modelo}*\nFolio SUBDERE: *${v.folio_anterior}*\n\n📄 Copia timbrada lista para descarga:\n👉 [Descargar_Duplicado_${v.ppu}.pdf]\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7* o escribe un comentario corto, opcional):`,
+      reply: `✅ *Duplicado Oficial Encontrado*\n\nVehículo: *${v.marca} ${v.modelo}*\nFolio SUBDERE: *${v.folio_anterior}*\n\n📄 Copia timbrada lista para descarga:\n👉 [Descargar_Duplicado_${v.ppu}.pdf]\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
       next_step: 'ASK_FEEDBACK'
     });
   }
@@ -347,12 +390,12 @@ export async function POST(req: Request) {
     const v = VEHICULOS_DB[cleanMsg];
     if (!v || v.multas.length === 0) {
       return NextResponse.json({
-        reply: `✅ La patente *${cleanMsg}* no registra multas de Policía Local en Purranque.\n\n_Escribe *MENU* para volver._`,
+        reply: `✅ La patente *${cleanMsg}* no registra multas de Policía Local en La Unión.\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     return NextResponse.json({
-      reply: `⚠️ *Infracciones Pendientes en JPL Purranque:*\n\n• Causa: *${v.multas[0].motivo}*\n• Tribunal: *${v.multas[0].juzgado}*\n• Monto: *$${v.multas[0].monto.toLocaleString('es-CL')}*\n\n¿Deseas liquidar esta multa? Responde *SI* o *MENU* para cancelar.`,
+      reply: `⚠️ *Infracciones Pendientes en JPL La Unión:*\n\n• Causa: *${v.multas[0].motivo}*\n• Tribunal: *${v.multas[0].juzgado}*\n• Monto: *$${v.multas[0].monto.toLocaleString('es-CL')}*\n\n¿Deseas liquidar esta multa en línea? Responde *SI* o *MENU* para cancelar.`,
       next_step: 'CONFIRM_PAYMENT'
     });
   }
@@ -363,7 +406,7 @@ export async function POST(req: Request) {
     const p = PATENTES_COMERCIALES_DB[raw];
     if (!p) {
       return NextResponse.json({
-        reply: `⚠️ RUT no encontrado. Para la demo usa: \`76123456-7\` (Quesos Corte Alto).\n\n_Escribe otro RUT o *MENU* para volver._`,
+        reply: `⚠️ RUT no encontrado. Para la demo usa: \`76123456-7\` (Lácteos Puerto Nuevo).\n\n_Escribe otro RUT o *MENU* para volver._`,
         next_step: 'AWAIT_RUT_COMERCIAL'
       });
     }
@@ -384,7 +427,7 @@ export async function POST(req: Request) {
     const a = ASEO_DOMICILIARIO_DB[cleanMsg];
     if (!a) {
       return NextResponse.json({
-        reply: `⚠️ Rol no registrado en Purranque. Usa el Rol demo: \`123-45\`.\n\n_Escribe otro Rol o *MENU* para volver._`,
+        reply: `⚠️ Rol no registrado en La Unión. Usa el Rol demo: \`123-45\`.\n\n_Escribe otro Rol o *MENU* para volver._`,
         next_step: 'AWAIT_ROL_ASEO'
       });
     }
@@ -405,7 +448,7 @@ export async function POST(req: Request) {
   if (step === 'AWAIT_FOTO_REPORTE') {
     const folio = "REP-" + Math.floor(1000 + Math.random() * 9000);
     return NextResponse.json({
-      reply: `✅ *Reporte Recibido y Foliado (#${folio})*\n\n📸 *Evidencia:* Foto adjuntada con éxito.\n🛡️ *Privacidad:* 100% Anónimo ante redes sociales.\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
+      reply: `✅ *Reporte Recibido y Foliado (#${folio})*\n\n📸 *Evidencia:* Foto adjuntada con éxito.\n🛡️ *Privacidad:* 100% Anónimo ante la comunidad.\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
       next_step: 'ASK_FEEDBACK'
     });
   }
@@ -421,7 +464,7 @@ export async function POST(req: Request) {
   if (step === 'AWAIT_RAMAS_FOTO') {
     const folio = "RAM-" + Math.floor(1000 + Math.random() * 9000);
     return NextResponse.json({
-      reply: `✅ *Solicitud de Retiro de Ramas Ingresada (#${folio})*\n\n📸 Foto de evidencia registrada.\n🚛 El camión municipal pasará según la programación de rutas sectoriales.\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
+      reply: `✅ *Solicitud de Retiro de Ramas Ingresada (#${folio})*\n\n📸 Foto de evidencia registrada.\n🚛 El camión municipal pasará según la programación de rutas sectoriales de La Unión.\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
       next_step: 'ASK_FEEDBACK'
     });
   }
@@ -437,7 +480,7 @@ export async function POST(req: Request) {
   if (step === 'AWAIT_CHATARRA_FOTO') {
     const folio = "CHAT-" + Math.floor(1000 + Math.random() * 9000);
     return NextResponse.json({
-      reply: `✅ *Solicitud de Retiro de Chatarra Ingresada (#${folio})*\n\n📸 Evidencia fotográfica registrada.\n🤝 Datos y foto derivados a la empresa recicladora colaboradora para retiro seguro.\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
+      reply: `✅ *Solicitud de Retiro de Chatarra Ingresada (#${folio})*\n\n📸 Evidencia fotográfica registrada.\n🤝 Datos derivados a la empresa recicladora colaboradora para retiro seguro en la provincia del Ranco.\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
       next_step: 'ASK_FEEDBACK'
     });
   }
@@ -445,7 +488,7 @@ export async function POST(req: Request) {
   // Paso Feedback
   if (step === 'ASK_FEEDBACK') {
     return NextResponse.json({
-      reply: `⭐ ¡Muchas gracias por tu evaluación de "${message}"! Tu opinión nos ayuda a mejorar la atención ciudadana en Purranque 🇨🇱\n\nEscribe *MENU* para realizar otro trámite.`,
+      reply: `⭐ ¡Muchas gracias por tu evaluación de "${message}"! Tu opinión nos ayuda a mejorar la atención ciudadana en La Unión 🇨🇱\n\nEscribe *MENU* para realizar otro trámite.`,
       next_step: 'INIT'
     });
   }
@@ -454,7 +497,7 @@ export async function POST(req: Request) {
   if (step === 'CONFIRM_PAYMENT') {
     if (cleanMsg === 'SI' || cleanMsg === 'SÍ') {
       return NextResponse.json({
-        reply: `💳 *Pasarela Segura Municipal (Webpay / TGR)*\n\n🔗 https://pagos.purranque.cl/pay/tx_998234\n\n⏳ _Expira en 15 minutos._\n\n*(Escribe 'PAGADO' para simular confirmación bancaria o 'MENU' para cancelar)*`,
+        reply: `💳 *Pasarela Segura Municipal (Webpay / TGR)*\n\n🔗 https://pagos.munilaunion.cl/pay/tx_998234\n\n⏳ _Expira en 15 minutos._\n\n*(Escribe 'PAGADO' para simular confirmación bancaria o 'MENU' para cancelar)*`,
         next_step: 'AWAIT_WEBHOOK'
       });
     }
@@ -464,7 +507,7 @@ export async function POST(req: Request) {
   if (step === 'AWAIT_WEBHOOK') {
     if (cleanMsg === 'PAGADO') {
       return NextResponse.json({
-        reply: `🎉 *¡Pago Aprobado Exitosamente!* (Folio #PUR-2026-9041)\n\nAdjuntamos tu comprobante oficial timbrado digitalmente.\n\n📄 [Descargar_Comprobante_Oficial.pdf]\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
+        reply: `🎉 *¡Pago Aprobado Exitosamente!* (Folio #UNI-2026-9041)\n\nAdjuntamos tu comprobante oficial timbrado digitalmente con código QR.\n\n📄 [Descargar_Comprobante_Oficial_LaUnion.pdf]\n\n¿Qué te pareció la atención de este asistente virtual? (Califica de *1 a 7*, opcional):`,
         next_step: 'ASK_FEEDBACK'
       });
     }
