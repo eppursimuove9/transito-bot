@@ -112,14 +112,12 @@ export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
   const [filter, setFilter] = useState<'ALL' | 'CALLBACK' | 'CAMINO' | 'PERMISO'>('ALL');
   
-  // Estado para gestión RAG Documental
   const [docs, setDocs] = useState<IngestedDoc[]>(INITIAL_DOCS);
   const [selectedDept, setSelectedDept] = useState('Dirección de Tránsito');
   const [docName, setDocName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
-  // Estado para Alertas Territoriales Masivas
   const [broadcastSector, setBroadcastSector] = useState('Sector Puerto Nuevo (APR y Ribera)');
   const [broadcastMessage, setBroadcastMessage] = useState(
     'Corte programado de agua rural por mantención de bombas APR entre 14:00 y 18:00 hrs.'
@@ -127,7 +125,6 @@ export default function AdminDashboard() {
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
 
-  // --- SINCRONIZACIÓN EN TIEMPO REAL VÍA STORAGE API ---
   useEffect(() => {
     const syncTicketsFromStorage = () => {
       const stored = localStorage.getItem('launion_tickets');
@@ -147,7 +144,6 @@ export default function AdminDashboard() {
 
     syncTicketsFromStorage();
 
-    // Event listener nativo para cambios generados desde la pestaña del Chat
     const handleStorageEvent = (event: StorageEvent) => {
       if (event.key === 'launion_tickets' && event.newValue) {
         try {
@@ -178,7 +174,6 @@ export default function AdminDashboard() {
     setIsUploading(true);
     setUploadSuccess(false);
 
-    // Simulación de procesamiento de embeddings y vectorización
     setTimeout(() => {
       const newDoc: IngestedDoc = {
         id: `DOC-${String(docs.length + 1).padStart(2, '0')}`,
@@ -205,7 +200,6 @@ export default function AdminDashboard() {
     setIsBroadcasting(true);
     setBroadcastSuccess(false);
 
-    // Simulación de despacho por Meta Cloud API
     setTimeout(() => {
       setIsBroadcasting(false);
       setBroadcastSuccess(true);
@@ -215,22 +209,22 @@ export default function AdminDashboard() {
 
   const filteredTickets = filter === 'ALL' ? tickets : tickets.filter(t => t.type === filter);
 
-  // Datos para los gráficos
+  // Datos sólidos para los gráficos visuales
   const revenueHours = [
-    { hour: '08:00', amount: '$420K', height: '25%' },
-    { hour: '10:00', amount: '$980K', height: '65%' },
-    { hour: '12:00', amount: '$1.45M', height: '95%' },
-    { hour: '14:00', amount: '$610K', height: '40%' },
-    { hour: '16:00', amount: '$840K', height: '55%' },
-    { hour: '18:00', amount: '$550K', height: '35%' }
+    { hour: '08:00', amount: '$420K', pct: 30 },
+    { hour: '10:00', amount: '$980K', pct: 68 },
+    { hour: '12:00', amount: '$1.45M', pct: 100 },
+    { hour: '14:00', amount: '$610K', pct: 45 },
+    { hour: '16:00', amount: '$840K', pct: 60 },
+    { hour: '18:00', amount: '$550K', pct: 38 }
   ];
 
   const sectorStats = [
-    { name: 'Puerto Nuevo', pct: 85, color: 'bg-blue-500' },
-    { name: 'Mashue', pct: 65, color: 'bg-emerald-500' },
-    { name: 'Choroico', pct: 50, color: 'bg-amber-500' },
-    { name: 'Trumao / Llancacura', pct: 40, color: 'bg-purple-500' },
-    { name: 'Urbano (La Unión Centro)', pct: 95, color: 'bg-cyan-500' }
+    { name: 'Puerto Nuevo (Lago Ranco)', pct: 85, color: 'bg-blue-500' },
+    { name: 'Mashue (Zona Forestal)', pct: 65, color: 'bg-emerald-500' },
+    { name: 'Choroico (Zona Agrícola)', pct: 50, color: 'bg-amber-500' },
+    { name: 'Trumao / Llancacura (Río Bueno)', pct: 42, color: 'bg-purple-500' },
+    { name: 'Urbano (La Unión Centro)', pct: 94, color: 'bg-cyan-500' }
   ];
 
   return (
@@ -257,7 +251,7 @@ export default function AdminDashboard() {
       </header>
 
       <main className="p-6 max-w-7xl mx-auto space-y-6">
-        {/* Fila de Métricas Principales (KPI Cards) */}
+        {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
             <p className="text-xs text-slate-400 font-medium uppercase">Recaudación Permisos Hoy</p>
@@ -266,25 +260,25 @@ export default function AdminDashboard() {
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Tasa Cumplimiento SLA (Callbacks)</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Tasa Cumplimiento SLA</p>
             <p className="text-2xl font-bold text-emerald-400 mt-1">94.2%</p>
             <p className="text-xs text-slate-400 mt-2">Promedio respuesta: 18 min</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Consultas RAG Comunal (IA)</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Consultas RAG Comunal</p>
             <p className="text-2xl font-bold text-blue-400 mt-1">1.240</p>
-            <p className="text-xs text-slate-400 mt-2">Semantic Cache Hit: 88%</p>
+            <p className="text-xs text-slate-400 mt-2">Respuestas oficiales inmediatas</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Incidentes Vecinales Resueltos</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Incidentes Vecinales</p>
             <p className="text-2xl font-bold text-amber-400 mt-1">19</p>
             <p className="text-xs text-slate-400 mt-2">Aseo, caminos y luminarias</p>
           </div>
         </div>
 
-        {/* SECCIÓN DE GRÁFICOS ANALÍTICOS */}
+        {/* SECCIÓN DE GRÁFICOS VISUALES */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Gráfico 1: Recaudación por Horario */}
           <div className="bg-slate-800/50 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between">
@@ -300,20 +294,20 @@ export default function AdminDashboard() {
               <p className="text-xs text-slate-400 mb-6">Ingresos procesados vía Webpay / TGR por tramo horario</p>
             </div>
 
-            {/* Gráfico de Barras Verticales */}
-            <div className="h-44 flex items-end justify-between gap-3 pt-6 px-2 border-b border-slate-700">
+            {/* Gráfico de Barras Verticales en Tailwind */}
+            <div className="h-48 flex items-end justify-between gap-4 pt-6 px-4 border-b border-slate-700 bg-slate-900/40 rounded-lg">
               {revenueHours.map((bar, idx) => (
                 <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
-                  <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity font-mono">
+                  <span className="text-[11px] font-mono text-emerald-400 font-bold">
                     {bar.amount}
                   </span>
-                  <div className="w-full bg-slate-700/60 rounded-t-md overflow-hidden flex items-end">
+                  <div className="w-full bg-slate-700/40 rounded-t-md overflow-hidden flex items-end h-32">
                     <div
-                      className="w-full bg-gradient-to-t from-emerald-600 to-teal-400 transition-all duration-500 group-hover:brightness-125"
-                      style={{ height: bar.height }}
+                      className="w-full bg-gradient-to-t from-emerald-600 to-teal-400 rounded-t-md transition-all duration-700"
+                      style={{ height: `${bar.pct}%` }}
                     ></div>
                   </div>
-                  <span className="text-[11px] text-slate-400 font-mono">{bar.hour}</span>
+                  <span className="text-[11px] text-slate-400 font-mono pb-2">{bar.hour}</span>
                 </div>
               ))}
             </div>
@@ -333,15 +327,15 @@ export default function AdminDashboard() {
               <p className="text-xs text-slate-400 mb-4">Interacciones ciudadanas registradas en áreas rurales y urbanas</p>
             </div>
 
-            {/* Gráfico de Barras Horizontales */}
-            <div className="space-y-3 pt-2">
+            {/* Gráfico de Barras Horizontales en Tailwind */}
+            <div className="space-y-4 pt-2 bg-slate-900/40 p-4 rounded-lg border border-slate-700/40">
               {sectorStats.map((item, idx) => (
                 <div key={idx}>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-slate-300 font-medium">{item.name}</span>
-                    <span className="text-slate-400 font-mono">{item.pct}% de cobertura</span>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="text-slate-200 font-medium">{item.name}</span>
+                    <span className="text-slate-300 font-mono font-bold">{item.pct}% de cobertura</span>
                   </div>
-                  <div className="w-full bg-slate-700/50 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-slate-700/60 h-3 rounded-full overflow-hidden">
                     <div
                       className={`${item.color} h-full rounded-full transition-all duration-700`}
                       style={{ width: `${item.pct}%` }}
@@ -353,10 +347,8 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* SECCIÓN RAG: INGESTA DE DOCUMENTACIÓN MUNICIPAL POR DEPARTAMENTO */}
+        {/* SECCIÓN RAG: INGESTA DOCUMENTAL */}
         <div className="bg-slate-800/70 border border-blue-500/30 rounded-xl p-6 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
-
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-slate-700/80 pb-4">
             <div>
               <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded text-xs font-semibold mb-2">
@@ -369,7 +361,6 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Formulario de Carga */}
           <form onSubmit={handleUploadDocument} className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
             <div className="md:col-span-4">
               <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
@@ -414,23 +405,19 @@ export default function AdminDashboard() {
                     Vectorizando...
                   </>
                 ) : (
-                  <>
-                    <span>📤 Subir e Indexar al RAG</span>
-                  </>
+                  <span>📤 Subir e Indexar al RAG</span>
                 )}
               </button>
             </div>
           </form>
 
-          {/* Feedback Éxito */}
           {uploadSuccess && (
             <div className="mb-4 p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-lg text-xs text-emerald-300 flex items-center gap-2">
               <span>✅</span>
-              <span><strong>Documento procesado exitosamente:</strong> Se generaron los embeddings vectoriales. El asistente de WhatsApp ya puede responder consultas sobre este texto.</span>
+              <span><strong>Documento procesado exitosamente:</strong> Embeddings generados en pgvector. El asistente ya puede responder sobre este texto.</span>
             </div>
           )}
 
-          {/* Lista de Documentos Indexados */}
           <div className="bg-slate-900/70 border border-slate-700/60 rounded-lg overflow-hidden">
             <div className="px-4 py-2 bg-slate-950/60 border-b border-slate-700/60 flex justify-between items-center">
               <span className="text-xs font-semibold text-slate-300">Documentos Activos en el Asistente</span>
@@ -459,7 +446,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* MODULO: GENERADOR DE ALERTAS TERRITORIALES MASIVAS POR WHATSAPP */}
+        {/* ALERTA TERRITORIAL MASIVA */}
         <div className="bg-slate-800/70 border border-amber-500/30 rounded-xl p-6 shadow-xl relative overflow-hidden">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b border-slate-700 pb-3">
             <div>
@@ -526,19 +513,18 @@ export default function AdminDashboard() {
             </div>
           </form>
 
-          {/* Feedback de Alerta Despachada */}
           {broadcastSuccess && (
             <div className="mt-4 p-3 bg-amber-500/20 border border-amber-500/40 rounded-lg text-xs text-amber-200 flex items-center gap-2 animate-fadeIn">
               <span>🚀</span>
               <span>
-                <strong>Alerta oficial despachada:</strong> Mensaje transmitido con éxito a los vecinos conectados en{' '}
+                <strong>Alerta oficial despachada:</strong> Mensaje transmitido con éxito a los vecinos de{' '}
                 <strong>{broadcastSector}</strong> vía canal verificado de WhatsApp.
               </span>
             </div>
           )}
         </div>
 
-        {/* TABLA DE TICKETS Y BANDEJA OPERATIVA */}
+        {/* TABLA DE TICKETS */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
           <div className="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
@@ -546,7 +532,6 @@ export default function AdminDashboard() {
               <p className="text-xs text-slate-400">Tickets generados automáticamente desde WhatsApp con auditoría ciudadana</p>
             </div>
             
-            {/* Filtros */}
             <div className="flex gap-2">
               {(['ALL', 'CALLBACK', 'CAMINO', 'PERMISO'] as const).map(f => (
                 <button

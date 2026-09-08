@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-// --- BASE DE DATOS TRANSACCIONAL (ADAPTADA A LA UNIÓN) ---
+// --- BASE DE DATOS TRANSACCIONAL (LA UNIÓN) ---
 const VEHICULOS_DB: Record<string, any> = {
   "ABCD12": {
     ppu: "ABCD12",
@@ -63,6 +63,17 @@ const PATENTES_COMERCIALES_DB: Record<string, any> = {
     estado: "AL_DIA",
     monto_semestre: 42300,
     vencimiento: "31-Jul-2026"
+  }
+};
+
+const FERIA_LIBRE_DB: Record<string, any> = {
+  "15432987-4": {
+    run: "15.432.987-4",
+    titular: "Gladys Monsalve",
+    puesto: "Puesto N° 18 - Feria Libre Calle Prat",
+    rubro: "Hortalizas y Frutas Locales",
+    monto_mes: 12500,
+    estado: "PENDIENTE"
   }
 };
 
@@ -278,9 +289,8 @@ export async function POST(req: Request) {
     }
     if (cleanMsg === '4') {
       return NextResponse.json({
-        reply: "🪪 *Licencias de Conducir - Pre-chequeo Rural*\n\nPara revisar tu hoja de vida del conductor y evitar traslados en vano, requerimos autenticación vía *ClaveÚnica*:",
-        requires_auth: true,
-        tramite_id: "LIC-2026-UNION",
+        reply: "🪪 *Licencias de Conducir - Pre-chequeo Rural*\n\nPara revisar tu hoja de vida del conductor y evitar traslados en vano, haz clic en el botón azul para ingresar con tu *ClaveÚnica*:",
+        auth_url: "/auth/claveunica",
         next_step: 'AUTH_PENDING'
       });
     }
@@ -296,7 +306,7 @@ export async function POST(req: Request) {
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: "🧺 *Pago de Derechos de Feria Libre / Ambulante*\n\nIngresa tu RUN de comerciante registrado en La Unión:\n\n_Escribe *MENU* para volver._",
+        reply: "🧺 *Pago de Derechos de Feria Libre / Ambulante*\n\nIngresa tu RUN de comerciante registrado en La Unión (ej: `15432987-4`):\n\n_Escribe *MENU* para volver._",
         next_step: 'AWAIT_RUN_FERIA'
       });
     }
@@ -396,6 +406,22 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({
       reply: `⚠️ *Infracciones Pendientes en JPL La Unión:*\n\n• Causa: *${v.multas[0].motivo}*\n• Tribunal: *${v.multas[0].juzgado}*\n• Monto: *$${v.multas[0].monto.toLocaleString('es-CL')}*\n\n¿Deseas liquidar esta multa en línea? Responde *SI* o *MENU* para cancelar.`,
+      next_step: 'CONFIRM_PAYMENT'
+    });
+  }
+
+  // Rentas: Feria Libre
+  if (step === 'AWAIT_RUN_FERIA') {
+    const raw = cleanMsg.replace(/\./g, '');
+    const feria = FERIA_LIBRE_DB[raw];
+    if (!feria) {
+      return NextResponse.json({
+        reply: `⚠️ RUN no registrado en el padrón de Ferias Libres. Para la prueba usa: \`15432987-4\`.\n\n_Escribe otro RUN o *MENU* para volver._`,
+        next_step: 'AWAIT_RUN_FERIA'
+      });
+    }
+    return NextResponse.json({
+      reply: `🧺 *Derechos de Feria Libre Registrados*\n\n• Titular: *${feria.titular}*\n• Ubicación: *${feria.puesto}*\n• Rubro: *${feria.rubro}*\n• Mensualidad: *$${feria.monto_mes.toLocaleString('es-CL')}*\n\n¿Pagar ahora vía Webpay? Responde *SI* o *MENU* para cancelar.`,
       next_step: 'CONFIRM_PAYMENT'
     });
   }

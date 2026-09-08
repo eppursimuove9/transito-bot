@@ -63,6 +63,29 @@ export default function LaUnionDemoPage() {
     scrollToBottom();
   }, [messages]);
 
+  // Escuchar si volvió autenticado desde ClaveÚnica
+  useEffect(() => {
+    const authData = localStorage.getItem('launion_auth_verified');
+    if (authData) {
+      try {
+        const parsed = JSON.parse(authData);
+        localStorage.removeItem('launion_auth_verified');
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            sender: 'bot',
+            text: `✅ *Identidad Validada con ClaveÚnica*\n\nHola *${parsed.nombre}* (RUN: ${parsed.rut}, Sector: ${parsed.sector}).\n\nHemos pre-chequeado tu Hoja de Vida del Conductor en el Registro Civil.\n\n📅 *Horas Disponibles en Dirección de Tránsito (Calle Comercio 340):*\n• Mañana martes 09:30 hrs\n• Jueves 11:15 hrs (Conexión bus rural Puerto Nuevo/Trumao)\n\n_Escribe el día de tu preferencia o *MENU* para volver._`,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+        ]);
+        setCurrentStep('INIT');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
   // Copiar al portapapeles con feedback visual
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -71,7 +94,7 @@ export default function LaUnionDemoPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // FUNCIÓN DE SINCRONIZACIÓN EN TIEMPO REAL CON /admin VÍA localStorage
+  // Sincronización en tiempo real con /admin
   const syncTicketToAdminDashboard = (
     type: 'CALLBACK' | 'CAMINO' | 'PERMISO' | 'CHATARRA',
     description: string,
@@ -132,7 +155,6 @@ export default function LaUnionDemoPage() {
       const data = await res.json();
       setCurrentStep(data.next_step);
 
-      // --- DETECTOR AUTOMÁTICO DE INTERACCIONES PARA EL DASHBOARD ---
       const replyText = data.reply || '';
 
       if (replyText.includes('Solicitud de Contacto Telefónico (#ATN-')) {
@@ -157,7 +179,8 @@ export default function LaUnionDemoPage() {
           id: (Date.now() + 1).toString(),
           sender: 'bot',
           text: data.reply,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          authUrl: data.auth_url
         }
       ]);
     } catch (e) {
@@ -196,14 +219,14 @@ export default function LaUnionDemoPage() {
       </header>
 
       <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        {/* Panel Izquierdo: GUÍA INFORMATIVA DE CASOS DE USO Y DATOS DE PRUEBA */}
+        {/* Panel Izquierdo: GUÍA INFORMATIVA */}
         <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 max-h-[660px] overflow-y-auto">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h2 className="font-bold text-sm text-white flex items-center gap-1.5">
                 <span>📋 Guía de Interacción y Datos</span>
               </h2>
-              <p className="text-[11px] text-slate-400">Escribe estos datos en el chat o haz clic para copiarlos:</p>
+              <p className="text-[11px] text-slate-400">Haz clic en cualquier caja para copiar al chat:</p>
             </div>
             <button
               onClick={restartDemo}
@@ -218,7 +241,7 @@ export default function LaUnionDemoPage() {
             {/* 1. Tránsito y Vehículos */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="flex items-center justify-between text-emerald-400 font-bold uppercase tracking-wider text-[11px]">
-                <span className="flex items-center gap-1.5"><Car className="w-3.5 h-3.5" /> 1. Patentes y Tránsito (Opción 1)</span>
+                <span className="flex items-center gap-1.5"><Car className="w-3.5 h-3.5" /> 1. Tránsito (Opción 1)</span>
               </div>
               
               <div className="space-y-1.5">
@@ -272,11 +295,12 @@ export default function LaUnionDemoPage() {
               </div>
             </div>
 
-            {/* 2. Rentas y Patentes Comerciales */}
+            {/* 2. Rentas, Patentes y Feria Libre */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="text-indigo-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <Store className="w-3.5 h-3.5" /> 2. Rentas y Patentes (Opción 2)
+                <Store className="w-3.5 h-3.5" /> 2. Rentas & Negocios (Opción 2)
               </div>
+              
               <div 
                 onClick={() => copyToClipboard("76123456-7")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-indigo-500/50 cursor-pointer transition flex justify-between items-center group"
@@ -284,12 +308,28 @@ export default function LaUnionDemoPage() {
                 <div>
                   <div className="font-mono font-bold text-white flex items-center gap-2">
                     <span>76123456-7</span>
-                    <span className="text-[10px] bg-indigo-950 text-indigo-300 font-normal px-1.5 rounded">RUT Comercial</span>
+                    <span className="text-[10px] bg-indigo-950 text-indigo-300 font-normal px-1.5 rounded">RUT Patente</span>
                   </div>
                   <p className="text-[11px] text-slate-400">Agrícola y Lácteos Puerto Nuevo SpA ($42.300)</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-indigo-400 text-xs">
                   {copiedCode === "76123456-7" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                </span>
+              </div>
+
+              <div 
+                onClick={() => copyToClipboard("15432987-4")}
+                className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-indigo-500/50 cursor-pointer transition flex justify-between items-center group"
+              >
+                <div>
+                  <div className="font-mono font-bold text-white flex items-center gap-2">
+                    <span>15432987-4</span>
+                    <span className="text-[10px] bg-emerald-950 text-emerald-300 font-normal px-1.5 rounded">Feria Libre</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Puesto N° 18 - Calle Prat (Gladys Monsalve • $12.500)</p>
+                </div>
+                <span className="text-slate-500 group-hover:text-indigo-400 text-xs">
+                  {copiedCode === "15432987-4" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
             </div>
@@ -314,23 +354,17 @@ export default function LaUnionDemoPage() {
                   {copiedCode === "123-45" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 italic">
-                💡 En la opción de caminos o chatarra puedes escribir sectores como <strong className="text-slate-300">Mashue</strong> o <strong className="text-slate-300">Trumao</strong> y usar el botón 📷 de la cámara.
-              </p>
             </div>
 
-            {/* 4. Comandos Globales y RAG */}
-            <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
-              <div className="text-cyan-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> Comandos Especiales & Consultas
+            {/* 4. Comandos Especiales */}
+            <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-1 text-[11px] text-slate-300">
+              <div className="text-cyan-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-1">
+                <Sparkles className="w-3.5 h-3.5" /> Atajos Rápidos
               </div>
-              <ul className="space-y-1 text-[11px] text-slate-300 list-disc list-inside">
-                <li>Escribe <code className="bg-slate-950 px-1 py-0.5 rounded text-rose-300 font-bold">SOS</code> para teléfonos de emergencia comunal.</li>
-                <li>Escribe <code className="bg-slate-950 px-1 py-0.5 rounded text-amber-300 font-bold">5</code> o <code className="bg-slate-950 px-1 py-0.5 rounded text-amber-300 font-bold">MODO SIMPLE</code> para lenguaje adulto mayor.</li>
-                <li>Escribe <code className="bg-slate-950 px-1 py-0.5 rounded text-purple-300 font-bold">0</code> para solicitar llamado (crea ticket en `/admin`).</li>
-                <li>Preguntas RAG libres: <em>"¿Qué eventos hay en Trumao?"</em> o <em>"Farmacia de turno"</em>.</li>
-                <li>Escribe <code className="bg-slate-950 px-1 py-0.5 rounded text-slate-300 font-bold">MENU</code> en cualquier momento para reiniciar el flujo.</li>
-              </ul>
+              <p>• Escribe <strong className="text-rose-300 font-mono">SOS</strong> para emergencias.</p>
+              <p>• Escribe <strong className="text-amber-300 font-mono">5</strong> o <strong className="text-amber-300 font-mono">MODO SIMPLE</strong> para modo adulto mayor.</p>
+              <p>• En Licencias (1 ➔ 4), presiona el botón azul para simular ClaveÚnica.</p>
+              <p>• Escribe <strong className="text-purple-300 font-mono">0</strong> para solicitar un llamado humano.</p>
             </div>
           </div>
         </aside>
@@ -372,17 +406,16 @@ export default function LaUnionDemoPage() {
 
                   {m.text}
 
+                  {/* BOTÓN REAL DE CLAVEÚNICA */}
                   {m.authUrl && (
                     <div className="mt-3 pt-2 border-t border-slate-700/60">
                       <a
                         href={m.authUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 bg-[#003366] hover:bg-[#002244] text-white px-3.5 py-2 rounded-lg text-xs font-semibold shadow transition"
+                        className="inline-flex items-center gap-2 bg-[#0f4c81] hover:bg-[#0c3c66] text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition"
                       >
-                        <Shield className="w-3.5 h-3.5 text-red-400" />
-                        <span>Ingresar con ClaveÚnica</span>
-                        <ExternalLink className="w-3 h-3 ml-1" />
+                        <Shield className="w-4 h-4 text-white" />
+                        <span>Ingresar con ClaveÚnica (Registro Civil)</span>
+                        <ExternalLink className="w-3.5 h-3.5 ml-1" />
                       </a>
                     </div>
                   )}
