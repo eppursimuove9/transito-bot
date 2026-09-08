@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Ticket {
   id: string;
@@ -127,10 +127,48 @@ export default function AdminDashboard() {
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
 
+  // --- SINCRONIZACIÓN EN TIEMPO REAL VÍA STORAGE API ---
+  useEffect(() => {
+    const syncTicketsFromStorage = () => {
+      const stored = localStorage.getItem('launion_tickets');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setTickets(parsed);
+          }
+        } catch (err) {
+          console.error('Error sincronizando tickets desde localStorage:', err);
+        }
+      } else {
+        localStorage.setItem('launion_tickets', JSON.stringify(INITIAL_TICKETS));
+      }
+    };
+
+    syncTicketsFromStorage();
+
+    // Event listener nativo para cambios generados desde la pestaña del Chat
+    const handleStorageEvent = (event: StorageEvent) => {
+      if (event.key === 'launion_tickets' && event.newValue) {
+        try {
+          const parsed = JSON.parse(event.newValue);
+          setTickets(parsed);
+        } catch (err) {
+          console.error('Error parseando StorageEvent:', err);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageEvent);
+    return () => window.removeEventListener('storage', handleStorageEvent);
+  }, []);
+
   const markAsResolved = (id: string) => {
-    setTickets(prev =>
-      prev.map(t => (t.id === id ? { ...t, status: 'ATENDIDO' } : t))
-    );
+    setTickets(prev => {
+      const updated = prev.map(t => (t.id === id ? { ...t, status: 'ATENDIDO' as const } : t));
+      localStorage.setItem('launion_tickets', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const handleUploadDocument = (e: React.FormEvent) => {
