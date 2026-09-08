@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Send, Shield, Car, Camera, ExternalLink, RefreshCw, EyeOff, 
-  Home, ArrowLeft, Trash2, PhoneCall, Sparkles, AlertTriangle, HeartHandshake 
+  Home, ArrowLeft, Trash2, PhoneCall, Sparkles, AlertTriangle, HeartHandshake, Store
 } from 'lucide-react';
 
 interface Message {
@@ -237,8 +237,8 @@ export default function LaUnionDemoPage() {
 
       <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
         {/* Panel Izquierdo: Casos de Prueba */}
-        <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-4 max-h-[660px] overflow-y-auto custom-scrollbar">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3 sticky top-0 bg-slate-900 z-10">
             <h2 className="font-semibold text-sm text-slate-200 flex items-center gap-2">
               Pruebas Rápidas (Demostración)
             </h2>
@@ -251,7 +251,7 @@ export default function LaUnionDemoPage() {
             </button>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 pb-4">
             {/* Categoría: Emergencias & Inclusión */}
             <div className="text-[11px] font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1">
               <AlertTriangle className="w-3.5 h-3.5" /> Seguridad & Inclusión Rural
@@ -265,7 +265,7 @@ export default function LaUnionDemoPage() {
                 <div className="text-xs font-semibold text-rose-300 flex items-center gap-1">
                   🚨 <span>Comando SOS</span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">Seguridad & Retén Puerto Nuevo</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Contactos directos</p>
               </button>
 
               <button
@@ -275,13 +275,13 @@ export default function LaUnionDemoPage() {
                 <div className="text-xs font-semibold text-amber-300 flex items-center gap-1">
                   <HeartHandshake className="w-3 h-3" /> <span>Modo Senior</span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">Letra grande y sin tecnicismos</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Lenguaje claro</p>
               </button>
             </div>
 
             {/* Categoría: RAG / Base de Conocimiento Inteligente */}
             <div className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" /> RAG / Consultas Comunales
+              <Sparkles className="w-3.5 h-3.5" /> RAG / Consultas
             </div>
 
             <button
@@ -289,10 +289,9 @@ export default function LaUnionDemoPage() {
               className="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-700/50 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-cyan-300">
-                <span>Eventos en Trumao & Puerto Nuevo</span>
-                <span className="text-[9px] bg-cyan-900 text-cyan-200 px-1.5 py-0.5 rounded">RAG Comunal</span>
+                <span>Eventos en Trumao & Pto Nuevo</span>
+                <span className="text-[9px] bg-cyan-900 text-cyan-200 px-1.5 py-0.5 rounded">RAG</span>
               </div>
-              <p className="text-[10px] text-slate-300 mt-0.5">Feria fluvial y muestra en el Lago Ranco</p>
             </button>
 
             <button
@@ -301,40 +300,77 @@ export default function LaUnionDemoPage() {
             >
               <div className="flex justify-between items-center text-xs font-semibold text-cyan-300">
                 <span>Farmacia de Turno & Salud</span>
-                <span className="text-[9px] bg-cyan-900 text-cyan-200 px-1.5 py-0.5 rounded">Salud 24/7</span>
+                <span className="text-[9px] bg-cyan-900 text-cyan-200 px-1.5 py-0.5 rounded">RAG</span>
               </div>
-              <p className="text-[10px] text-slate-300 mt-0.5">Turno en Calle Comercio y urgencias Hospital</p>
             </button>
 
             {/* Categoría: Tránsito */}
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Car className="w-3.5 h-3.5 text-emerald-400" /> Tránsito y Recaudación
+            <div className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider mt-2 flex items-center gap-1">
+              <Car className="w-3.5 h-3.5" /> Tránsito y Recaudación
             </div>
             
             <button
               onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("ABCD12"), 800); }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+              className="w-full text-left p-2 rounded-xl bg-emerald-950/30 hover:bg-emerald-900/40 border border-emerald-700/50 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-emerald-400">
-                <span>Pago Express Permiso</span>
-                <span className="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded">ABCD12</span>
+                <span>1. Pago Exitoso (Toyota)</span>
+                <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/50">ABCD12</span>
               </div>
+              <p className="text-[10px] text-slate-400 mt-0.5">Simula un pago normal al día.</p>
             </button>
 
             <button
-              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("2"), 400); setTimeout(() => handleSendMessage("ABCD12"), 800); }}
+              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("GFHY45"), 800); }}
+              className="w-full text-left p-2 rounded-xl bg-amber-950/30 hover:bg-amber-900/40 border border-amber-700/50 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-amber-400">
+                <span>2. Cobro con Multa JPL</span>
+                <span className="text-[10px] bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/50">GFHY45</span>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-0.5">Muestra infracción pendiente ($35.000).</p>
+            </button>
+
+            <button
+              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("KJTR88"), 800); }}
+              className="w-full text-left p-2 rounded-xl bg-rose-950/30 hover:bg-rose-900/40 border border-rose-700/50 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-rose-400">
+                <span>3. Bloqueo PRT Vencida</span>
+                <span className="text-[10px] bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded border border-rose-700/50">KJTR88</span>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-0.5">Rechaza pago y manda a Planta de Revisión.</p>
+            </button>
+
+            {/* Categoría: Rentas y Patentes */}
+            <div className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider mt-2 flex items-center gap-1">
+              <Store className="w-3.5 h-3.5" /> Negocios y Patentes
+            </div>
+
+            <button
+              onClick={() => { handleSendMessage("2"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("76123456-7"), 800); }}
               className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
             >
               <div className="flex justify-between items-center text-xs font-semibold text-indigo-400">
-                <span>Duplicado de Permiso (PDF Timbrado)</span>
-                <span className="text-[9px] bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded">Descarga</span>
+                <span>Patente Comercial (MEF)</span>
+                <span className="text-[10px] bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-700/50">76.123.456-7</span>
               </div>
             </button>
 
             {/* Categoría: Vecinos y Operaciones */}
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Home className="w-3.5 h-3.5 text-orange-400" /> Vecinos y Operaciones
+            <div className="text-[11px] font-bold text-orange-400 uppercase tracking-wider mt-2 flex items-center gap-1">
+              <Home className="w-3.5 h-3.5" /> Vecinos y Operaciones
             </div>
+
+            <button
+              onClick={() => { handleSendMessage("3"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("123-45"), 800); }}
+              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
+            >
+              <div className="flex justify-between items-center text-xs font-semibold text-orange-400">
+                <span>Pago Aseo Domiciliario</span>
+                <span className="text-[10px] bg-orange-950 text-orange-300 px-1.5 py-0.5 rounded border border-orange-700/50">Rol: 123-45</span>
+              </div>
+            </button>
 
             <button
               onClick={() => {
@@ -351,26 +387,7 @@ export default function LaUnionDemoPage() {
             >
               <div className="flex justify-between items-center text-xs font-semibold text-orange-400">
                 <span className="flex items-center gap-1"><EyeOff className="w-3 h-3" /> Reporte Camino + Foto</span>
-                <span className="text-[9px] bg-orange-950 text-orange-300 px-1.5 py-0.5 rounded">Sincroniza /admin</span>
-              </div>
-            </button>
-
-            <button
-              onClick={() => {
-                handleSendMessage("3");
-                setTimeout(() => {
-                  handleSendMessage("4");
-                  setTimeout(() => {
-                    handleSendMessage("Choroico Parcela 14");
-                    setTimeout(() => handleSendChatarraPhoto(), 500);
-                  }, 500);
-                }, 500);
-              }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-rose-400">
-                <span className="flex items-center gap-1"><Trash2 className="w-3 h-3" /> Retiro Chatarra + Foto</span>
-                <span className="text-[9px] bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded">Reciclaje</span>
+                <span className="text-[9px] bg-orange-950 text-orange-300 px-1.5 py-0.5 rounded">Sincroniza Dashboard</span>
               </div>
             </button>
 
@@ -385,14 +402,14 @@ export default function LaUnionDemoPage() {
             >
               <div className="flex justify-between items-center text-xs font-semibold text-purple-400">
                 <span className="flex items-center gap-1">📞 Solicitar Llamado (Callback)</span>
-                <span className="text-[9px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded">Dispara Ticket</span>
+                <span className="text-[9px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded">Ticket al /admin</span>
               </div>
             </button>
 
             {/* Botón Volver */}
             <button
               onClick={() => handleSendMessage("MENU")}
-              className="w-full text-center p-1.5 mt-2 rounded-xl bg-slate-800/30 hover:bg-slate-800/70 border border-slate-700/40 text-xs font-semibold text-slate-300 transition flex items-center justify-center gap-1"
+              className="w-full text-center p-1.5 mt-2 rounded-xl bg-slate-800/30 hover:bg-slate-800/70 border border-slate-700/40 text-xs font-semibold text-slate-300 transition flex items-center justify-center gap-1 sticky bottom-0"
             >
               <ArrowLeft className="w-3 h-3" /> Volver al Menú Principal (MENU)
             </button>
