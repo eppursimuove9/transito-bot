@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Send, Shield, Car, Camera, ExternalLink, RefreshCw, EyeOff, 
-  Home, ArrowLeft, Trash2, PhoneCall, Sparkles, AlertTriangle, HeartHandshake, Store
+  Home, ArrowLeft, Trash2, PhoneCall, Sparkles, AlertTriangle, HeartHandshake, Store, Copy, Check
 } from 'lucide-react';
 
 interface Message {
@@ -52,6 +52,7 @@ export default function LaUnionDemoPage() {
   const [inputValue, setInputValue] = useState('');
   const [currentStep, setCurrentStep] = useState('INIT');
   const [loading, setLoading] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -61,6 +62,14 @@ export default function LaUnionDemoPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Copiar al portapapeles con feedback visual
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCode(text);
+    setInputValue(text);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
 
   // FUNCIÓN DE SINCRONIZACIÓN EN TIEMPO REAL CON /admin VÍA localStorage
   const syncTicketToAdminDashboard = (
@@ -92,28 +101,6 @@ export default function LaUnionDemoPage() {
       console.error('Error al sincronizar con el panel de administración:', err);
     }
   };
-
-  // Escuchar si el usuario completó la autenticación con ClaveÚnica
-  useEffect(() => {
-    const checkAuth = setInterval(() => {
-      const auth = localStorage.getItem('launion_auth_verified');
-      if (auth && currentStep === 'AUTH_PENDING') {
-        const parsed = JSON.parse(auth);
-        localStorage.removeItem('launion_auth_verified');
-        setCurrentStep('INIT');
-        setMessages(prev => [
-          ...prev,
-          {
-            id: Date.now().toString(),
-            sender: 'bot',
-            text: `✅ *Identidad Validada con ClaveÚnica*\n\nHola *${parsed.nombre}* (Sector ${parsed.sector}).\n\nHemos pre-chequeado tu Hoja de Vida del Conductor.\n\n📅 *Horas Disponibles en Dirección de Tránsito (Comercio 340):*\n• Mañana martes 09:30 hrs\n• Jueves 11:15 hrs (Conexión directa bus rural Puerto Nuevo/Trumao)\n\n_Escribe el día de tu preferencia o *MENU* para volver._`,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          }
-        ]);
-      }
-    }, 1500);
-    return () => clearInterval(checkAuth);
-  }, [currentStep]);
 
   const handleSendMessage = async (customText?: string, customImage?: string) => {
     const textToSend = customText !== undefined ? customText : inputValue;
@@ -164,26 +151,13 @@ export default function LaUnionDemoPage() {
         syncTicketToAdminDashboard('PERMISO', 'Pago Express completado vía Webpay / TGR (Timbrado emitido)', 'Urbano (Arturo Prat)', 'Carlos Vera');
       }
 
-      let authLink: string | undefined = undefined;
-
-      if (data.requires_auth) {
-        const authRes = await fetch('/api/auth/magic-link', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ wa_id: "+56987654321", id_tramite: data.tramite_id })
-        });
-        const authData = await authRes.json();
-        authLink = authData.auth_url;
-      }
-
       setMessages(prev => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
           sender: 'bot',
           text: data.reply,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          authUrl: authLink
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
     } catch (e) {
@@ -191,20 +165,6 @@ export default function LaUnionDemoPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSendCaminoPhoto = () => {
-    handleSendMessage(
-      "📸 Camino sector Mashue curva km 4 con bache profundo tras lluvia",
-      "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80"
-    );
-  };
-
-  const handleSendChatarraPhoto = () => {
-    handleSendMessage(
-      "📸 Chatarra, fierros viejos y 2 baterías en desuso para reciclaje en Choroico",
-      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=600&auto=format&fit=crop&q=80"
-    );
   };
 
   const restartDemo = () => {
@@ -231,192 +191,151 @@ export default function LaUnionDemoPage() {
           Ventanilla Única WhatsApp La Unión
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Plataforma modular con RAG inteligente, soporte fotográfico, callbacks telefónicos y enlace a panel administrativo en tiempo real.
+          Plataforma modular con RAG comunal, semáforos de SLA y sincronización con panel administrativo en tiempo real.
         </p>
       </header>
 
       <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        {/* Panel Izquierdo: Casos de Prueba */}
-        <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-4 max-h-[660px] overflow-y-auto custom-scrollbar">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3 sticky top-0 bg-slate-900 z-10">
-            <h2 className="font-semibold text-sm text-slate-200 flex items-center gap-2">
-              Pruebas Rápidas (Demostración)
-            </h2>
+        {/* Panel Izquierdo: GUÍA INFORMATIVA DE CASOS DE USO Y DATOS DE PRUEBA */}
+        <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 max-h-[660px] overflow-y-auto">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 className="font-bold text-sm text-white flex items-center gap-1.5">
+                <span>📋 Guía de Interacción y Datos</span>
+              </h2>
+              <p className="text-[11px] text-slate-400">Escribe estos datos en el chat o haz clic para copiarlos:</p>
+            </div>
             <button
               onClick={restartDemo}
-              className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition"
+              className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition bg-slate-800 px-2 py-1 rounded"
               title="Reiniciar conversación"
             >
-              <RefreshCw className="w-3 h-3" /> Reiniciar
+              <RefreshCw className="w-3 h-3" /> Limpiar
             </button>
           </div>
 
-          <div className="space-y-2 pb-4">
-            {/* Categoría: Emergencias & Inclusión */}
-            <div className="text-[11px] font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1">
-              <AlertTriangle className="w-3.5 h-3.5" /> Seguridad & Inclusión Rural
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleSendMessage("SOS")}
-                className="p-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-700/50 transition text-left"
-              >
-                <div className="text-xs font-semibold text-rose-300 flex items-center gap-1">
-                  🚨 <span>Comando SOS</span>
+          <div className="space-y-3 text-xs">
+            {/* 1. Tránsito y Vehículos */}
+            <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div className="flex items-center justify-between text-emerald-400 font-bold uppercase tracking-wider text-[11px]">
+                <span className="flex items-center gap-1.5"><Car className="w-3.5 h-3.5" /> 1. Patentes y Tránsito (Opción 1)</span>
+              </div>
+              
+              <div className="space-y-1.5">
+                <div 
+                  onClick={() => copyToClipboard("ABCD12")}
+                  className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-emerald-500/50 cursor-pointer transition flex justify-between items-center group"
+                >
+                  <div>
+                    <div className="font-mono font-bold text-white flex items-center gap-2">
+                      <span>ABCD12</span>
+                      <span className="text-[10px] bg-emerald-950 text-emerald-300 font-normal px-1.5 rounded">Al día</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">Toyota Hilux (Puerto Nuevo) • Flujo normal de pago</p>
+                  </div>
+                  <span className="text-slate-500 group-hover:text-emerald-400 text-xs">
+                    {copiedCode === "ABCD12" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  </span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">Contactos directos</p>
-              </button>
 
-              <button
-                onClick={() => handleSendMessage("MODO SIMPLE")}
-                className="p-2 rounded-xl bg-amber-950/40 hover:bg-amber-900/50 border border-amber-700/50 transition text-left"
-              >
-                <div className="text-xs font-semibold text-amber-300 flex items-center gap-1">
-                  <HeartHandshake className="w-3 h-3" /> <span>Modo Senior</span>
+                <div 
+                  onClick={() => copyToClipboard("GFHY45")}
+                  className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-amber-500/50 cursor-pointer transition flex justify-between items-center group"
+                >
+                  <div>
+                    <div className="font-mono font-bold text-white flex items-center gap-2">
+                      <span>GFHY45</span>
+                      <span className="text-[10px] bg-amber-950 text-amber-300 font-normal px-1.5 rounded">Multa JPL</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">Nissan Terrano (Mashue) • Infracción de $35.000</p>
+                  </div>
+                  <span className="text-slate-500 group-hover:text-amber-400 text-xs">
+                    {copiedCode === "GFHY45" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  </span>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">Lenguaje claro</p>
-              </button>
+
+                <div 
+                  onClick={() => copyToClipboard("KJTR88")}
+                  className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-rose-500/50 cursor-pointer transition flex justify-between items-center group"
+                >
+                  <div>
+                    <div className="font-mono font-bold text-white flex items-center gap-2">
+                      <span>KJTR88</span>
+                      <span className="text-[10px] bg-rose-950 text-rose-300 font-normal px-1.5 rounded">PRT Vencida</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">Chevrolet Sail (Choroico) • Bloqueo de seguridad</p>
+                  </div>
+                  <span className="text-slate-500 group-hover:text-rose-400 text-xs">
+                    {copiedCode === "KJTR88" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Categoría: RAG / Base de Conocimiento Inteligente */}
-            <div className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" /> RAG / Consultas
+            {/* 2. Rentas y Patentes Comerciales */}
+            <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div className="text-indigo-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <Store className="w-3.5 h-3.5" /> 2. Rentas y Patentes (Opción 2)
+              </div>
+              <div 
+                onClick={() => copyToClipboard("76123456-7")}
+                className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-indigo-500/50 cursor-pointer transition flex justify-between items-center group"
+              >
+                <div>
+                  <div className="font-mono font-bold text-white flex items-center gap-2">
+                    <span>76123456-7</span>
+                    <span className="text-[10px] bg-indigo-950 text-indigo-300 font-normal px-1.5 rounded">RUT Comercial</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Agrícola y Lácteos Puerto Nuevo SpA ($42.300)</p>
+                </div>
+                <span className="text-slate-500 group-hover:text-indigo-400 text-xs">
+                  {copiedCode === "76123456-7" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                </span>
+              </div>
             </div>
 
-            <button
-              onClick={() => handleSendMessage("¿Qué eventos costumbristas hay este verano en La Unión y Trumao?")}
-              className="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-700/50 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-cyan-300">
-                <span>Eventos en Trumao & Pto Nuevo</span>
-                <span className="text-[9px] bg-cyan-900 text-cyan-200 px-1.5 py-0.5 rounded">RAG</span>
+            {/* 3. Vecinos, Aseo y Reportes */}
+            <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div className="text-orange-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <Home className="w-3.5 h-3.5" /> 3. Vecinos & Operaciones (Opción 3)
               </div>
-            </button>
-
-            <button
-              onClick={() => handleSendMessage("¿Cuál es la farmacia de turno hoy en La Unión?")}
-              className="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-700/50 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-cyan-300">
-                <span>Farmacia de Turno & Salud</span>
-                <span className="text-[9px] bg-cyan-900 text-cyan-200 px-1.5 py-0.5 rounded">RAG</span>
+              <div 
+                onClick={() => copyToClipboard("123-45")}
+                className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
+              >
+                <div>
+                  <div className="font-mono font-bold text-white flex items-center gap-2">
+                    <span>123-45</span>
+                    <span className="text-[10px] bg-orange-950 text-orange-300 font-normal px-1.5 rounded">Rol Aseo</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Arturo Prat 450 (2 cuotas pendientes: $18.400)</p>
+                </div>
+                <span className="text-slate-500 group-hover:text-orange-400 text-xs">
+                  {copiedCode === "123-45" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                </span>
               </div>
-            </button>
-
-            {/* Categoría: Tránsito */}
-            <div className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Car className="w-3.5 h-3.5" /> Tránsito y Recaudación
-            </div>
-            
-            <button
-              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("ABCD12"), 800); }}
-              className="w-full text-left p-2 rounded-xl bg-emerald-950/30 hover:bg-emerald-900/40 border border-emerald-700/50 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-emerald-400">
-                <span>1. Pago Exitoso (Toyota)</span>
-                <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/50">ABCD12</span>
-              </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">Simula un pago normal al día.</p>
-            </button>
-
-            <button
-              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("GFHY45"), 800); }}
-              className="w-full text-left p-2 rounded-xl bg-amber-950/30 hover:bg-amber-900/40 border border-amber-700/50 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-amber-400">
-                <span>2. Cobro con Multa JPL</span>
-                <span className="text-[10px] bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded border border-amber-700/50">GFHY45</span>
-              </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">Muestra infracción pendiente ($35.000).</p>
-            </button>
-
-            <button
-              onClick={() => { handleSendMessage("1"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("KJTR88"), 800); }}
-              className="w-full text-left p-2 rounded-xl bg-rose-950/30 hover:bg-rose-900/40 border border-rose-700/50 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-rose-400">
-                <span>3. Bloqueo PRT Vencida</span>
-                <span className="text-[10px] bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded border border-rose-700/50">KJTR88</span>
-              </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">Rechaza pago y manda a Planta de Revisión.</p>
-            </button>
-
-            {/* Categoría: Rentas y Patentes */}
-            <div className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Store className="w-3.5 h-3.5" /> Negocios y Patentes
+              <p className="text-[11px] text-slate-400 italic">
+                💡 En la opción de caminos o chatarra puedes escribir sectores como <strong className="text-slate-300">Mashue</strong> o <strong className="text-slate-300">Trumao</strong> y usar el botón 📷 de la cámara.
+              </p>
             </div>
 
-            <button
-              onClick={() => { handleSendMessage("2"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("76123456-7"), 800); }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-indigo-400">
-                <span>Patente Comercial (MEF)</span>
-                <span className="text-[10px] bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-700/50">76.123.456-7</span>
+            {/* 4. Comandos Globales y RAG */}
+            <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div className="text-cyan-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" /> Comandos Especiales & Consultas
               </div>
-            </button>
-
-            {/* Categoría: Vecinos y Operaciones */}
-            <div className="text-[11px] font-bold text-orange-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <Home className="w-3.5 h-3.5" /> Vecinos y Operaciones
+              <ul className="space-y-1 text-[11px] text-slate-300 list-disc list-inside">
+                <li>Escribe <code className="bg-slate-950 px-1 py-0.5 rounded text-rose-300 font-bold">SOS</code> para teléfonos de emergencia comunal.</li>
+                <li>Escribe <code className="bg-slate-950 px-1 py-0.5 rounded text-amber-300 font-bold">5</code> o <code className="bg-slate-950 px-1 py-0.5 rounded text-amber-300 font-bold">MODO SIMPLE</code> para lenguaje adulto mayor.</li>
+                <li>Escribe <code className="bg-slate-950 px-1 py-0.5 rounded text-purple-300 font-bold">0</code> para solicitar llamado (crea ticket en `/admin`).</li>
+                <li>Preguntas RAG libres: <em>"¿Qué eventos hay en Trumao?"</em> o <em>"Farmacia de turno"</em>.</li>
+                <li>Escribe <code className="bg-slate-950 px-1 py-0.5 rounded text-slate-300 font-bold">MENU</code> en cualquier momento para reiniciar el flujo.</li>
+              </ul>
             </div>
-
-            <button
-              onClick={() => { handleSendMessage("3"); setTimeout(() => handleSendMessage("1"), 400); setTimeout(() => handleSendMessage("123-45"), 800); }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-orange-400">
-                <span>Pago Aseo Domiciliario</span>
-                <span className="text-[10px] bg-orange-950 text-orange-300 px-1.5 py-0.5 rounded border border-orange-700/50">Rol: 123-45</span>
-              </div>
-            </button>
-
-            <button
-              onClick={() => {
-                handleSendMessage("3");
-                setTimeout(() => {
-                  handleSendMessage("2");
-                  setTimeout(() => {
-                    handleSendMessage("Mashue");
-                    setTimeout(() => handleSendCaminoPhoto(), 500);
-                  }, 500);
-                }, 500);
-              }}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-orange-400">
-                <span className="flex items-center gap-1"><EyeOff className="w-3 h-3" /> Reporte Camino + Foto</span>
-                <span className="text-[9px] bg-orange-950 text-orange-300 px-1.5 py-0.5 rounded">Sincroniza Dashboard</span>
-              </div>
-            </button>
-
-            {/* Categoría: Callback Telefónico */}
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-2 flex items-center gap-1">
-              <PhoneCall className="w-3.5 h-3.5 text-purple-400" /> Asistencia Municipal
-            </div>
-
-            <button
-              onClick={() => handleSendMessage("0")}
-              className="w-full text-left p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 transition"
-            >
-              <div className="flex justify-between items-center text-xs font-semibold text-purple-400">
-                <span className="flex items-center gap-1">📞 Solicitar Llamado (Callback)</span>
-                <span className="text-[9px] bg-purple-950 text-purple-300 px-1.5 py-0.5 rounded">Ticket al /admin</span>
-              </div>
-            </button>
-
-            {/* Botón Volver */}
-            <button
-              onClick={() => handleSendMessage("MENU")}
-              className="w-full text-center p-1.5 mt-2 rounded-xl bg-slate-800/30 hover:bg-slate-800/70 border border-slate-700/40 text-xs font-semibold text-slate-300 transition flex items-center justify-center gap-1 sticky bottom-0"
-            >
-              <ArrowLeft className="w-3 h-3" /> Volver al Menú Principal (MENU)
-            </button>
           </div>
         </aside>
 
-        {/* Panel Derecho: WhatsApp */}
+        {/* Panel Derecho: WhatsApp Interactivo */}
         <main className="md:col-span-7 bg-slate-900 border-4 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[660px]">
           {/* Header de WhatsApp */}
           <div className="bg-[#075E54] text-white p-3.5 flex items-center gap-3 shadow-md">
@@ -493,8 +412,11 @@ export default function LaUnionDemoPage() {
           >
             <button
               type="button"
-              onClick={handleSendChatarraPhoto}
-              title="Adjuntar foto de evidencia"
+              onClick={() => handleSendMessage(
+                "📸 Camino sector Mashue curva km 4 con bache profundo tras lluvia",
+                "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80"
+              )}
+              title="Adjuntar foto de evidencia (Cámara)"
               className="w-9 h-9 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-full flex items-center justify-center transition shrink-0"
             >
               <Camera className="w-4 h-4" />
@@ -504,7 +426,7 @@ export default function LaUnionDemoPage() {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Escribe un trámite (1-5), SOS o '0' para funcionario..."
+              placeholder="Escribe aquí un número (1-5), SOS o tu consulta..."
               className="flex-1 bg-[#2a3942] text-white placeholder-slate-400 text-xs md:text-sm px-3.5 py-2.5 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00a884]"
             />
             <button
