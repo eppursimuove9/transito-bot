@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, Search, ShieldCheck, FileText, Bell, Clock, 
-  CheckCircle, Vote, UserPlus, FileSpreadsheet
+  CheckCircle, Vote, UserPlus, FileSpreadsheet, PlusCircle, Trash2, Smartphone
 } from 'lucide-react';
 
 interface Ticket {
@@ -158,23 +158,38 @@ export default function AdminDashboard() {
 
   // Upgrade: CRM Ficha Vecinal
   const [citizensDb, setCitizensDb] = useState<Record<string, CitizenRecord>>(INITIAL_CITIZENS);
-  const [searchRut, setSearchRut] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [citizenFound, setCitizenFound] = useState<CitizenRecord | null>(null);
   const [searchError, setSearchError] = useState(false);
 
   // Formulario nueva atención presencial
   const [newRut, setNewRut] = useState('');
   const [newNombre, setNewNombre] = useState('');
+  const [newTelefono, setNewTelefono] = useState('');
   const [newSector, setNewSector] = useState('Puerto Nuevo');
   const [newDept, setNewDept] = useState('DIDECO (Social)');
   const [newDetalle, setNewDetalle] = useState('');
   const [recordSaved, setRecordSaved] = useState(false);
 
   // Upgrade: Difusión Masiva y Consultas Ciudadanas
+  const [broadcastMode, setBroadcastMode] = useState<'ALERTA' | 'ENCUESTA'>('ALERTA');
   const [broadcastSector, setBroadcastSector] = useState('Sector Puerto Nuevo (APR y Ribera)');
-  const [broadcastType, setBroadcastType] = useState<'ALERTA' | 'ENCUESTA'>('ALERTA');
-  const [broadcastMessage, setBroadcastMessage] = useState('Corte preventivo de ruta rural por faenas de motoniveladora municipal.');
-  const [surveyQuestion, setSurveyQuestion] = useState('¿Considera prioritaria la instalación de luminarias solares en su sector? (1: Sí / 2: No)');
+  
+  // Estado para Comunicados
+  const [broadcastMessage, setBroadcastMessage] = useState(
+    'AVISO IMPORTANTE: Se informa a los vecinos del sector Puerto Nuevo que hoy entre las 14:00 y 18:00 hrs se realizarán trabajos de mejoramiento en la red de Agua Potable Rural (APR). Se solicita tomar los resguardos correspondientes.'
+  );
+
+  // Estados para Constructor de Encuestas
+  const [surveyType, setSurveyType] = useState<'SI_NO' | 'MULTIPLE' | 'ESCALA' | 'ABIERTA'>('MULTIPLE');
+  const [surveyQuestion, setSurveyQuestion] = useState('¿Cuál de los siguientes proyectos considera prioritario para el presupuesto comunal 2027?');
+  const [surveyOptions, setSurveyOptions] = useState<string[]>([
+    'Mejoramiento de caminos y bacheo rural',
+    'Ampliación de luminarias solares',
+    'Nuevos puntos limpios y retiro de chatarra'
+  ]);
+  const [newOptionText, setNewOptionText] = useState('');
+
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
 
@@ -203,7 +218,7 @@ export default function AdminDashboard() {
           const parsed = JSON.parse(event.newValue);
           setTickets(parsed);
         } catch (err) {
-          console.error('Error procesando evento de almacenamiento:', err);
+          console.error('Error procesando evento:', err);
         }
       }
     };
@@ -220,7 +235,6 @@ export default function AdminDashboard() {
     });
   };
 
-  // Carga Documental Asistida
   const handleUploadDocument = (e: React.FormEvent) => {
     e.preventDefault();
     if (!docName.trim()) return;
@@ -247,14 +261,19 @@ export default function AdminDashboard() {
     }, 1200);
   };
 
-  // Búsqueda en CRM
+  // Búsqueda inteligente: Por RUN o por Teléfono
   const handleSearchCitizen = (e: React.FormEvent) => {
     e.preventDefault();
-    const clean = searchRut.trim();
-    if (!clean) return;
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return;
 
-    if (citizensDb[clean]) {
-      setCitizenFound(citizensDb[clean]);
+    // Busca coincidencia en RUN o en Teléfono
+    const found = Object.values(citizensDb).find(
+      c => c.rut.toLowerCase().includes(query) || c.telefono.replace(/\s+/g, '').includes(query.replace(/\s+/g, ''))
+    );
+
+    if (found) {
+      setCitizenFound(found);
       setSearchError(false);
     } else {
       setCitizenFound(null);
@@ -262,7 +281,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // Registro de nueva atención presencial (One Source of Truth)
+  // Registrar nueva atención en mesón
   const handleAddCitizenRecord = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRut.trim() || !newNombre.trim() || !newDetalle.trim()) return;
@@ -280,6 +299,7 @@ export default function AdminDashboard() {
     const updatedRecord: CitizenRecord = existing
       ? {
           ...existing,
+          telefono: newTelefono.trim() || existing.telefono,
           sector: newSector,
           historial: [newAttention, ...existing.historial]
         }
@@ -287,20 +307,31 @@ export default function AdminDashboard() {
           rut: rutKey,
           nombre: newNombre,
           sector: newSector,
-          telefono: '+56 9 ' + Math.floor(70000000 + Math.random() * 29000000),
+          telefono: newTelefono.trim() || '+56 9 ' + Math.floor(70000000 + Math.random() * 29000000),
           historial: [newAttention]
         };
 
     setCitizensDb(prev => ({ ...prev, [rutKey]: updatedRecord }));
     setCitizenFound(updatedRecord);
-    setSearchRut(rutKey);
+    setSearchQuery(rutKey);
     setRecordSaved(true);
     setNewDetalle('');
 
     setTimeout(() => setRecordSaved(false), 4000);
   };
 
-  // Envío Masivo / Encuestas
+  // Manejo de Opciones de Encuestas
+  const handleAddOption = () => {
+    if (newOptionText.trim() && surveyOptions.length < 5) {
+      setSurveyOptions([...surveyOptions, newOptionText.trim()]);
+      setNewOptionText('');
+    }
+  };
+
+  const handleRemoveOption = (index: number) => {
+    setSurveyOptions(surveyOptions.filter((_, i) => i !== index));
+  };
+
   const handleSendBroadcast = (e: React.FormEvent) => {
     e.preventDefault();
     setIsBroadcasting(true);
@@ -309,15 +340,15 @@ export default function AdminDashboard() {
     setTimeout(() => {
       setIsBroadcasting(false);
       setBroadcastSuccess(true);
-      setTimeout(() => setBroadcastSuccess(false), 5000);
-    }, 1000);
+      setTimeout(() => setBroadcastSuccess(false), 6000);
+    }, 1200);
   };
 
   const filteredTickets = filter === 'ALL' ? tickets : tickets.filter(t => t.type === filter);
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
-      {/* Header Superior */}
+      {/* Header */}
       <header className="border-b border-slate-800 bg-slate-950/90 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 z-50 backdrop-blur">
         <div>
           <div className="flex items-center gap-2">
@@ -366,12 +397,12 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* BANDEJA DE CASOS CIUDADANOS (NÚCLEO BASE) */}
+        {/* BANDEJA DE TICKETS */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
           <div className="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded text-[11px] font-bold uppercase mb-1">
-                <span>Núcleo Base • Gestión de Requerimientos</span>
+                <span>Núcleo Base • Requerimientos Territoriales</span>
               </div>
               <h2 className="text-base font-bold text-white">Bandeja de Requerimientos Ciudadanos (WhatsApp)</h2>
               <p className="text-xs text-slate-400">Incidencias viales anónimas con foto obligatoria y solicitudes asistenciales con folio</p>
@@ -582,7 +613,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* CATÁLOGO DE UPGRADES DISPONIBLES */}
-        <div className="border-t border-slate-800 pt-6 space-y-6">
+        <div className="border-t border-slate-800 pt-6 space-y-8">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-xs uppercase tracking-widest text-indigo-400 font-bold">
@@ -595,29 +626,29 @@ export default function AdminDashboard() {
             </span>
           </div>
 
-          {/* UPGRADE 1: CRM COMUNAL FICHA VECINAL 360° (CON INGRESO DE DATOS) */}
+          {/* UPGRADE 1: CRM COMUNAL FICHA VECINAL 360° */}
           <div className="bg-slate-800/40 border border-indigo-500/30 rounded-xl p-6 relative overflow-hidden">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-base font-bold text-white">Upgrade: Ficha Única Vecinal 360° (CRM Omnicanal Mesón + Terreno)</h3>
+                <h3 className="text-base font-bold text-white">Upgrade: Ficha Única Vecinal 360° (CRM Omnicanal Mesón + WhatsApp)</h3>
               </div>
               <span className="text-[11px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2.5 py-0.5 rounded-full font-bold">
                 Disponible como Upgrade
               </span>
             </div>
             <p className="text-xs text-slate-400 mb-6">
-              Permite a los funcionarios de mesón consultar el historial ciudadano y registrar nuevas atenciones presenciales, unificando el WhatsApp con el edificio consistorial.
+              Permite a los funcionarios de mesón consultar el historial ciudadano por RUN o Teléfono y registrar nuevas visitas, unificando la trazabilidad del edificio consistorial con las solicitudes de WhatsApp.
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Columna Izquierda: Formulario de Nueva Atención en Mesón */}
-              <div className="lg:col-span-6 bg-slate-900/80 border border-slate-700/80 rounded-xl p-4">
-                <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase mb-3 border-b border-slate-800 pb-2">
+              {/* Formulario Nueva Atención */}
+              <div className="lg:col-span-6 bg-slate-900/80 border border-slate-700/80 rounded-xl p-5">
+                <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase mb-4 border-b border-slate-800 pb-2">
                   <UserPlus className="w-4 h-4" /> Registrar Nueva Atención en Mesón
                 </div>
                 <form onSubmit={handleAddCitizenRecord} className="space-y-3 text-xs">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] text-slate-400 mb-1">RUN del Vecino</label>
                       <input
@@ -642,7 +673,17 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] text-slate-400 mb-1">Teléfono de Contacto (Opcional)</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: +56 9 7612 0041"
+                        value={newTelefono}
+                        onChange={e => setNewTelefono(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                      />
+                    </div>
                     <div>
                       <label className="block text-[11px] text-slate-400 mb-1">Sector Comunal</label>
                       <select
@@ -657,106 +698,111 @@ export default function AdminDashboard() {
                         <option>La Unión Centro</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="block text-[11px] text-slate-400 mb-1">Departamento</label>
-                      <select
-                        value={newDept}
-                        onChange={e => setNewDept(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
-                      >
-                        <option>DIDECO (Social)</option>
-                        <option>Dirección de Tránsito</option>
-                        <option>Rentas y Patentes</option>
-                        <option>Obras (DOM)</option>
-                        <option>Secretaría Municipal</option>
-                      </select>
-                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] text-slate-400 mb-1">Motivo / Trámite Realizado</label>
+                    <label className="block text-[11px] text-slate-400 mb-1">Departamento de Atención</label>
+                    <select
+                      value={newDept}
+                      onChange={e => setNewDept(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                    >
+                      <option>DIDECO (Social)</option>
+                      <option>Dirección de Tránsito</option>
+                      <option>Rentas y Patentes</option>
+                      <option>Dirección de Obras (DOM)</option>
+                      <option>Secretaría Municipal / Alcaldía</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">Detalle del Trámite o Consulta Presencial</label>
                     <textarea
-                      rows={2}
-                      placeholder="Ej: Viene a consultar estado de subsidio de agua rural (APR)..."
+                      rows={3}
+                      placeholder="Ej: Viene a presentar antecedentes para subsidio de agua rural (APR). Se revisa cartola RSH al 40%."
                       value={newDetalle}
                       onChange={e => setNewDetalle(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-2 text-white focus:outline-none focus:border-indigo-500 leading-relaxed"
                       required
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded transition flex items-center justify-center gap-1.5"
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded transition flex items-center justify-center gap-1.5 shadow"
                   >
-                    <FileSpreadsheet className="w-3.5 h-3.5" /> Guardar en Expediente Único
+                    <FileSpreadsheet className="w-4 h-4" /> Guardar en Expediente Único
                   </button>
 
                   {recordSaved && (
-                    <p className="text-emerald-400 text-[11px] flex items-center gap-1">
-                      <CheckCircle className="w-3.5 h-3.5" /> Atención guardada en la base comunal consolidada.
+                    <p className="text-emerald-400 text-xs flex items-center gap-1 pt-1">
+                      <CheckCircle className="w-4 h-4" /> Atención guardada en la base comunal consolidada.
                     </p>
                   )}
                 </form>
               </div>
 
-              {/* Columna Derecha: Buscador y Expediente 360° */}
-              <div className="lg:col-span-6 bg-slate-900/80 border border-slate-700/80 rounded-xl p-4 flex flex-col justify-between">
+              {/* Buscador de Expedientes */}
+              <div className="lg:col-span-6 bg-slate-900/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase mb-3 border-b border-slate-800 pb-2">
-                    <Search className="w-4 h-4" /> Consultar Expediente Vecinal por RUN
+                  <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase mb-4 border-b border-slate-800 pb-2">
+                    <Search className="w-4 h-4" /> Consultar Historial (Por RUN o Teléfono)
                   </div>
                   
-                  <form onSubmit={handleSearchCitizen} className="flex gap-2 mb-3">
+                  <form onSubmit={handleSearchCitizen} className="flex gap-2 mb-4">
                     <input
                       type="text"
-                      placeholder="Ingresa RUN (Ej: 15.432.987-4)..."
-                      value={searchRut}
-                      onChange={e => setSearchRut(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                      placeholder="Ingresa RUN o Teléfono (Ej: 15.432.987-4 o 76120041)..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      className="flex-1 bg-slate-950 border border-slate-700 rounded px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                     />
                     <button
                       type="submit"
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded text-xs transition flex items-center gap-1"
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded text-xs transition flex items-center gap-1.5 shadow"
                     >
-                      <Search className="w-3 h-3" /> Buscar
+                      <Search className="w-3.5 h-3.5" /> Buscar
                     </button>
                   </form>
 
                   {searchError && (
                     <p className="text-amber-400 text-xs mb-3">
-                      Vecino no registra atenciones previas. Puedes ingresarlo con el formulario lateral.
+                      No se encontró expediente previo con ese dato. Puedes crearlo en el formulario lateral.
                     </p>
                   )}
 
                   {citizenFound ? (
-                    <div className="bg-slate-950 border border-indigo-500/40 rounded-lg p-3 space-y-2 text-xs">
-                      <div className="flex justify-between items-start border-b border-slate-800 pb-2">
+                    <div className="bg-slate-950 border border-indigo-500/40 rounded-xl p-4 space-y-3 text-xs">
+                      <div className="flex justify-between items-start border-b border-slate-800 pb-3">
                         <div>
                           <h4 className="font-bold text-white text-sm">{citizenFound.nombre}</h4>
-                          <p className="text-slate-400 font-mono text-[11px]">{citizenFound.rut} • {citizenFound.sector}</p>
+                          <p className="text-slate-400 font-mono text-xs mt-0.5">
+                            RUN: {citizenFound.rut} • Tel: {citizenFound.telefono}
+                          </p>
+                          <p className="text-slate-300 text-[11px] mt-0.5">{citizenFound.sector}</p>
                         </div>
-                        <span className="bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded text-[10px] font-bold">
+                        <span className="bg-indigo-950 text-indigo-300 border border-indigo-800 px-2.5 py-1 rounded text-[11px] font-bold">
                           {citizenFound.historial.length} atenciones registradas
                         </span>
                       </div>
 
-                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                      <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                         {citizenFound.historial.map((h, i) => (
-                          <div key={i} className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px]">
-                            <div className="flex justify-between text-indigo-400 font-medium">
-                              <span>{h.canal}</span>
-                              <span className="text-slate-500 font-mono text-[10px]">{h.fecha}</span>
+                          <div key={i} className="bg-slate-900/90 p-3 rounded-lg border border-slate-800 text-xs">
+                            <div className="flex justify-between text-indigo-300 font-medium mb-1">
+                              <span className="font-bold">{h.canal}</span>
+                              <span className="text-slate-500 font-mono text-[11px]">{h.fecha}</span>
                             </div>
-                            <p className="text-slate-300 mt-0.5">{h.detalle}</p>
-                            <p className="text-[10px] text-slate-500 mt-0.5">Atendido por: {h.funcionario}</p>
+                            <p className="text-slate-200 leading-relaxed">{h.detalle}</p>
+                            <p className="text-[10px] text-slate-500 mt-1">Registrado por: {h.funcionario}</p>
                           </div>
                         ))}
                       </div>
                     </div>
                   ) : (
-                    <div className="p-6 text-center text-slate-500 border border-dashed border-slate-800 rounded-lg text-xs">
-                      Ingresa el RUN para ver el historial consolidado de atenciones presenciales y de WhatsApp.
+                    <div className="p-8 text-center text-slate-500 border border-dashed border-slate-800 rounded-xl text-xs space-y-2">
+                      <p>Ingresa el RUN o teléfono de un vecino para desplegar su expediente unificado.</p>
+                      <p className="text-slate-600 text-[11px]">Prueba buscando: <span className="font-mono text-slate-400">15.432.987-4</span></p>
                     </div>
                   )}
                 </div>
@@ -764,110 +810,264 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* UPGRADE 2: DIFUSIÓN MASIVA Y ENCUESTAS CIUDADANAS */}
+          {/* UPGRADE 2: DIFUSIÓN MASIVA Y CONSTRUCTOR DE CONSULTAS CIUDADANAS */}
           <div className="bg-slate-800/40 border border-amber-500/30 rounded-xl p-6 relative overflow-hidden">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <Bell className="w-5 h-5 text-amber-400" />
-                <h3 className="text-base font-bold text-white">Upgrade: Alertas Masivas y Consultas Ciudadanas (Meta Cloud API)</h3>
+                <h3 className="text-base font-bold text-white">Upgrade: Alertas Territoriales y Constructor de Encuestas Comunitarias</h3>
               </div>
               <span className="text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 rounded-full font-bold">
                 Disponible como Upgrade
               </span>
             </div>
-            <p className="text-xs text-slate-400 mb-5">
-              Herramienta de difusión oficial para despachar comunicados de emergencia georreferenciados o realizar votaciones y encuestas breves directo al WhatsApp vecinal.
+            <p className="text-xs text-slate-400 mb-6">
+              Plataforma oficial para despachar comunicados de emergencia georreferenciados o generar consultas ciudadanas interactivas (opción múltiple, escala de satisfacción, sí/no o preguntas abiertas) directo a WhatsApp.
             </p>
 
-            <form onSubmit={handleSendBroadcast} className="grid grid-cols-1 md:grid-cols-12 gap-4">
-              <div className="md:col-span-3">
-                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">Tipo de Envío</label>
-                <div className="flex gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Columna Izquierda: Configuración del Envío */}
+              <div className="lg:col-span-8 bg-slate-900/80 border border-slate-700/80 rounded-xl p-5 space-y-4">
+                {/* Selector de Modo */}
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setBroadcastType('ALERTA')}
-                    className={`flex-1 py-2 rounded text-xs font-bold transition flex items-center justify-center gap-1 ${
-                      broadcastType === 'ALERTA'
-                        ? 'bg-amber-500 text-slate-950 shadow'
-                        : 'bg-slate-900 text-slate-400 border border-slate-700'
+                    onClick={() => setBroadcastMode('ALERTA')}
+                    className={`py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 ${
+                      broadcastMode === 'ALERTA'
+                        ? 'bg-amber-500 text-slate-950 shadow-md'
+                        : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
                     }`}
                   >
-                    <Bell className="w-3.5 h-3.5" /> Comunicado
+                    <Bell className="w-4 h-4" /> 1. Comunicado / Alerta de Emergencia
                   </button>
                   <button
                     type="button"
-                    onClick={() => setBroadcastType('ENCUESTA')}
-                    className={`flex-1 py-2 rounded text-xs font-bold transition flex items-center justify-center gap-1 ${
-                      broadcastType === 'ENCUESTA'
-                        ? 'bg-amber-500 text-slate-950 shadow'
-                        : 'bg-slate-900 text-slate-400 border border-slate-700'
+                    onClick={() => setBroadcastMode('ENCUESTA')}
+                    className={`py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 ${
+                      broadcastMode === 'ENCUESTA'
+                        ? 'bg-amber-500 text-slate-950 shadow-md'
+                        : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
                     }`}
                   >
-                    <Vote className="w-3.5 h-3.5" /> Encuesta
+                    <Vote className="w-4 h-4" /> 2. Consulta Ciudadana Interactiva
                   </button>
                 </div>
-              </div>
 
-              <div className="md:col-span-3">
-                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">Sector Geográfico Destino</label>
-                <select
-                  value={broadcastSector}
-                  onChange={e => setBroadcastSector(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-                >
-                  <option>Sector Puerto Nuevo (APR y Ribera)</option>
-                  <option>Sector Mashue (Caminos Rurales)</option>
-                  <option>Sector Choroico (Zona Agrícola)</option>
-                  <option>Sector Trumao / Llancacura</option>
-                  <option>Radio Urbano Completo</option>
-                </select>
-              </div>
+                {/* Sector Geográfico */}
+                <div>
+                  <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
+                    Sector Geográfico Destino
+                  </label>
+                  <select
+                    value={broadcastSector}
+                    onChange={e => setBroadcastSector(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                  >
+                    <option>Sector Puerto Nuevo (APR y Ribera)</option>
+                    <option>Sector Mashue (Caminos Rurales)</option>
+                    <option>Sector Choroico (Zona Agrícola)</option>
+                    <option>Sector Trumao / Llancacura (Río Bueno)</option>
+                    <option>Radio Urbano Completo (La Unión Centro)</option>
+                    <option>Toda la Comuna (Cadena Municipal General)</option>
+                  </select>
+                </div>
 
-              <div className="md:col-span-4">
-                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
-                  {broadcastType === 'ALERTA' ? 'Contenido del Comunicado Oficial' : 'Pregunta de la Consulta Ciudadana'}
-                </label>
-                {broadcastType === 'ALERTA' ? (
-                  <input
-                    type="text"
-                    value={broadcastMessage}
-                    onChange={e => setBroadcastMessage(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-                  />
+                {/* Editor según Modo */}
+                {broadcastMode === 'ALERTA' ? (
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="text-xs uppercase font-bold text-slate-300">
+                        Contenido del Comunicado Oficial
+                      </label>
+                      <span className="text-[11px] text-slate-500">{broadcastMessage.length} caracteres</span>
+                    </div>
+                    <textarea
+                      rows={6}
+                      value={broadcastMessage}
+                      onChange={e => setBroadcastMessage(e.target.value)}
+                      placeholder="Redacta el comunicado oficial, corte de ruta, alerta climática o aviso de utilidad pública..."
+                      className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 leading-relaxed font-sans"
+                    ></textarea>
+                  </div>
                 ) : (
-                  <input
-                    type="text"
-                    value={surveyQuestion}
-                    onChange={e => setSurveyQuestion(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-                  />
+                  <div className="space-y-4 border-t border-slate-800 pt-4">
+                    {/* Selector de Tipo de Encuesta */}
+                    <div>
+                      <label className="block text-xs uppercase font-bold text-slate-300 mb-2">
+                        Tipo de Consulta Ciudadana
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { id: 'MULTIPLE', label: 'Opción Múltiple' },
+                          { id: 'SI_NO', label: 'Sí / No' },
+                          { id: 'ESCALA', label: 'Satisfacción (1-5)' },
+                          { id: 'ABIERTA', label: 'Pregunta Abierta' }
+                        ].map(t => (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => setSurveyType(t.id as any)}
+                            className={`py-2 px-2 rounded text-[11px] font-bold border transition ${
+                              surveyType === t.id
+                                ? 'bg-amber-500/20 border-amber-500 text-amber-300'
+                                : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                            }`}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Pregunta */}
+                    <div>
+                      <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
+                        Pregunta o Enunciado de la Encuesta
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={surveyQuestion}
+                        onChange={e => setSurveyQuestion(e.target.value)}
+                        placeholder="Escribe la pregunta que recibirán los vecinos..."
+                        className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs text-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                      ></textarea>
+                    </div>
+
+                    {/* Opciones si es Opción Múltiple */}
+                    {surveyType === 'MULTIPLE' && (
+                      <div className="space-y-2">
+                        <label className="block text-xs uppercase font-bold text-slate-300">
+                          Opciones de Respuesta (Máximo 5)
+                        </label>
+                        <div className="space-y-1.5">
+                          {surveyOptions.map((opt, idx) => (
+                            <div key={idx} className="flex items-center gap-2 bg-slate-950 p-2 rounded border border-slate-800 text-xs">
+                              <span className="font-mono text-amber-400 font-bold w-5">{idx + 1}.</span>
+                              <span className="text-slate-200 flex-1">{opt}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveOption(idx)}
+                                className="text-slate-500 hover:text-rose-400 transition"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {surveyOptions.length < 5 && (
+                          <div className="flex gap-2 pt-1">
+                            <input
+                              type="text"
+                              placeholder="Agregar nueva alternativa..."
+                              value={newOptionText}
+                              onChange={e => setNewOptionText(e.target.value)}
+                              className="flex-1 bg-slate-950 border border-slate-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleAddOption}
+                              className="bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1"
+                            >
+                              <PlusCircle className="w-3.5 h-3.5" /> Añadir
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleSendBroadcast}
+                  disabled={isBroadcasting}
+                  className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-slate-700 text-slate-950 font-black py-3 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg"
+                >
+                  {isBroadcasting ? (
+                    'Transmitiendo por Meta Cloud API...'
+                  ) : broadcastMode === 'ALERTA' ? (
+                    '📢 Despachar Comunicado Oficial por WhatsApp'
+                  ) : (
+                    '🗳️ Lanzar Encuesta Ciudadana por WhatsApp'
+                  )}
+                </button>
+
+                {broadcastSuccess && (
+                  <div className="p-3 bg-amber-500/20 border border-amber-500/40 rounded-lg text-xs text-amber-200 flex items-center gap-2 animate-fadeIn">
+                    <CheckCircle className="w-4 h-4 text-amber-400" />
+                    <span>
+                      <strong>Despacho completado:</strong> El mensaje ha sido transmitido con éxito al sector <strong>{broadcastSector}</strong> mediante la línea oficial de WhatsApp.
+                    </span>
+                  </div>
                 )}
               </div>
 
-              <div className="md:col-span-2 flex items-end">
-                <button
-                  type="submit"
-                  disabled={isBroadcasting}
-                  className="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow"
-                >
-                  {isBroadcasting ? (
-                    'Transmitiendo...'
-                  ) : broadcastType === 'ALERTA' ? (
-                    '📢 Despachar Alerta'
-                  ) : (
-                    '🗳️ Lanzar Encuesta'
-                  )}
-                </button>
-              </div>
-            </form>
+              {/* Columna Derecha: Vista Previa en WhatsApp */}
+              <div className="lg:col-span-4 flex flex-col justify-start space-y-3">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase">
+                  <Smartphone className="w-4 h-4 text-amber-400" /> Vista Previa en Celular del Vecino
+                </div>
 
-            {broadcastSuccess && (
-              <div className="mt-3 p-2.5 bg-amber-500/20 border border-amber-500/40 rounded-lg text-xs text-amber-200">
-                {broadcastType === 'ALERTA'
-                  ? `Comunicado oficial transmitido con éxito al sector ${broadcastSector} vía WhatsApp.`
-                  : `Consulta ciudadana despachada al sector ${broadcastSector}. Las respuestas se tabularán en tiempo real.`}
+                <div className="bg-[#0b141a] border-4 border-slate-800 rounded-3xl p-3.5 shadow-2xl flex flex-col space-y-2">
+                  <div className="bg-[#075E54] text-white p-2 rounded-t-xl text-[11px] font-semibold flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span>Muni La Unión • Canal Oficial</span>
+                  </div>
+
+                  <div className="bg-[#202c33] text-slate-100 p-3 rounded-2xl rounded-tl-none text-xs space-y-2 border border-slate-700/40">
+                    <p className="text-[10px] uppercase font-bold text-emerald-300">
+                      {broadcastMode === 'ALERTA' ? '📢 COMUNICADO OFICIAL' : '🗳️ CONSULTA CIUDADANA'}
+                    </p>
+
+                    <p className="whitespace-pre-wrap leading-relaxed">
+                      {broadcastMode === 'ALERTA' ? broadcastMessage : surveyQuestion}
+                    </p>
+
+                    {broadcastMode === 'ENCUESTA' && (
+                      <div className="pt-2 border-t border-slate-700 space-y-1.5">
+                        {surveyType === 'MULTIPLE' && (
+                          surveyOptions.map((opt, i) => (
+                            <div key={i} className="bg-[#0b141a] text-emerald-300 p-2 rounded-lg text-[11px] text-center font-bold border border-emerald-900/50">
+                              {opt}
+                            </div>
+                          ))
+                        )}
+                        {surveyType === 'SI_NO' && (
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="bg-[#0b141a] text-emerald-300 p-2 rounded-lg text-center font-bold border border-emerald-900/50">
+                              👍 Sí, de acuerdo
+                            </div>
+                            <div className="bg-[#0b141a] text-rose-300 p-2 rounded-lg text-center font-bold border border-rose-900/50">
+                              👎 No, en desacuerdo
+                            </div>
+                          </div>
+                        )}
+                        {surveyType === 'ESCALA' && (
+                          <div className="flex justify-between bg-[#0b141a] p-2 rounded-lg text-xs">
+                            <span>⭐ 1</span>
+                            <span>⭐ 2</span>
+                            <span>⭐ 3</span>
+                            <span>⭐ 4</span>
+                            <span>⭐ 5</span>
+                          </div>
+                        )}
+                        {surveyType === 'ABIERTA' && (
+                          <p className="text-[10px] text-slate-400 italic">
+                            _El vecino responderá escribiendo su opinión en el chat._
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    <span className="text-[10px] text-slate-400 block text-right">
+                      {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </main>
