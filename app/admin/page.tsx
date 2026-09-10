@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Users, Search, ShieldCheck, FileText, Bell, AlertTriangle, 
-  Clock, CheckCircle, MapPin, Send, Database, Lock
+  Users, Search, ShieldCheck, FileText, Bell, Clock, 
+  CheckCircle, Vote, UserPlus, FileSpreadsheet
 } from 'lucide-react';
 
 interface Ticket {
@@ -24,8 +24,21 @@ interface IngestedDoc {
   title: string;
   department: string;
   tokens: number;
-  status: 'INDEXADO' | 'EN_CURADURIA';
+  status: 'INDEXADO' | 'EN_CURADURIA_TECNICA';
   date: string;
+}
+
+interface CitizenRecord {
+  rut: string;
+  nombre: string;
+  sector: string;
+  telefono: string;
+  historial: Array<{
+    fecha: string;
+    canal: string;
+    detalle: string;
+    funcionario: string;
+  }>;
 }
 
 const INITIAL_TICKETS: Ticket[] = [
@@ -36,7 +49,7 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 7612 0041',
     sector: 'Mashue',
     type: 'CAMINO',
-    description: 'Bache profundo en curva km 4 camino ripio [Foto adjunta validada]',
+    description: 'Hoyo profundo en curva km 4 camino ripio [Foto adjunta validada]',
     slaMinutes: 45,
     status: 'EN_RUTA',
     createdAt: 'Hace 45 min'
@@ -84,7 +97,7 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 6554 1120',
     sector: 'Choroico',
     type: 'CHATARRA',
-    description: 'Solicitud retiro chatarra y 3 baterías en desuso en predio',
+    description: 'Solicitud retiro chatarra y baterías [Foto validada]',
     slaMinutes: 95,
     status: 'PENDIENTE',
     createdAt: 'Hace 2 horas 15 min'
@@ -118,23 +131,50 @@ const INITIAL_DOCS: IngestedDoc[] = [
   }
 ];
 
+const INITIAL_CITIZENS: Record<string, CitizenRecord> = {
+  '15.432.987-4': {
+    rut: '15.432.987-4',
+    nombre: 'Gladys Monsalve',
+    sector: 'Sector Mashue (Rural)',
+    telefono: '+56 9 7612 0041',
+    historial: [
+      { fecha: 'Hoy, 09:20', canal: 'WhatsApp', detalle: 'Reporte fotográfico bache vial (#LUN-2026-1082)', funcionario: 'Bot Automático' },
+      { fecha: '14 Ago 2026', canal: 'Mesón DIDECO', detalle: 'Actualización tramo Registro Social de Hogares', funcionario: 'M. Soto (Social)' },
+      { fecha: '28 Mar 2026', canal: 'WhatsApp', detalle: 'Consulta fechas pago Permiso de Circulación', funcionario: 'Bot Automático' }
+    ]
+  }
+};
+
 export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
   const [filter, setFilter] = useState<'ALL' | 'CALLBACK' | 'CAMINO' | 'PERMISO' | 'DIDECO'>('ALL');
   
+  // Documentos en Cola RAG
   const [docs, setDocs] = useState<IngestedDoc[]>(INITIAL_DOCS);
   const [selectedDept, setSelectedDept] = useState('Dirección de Tránsito');
   const [docName, setDocName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
-  // Estado para la maqueta interactiva del CRM Ficha Vecinal
+  // Upgrade: CRM Ficha Vecinal
+  const [citizensDb, setCitizensDb] = useState<Record<string, CitizenRecord>>(INITIAL_CITIZENS);
   const [searchRut, setSearchRut] = useState('');
-  const [citizenFound, setCitizenFound] = useState<any>(null);
+  const [citizenFound, setCitizenFound] = useState<CitizenRecord | null>(null);
+  const [searchError, setSearchError] = useState(false);
 
-  // Estados Upgrade Difusión
+  // Formulario nueva atención presencial
+  const [newRut, setNewRut] = useState('');
+  const [newNombre, setNewNombre] = useState('');
+  const [newSector, setNewSector] = useState('Puerto Nuevo');
+  const [newDept, setNewDept] = useState('DIDECO (Social)');
+  const [newDetalle, setNewDetalle] = useState('');
+  const [recordSaved, setRecordSaved] = useState(false);
+
+  // Upgrade: Difusión Masiva y Consultas Ciudadanas
   const [broadcastSector, setBroadcastSector] = useState('Sector Puerto Nuevo (APR y Ribera)');
+  const [broadcastType, setBroadcastType] = useState<'ALERTA' | 'ENCUESTA'>('ALERTA');
   const [broadcastMessage, setBroadcastMessage] = useState('Corte preventivo de ruta rural por faenas de motoniveladora municipal.');
+  const [surveyQuestion, setSurveyQuestion] = useState('¿Considera prioritaria la instalación de luminarias solares en su sector? (1: Sí / 2: No)');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
 
@@ -180,6 +220,7 @@ export default function AdminDashboard() {
     });
   };
 
+  // Carga Documental Asistida
   const handleUploadDocument = (e: React.FormEvent) => {
     e.preventDefault();
     if (!docName.trim()) return;
@@ -187,15 +228,14 @@ export default function AdminDashboard() {
     setIsUploading(true);
     setUploadSuccess(false);
 
-    // Simula envío a la cola de curaduría técnica del consultor
     setTimeout(() => {
       const newDoc: IngestedDoc = {
         id: `DOC-${String(docs.length + 1).padStart(2, '0')}`,
         title: docName.endsWith('.pdf') ? docName : `${docName}.pdf`,
         department: selectedDept,
         tokens: Math.floor(Math.random() * 4000) + 2000,
-        status: 'INDEXADO',
-        date: 'Recién ingresado'
+        status: 'EN_CURADURIA_TECNICA',
+        date: 'Recién remitido'
       };
 
       setDocs([newDoc, ...docs]);
@@ -203,32 +243,66 @@ export default function AdminDashboard() {
       setIsUploading(false);
       setUploadSuccess(true);
 
-      setTimeout(() => setUploadSuccess(false), 5000);
+      setTimeout(() => setUploadSuccess(false), 6000);
     }, 1200);
   };
 
+  // Búsqueda en CRM
   const handleSearchCitizen = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchRut.trim()) return;
-    
-    // Simula búsqueda en la base consolidada
-    setCitizenFound({
-      rut: searchRut,
-      nombre: 'Gladys Monsalve',
-      sector: 'Sector Mashue (Rural)',
-      totalAtenciones: 3,
-      historial: [
-        { fecha: 'Hoy, 09:20', canal: 'WhatsApp', detalle: 'Reporte fotográfico de socavón vial (#LUN-2026-1082) - Estado: En Ruta' },
-        { fecha: '14 Ago 2026', canal: 'Presencial Mesón', detalle: 'Actualización tramo Registro Social de Hogares (DIDECO)' },
-        { fecha: '28 Mar 2026', canal: 'WhatsApp', detalle: 'Derivación enlace Webpay Permiso de Circulación PPU: GFHY45' }
-      ]
-    });
+    const clean = searchRut.trim();
+    if (!clean) return;
+
+    if (citizensDb[clean]) {
+      setCitizenFound(citizensDb[clean]);
+      setSearchError(false);
+    } else {
+      setCitizenFound(null);
+      setSearchError(true);
+    }
   };
 
+  // Registro de nueva atención presencial (One Source of Truth)
+  const handleAddCitizenRecord = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRut.trim() || !newNombre.trim() || !newDetalle.trim()) return;
+
+    const rutKey = newRut.trim();
+    const existing = citizensDb[rutKey];
+
+    const newAttention = {
+      fecha: 'Hoy, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      canal: `Mesón ${newDept}`,
+      detalle: newDetalle,
+      funcionario: 'Atención Consistorial'
+    };
+
+    const updatedRecord: CitizenRecord = existing
+      ? {
+          ...existing,
+          sector: newSector,
+          historial: [newAttention, ...existing.historial]
+        }
+      : {
+          rut: rutKey,
+          nombre: newNombre,
+          sector: newSector,
+          telefono: '+56 9 ' + Math.floor(70000000 + Math.random() * 29000000),
+          historial: [newAttention]
+        };
+
+    setCitizensDb(prev => ({ ...prev, [rutKey]: updatedRecord }));
+    setCitizenFound(updatedRecord);
+    setSearchRut(rutKey);
+    setRecordSaved(true);
+    setNewDetalle('');
+
+    setTimeout(() => setRecordSaved(false), 4000);
+  };
+
+  // Envío Masivo / Encuestas
   const handleSendBroadcast = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!broadcastMessage.trim()) return;
-
     setIsBroadcasting(true);
     setBroadcastSuccess(false);
 
@@ -243,7 +317,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
-      {/* Barra Superior */}
+      {/* Header Superior */}
       <header className="border-b border-slate-800 bg-slate-950/90 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 z-50 backdrop-blur">
         <div>
           <div className="flex items-center gap-2">
@@ -259,7 +333,7 @@ export default function AdminDashboard() {
             Vista: Alcaldía / Administrador Municipal
           </span>
           <span className="text-xs bg-emerald-950 text-emerald-300 border border-emerald-800/80 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5" /> Núcleo Base Fase 1 Activo
+            <ShieldCheck className="w-3.5 h-3.5" /> Núcleo Base Activo
           </span>
         </div>
       </header>
@@ -268,15 +342,15 @@ export default function AdminDashboard() {
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Derivaciones Recaudación Hoy</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Derivaciones Webpay Hoy</p>
             <p className="text-2xl font-bold text-white mt-1">$4.850.300 <span className="text-xs text-emerald-400 font-normal">CLP</span></p>
-            <p className="text-xs text-emerald-400 mt-2">↑ 38 enlaces a Webpay municipal generados</p>
+            <p className="text-xs text-emerald-400 mt-2">↑ Enlaces oficiales provistos</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Cumplimiento de SLA</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Cumplimiento SLA Terreno</p>
             <p className="text-2xl font-bold text-emerald-400 mt-1">94.8%</p>
-            <p className="text-xs text-slate-400 mt-2">Meta institucional &gt; 90%</p>
+            <p className="text-xs text-slate-400 mt-2">Meta comunal &gt; 90%</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
@@ -286,25 +360,25 @@ export default function AdminDashboard() {
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Incidencias Territoriales</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Reportes en Terreno</p>
             <p className="text-2xl font-bold text-amber-400 mt-1">23</p>
-            <p className="text-xs text-slate-400 mt-2">Caminos rurales, ramas y luminarias</p>
+            <p className="text-xs text-slate-400 mt-2">Caminos, ramas y chatarra con foto</p>
           </div>
         </div>
 
-        {/* BANDEJA PRINCIPAL DE TICKETS FASE 1 (NÚCLEO BASE) */}
+        {/* BANDEJA DE CASOS CIUDADANOS (NÚCLEO BASE) */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
           <div className="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded text-[11px] font-bold uppercase mb-1">
-                <span>Núcleo Base • Operación en Terreno</span>
+                <span>Núcleo Base • Gestión de Requerimientos</span>
               </div>
-              <h2 className="text-base font-bold text-white">Bandeja de Casos Ciudadanos con RUN Auditado</h2>
-              <p className="text-xs text-slate-400">Requerimientos recibidos desde WhatsApp con validación sintética Módulo 11 y folio único</p>
+              <h2 className="text-base font-bold text-white">Bandeja de Requerimientos Ciudadanos (WhatsApp)</h2>
+              <p className="text-xs text-slate-400">Incidencias viales anónimas con foto obligatoria y solicitudes asistenciales con folio</p>
             </div>
             
             <div className="flex flex-wrap gap-1.5">
-              {(['ALL', 'CAMINO', 'CALLBACK', 'DIDECO', 'PERMISO'] as const).map(f => (
+              {(['ALL', 'CAMINO', 'CALLBACK', 'CHATARRA', 'DIDECO', 'PERMISO'] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
@@ -325,7 +399,7 @@ export default function AdminDashboard() {
               <thead className="bg-slate-900/80 text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-700">
                 <tr>
                   <th className="p-3">Folio Institucional</th>
-                  <th className="p-3">Vecino / RUN Auditado</th>
+                  <th className="p-3">Vecino / Modalidad</th>
                   <th className="p-3">Sector Geográfico</th>
                   <th className="p-3">Detalle Requerimiento</th>
                   <th className="p-3">Semáforo SLA</th>
@@ -340,7 +414,7 @@ export default function AdminDashboard() {
                     <td className="p-3">
                       <div className="font-semibold text-white">{ticket.citizen}</div>
                       <div className="text-[11px] text-slate-400 font-mono">
-                        {ticket.rut || 'RUN no requerido'} • {ticket.phone}
+                        {ticket.rut ? `${ticket.rut} • ` : ''}{ticket.phone}
                       </div>
                     </td>
                     <td className="p-3">
@@ -400,21 +474,21 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* SECCIÓN RAG: REPOSITORIO NORMATIVO ASISTIDO */}
+        {/* COLA DE CURADURÍA DOCUMENTAL ASISTIDA (MOTOR RAG) */}
         <div className="bg-slate-800/70 border border-blue-500/30 rounded-xl p-6 shadow-xl">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-slate-700/80 pb-4">
             <div>
               <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded text-xs font-semibold mb-2">
-                <FileText className="w-3.5 h-3.5" /> Repositorio Normativo (Motor RAG Comunal)
+                <FileText className="w-3.5 h-3.5" /> Repositorio Normativo (Curaduría Técnica Asistida)
               </div>
-              <h2 className="text-lg font-bold text-white">Carga Documental Municipal para Vectorización Asistida</h2>
+              <h2 className="text-lg font-bold text-white">Bandeja de Remisión de Documentos para el RAG</h2>
               <p className="text-xs text-slate-400">
-                Los decretos y ordenanzas ingresados entran a la cola de curaduría técnica del consultor (SLA 48 hrs) para evitar alucinaciones normativas.
+                Los decretos cargados son recibidos por el consultor técnico para limpieza semántica, fragmentación vectorial y control de alucinaciones (SLA 48 hrs).
               </p>
             </div>
             <div className="text-right">
-              <span className="text-[11px] bg-slate-900 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 font-mono block">
-                Supervisión Técnica: Ing. Alex Rojas
+              <span className="text-[11px] bg-slate-900 text-blue-300 px-3 py-1.5 rounded-lg border border-blue-800/60 font-mono block">
+                Soporte y Calibración: Ing. Alex Rojas
               </span>
             </div>
           </div>
@@ -439,11 +513,11 @@ export default function AdminDashboard() {
 
             <div className="md:col-span-5">
               <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
-                Identificador o Título del Documento Oficial
+                Título o Identificador del Decreto / Ordenanza
               </label>
               <input
                 type="text"
-                placeholder="Ej: Decreto 1.482 - Modificación Aseo y Extracción Rural"
+                placeholder="Ej: Decreto 512 - Exención Aseo Adulto Mayor 2026"
                 value={docName}
                 onChange={e => setDocName(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
@@ -459,10 +533,10 @@ export default function AdminDashboard() {
                 {isUploading ? (
                   <>
                     <span className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                    Enviando a Curaduría...
+                    Remitiendo a Curaduría...
                   </>
                 ) : (
-                  <span>📥 Ingresar a Cola RAG</span>
+                  <span>📥 Remitir a Cola RAG</span>
                 )}
               </button>
             </div>
@@ -471,14 +545,14 @@ export default function AdminDashboard() {
           {uploadSuccess && (
             <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/40 rounded-lg text-xs text-blue-200 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-blue-400" />
-              <span><strong>Documento registrado:</strong> Derivado al proceso de fragmentación y vectorización controlada para actualización del bot comunal.</span>
+              <span><strong>Documento ingresado a la cola:</strong> El equipo técnico iniciará la depuración, vectorización y testeo sintético antes de publicarlo en el WhatsApp comunal.</span>
             </div>
           )}
 
           <div className="bg-slate-900/70 border border-slate-700/60 rounded-lg overflow-hidden">
             <div className="px-4 py-2 bg-slate-950/60 border-b border-slate-700/60 flex justify-between items-center text-xs">
-              <span className="font-semibold text-slate-300">Cuerpo Normativo Activo en Producción</span>
-              <span className="text-slate-400">{docs.length} documentos indexados en pgvector</span>
+              <span className="font-semibold text-slate-300">Base Normativa Vectorizada en pgvector</span>
+              <span className="text-slate-400">{docs.length} documentos procesados</span>
             </div>
             <div className="divide-y divide-slate-800">
               {docs.map(doc => (
@@ -493,7 +567,11 @@ export default function AdminDashboard() {
                     <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">
                       {doc.tokens} tokens
                     </span>
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
+                      doc.status === 'INDEXADO' 
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                    }`}>
                       {doc.status}
                     </span>
                   </div>
@@ -503,95 +581,235 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* CATÁLOGO DE UPGRADES DE EXPANSIÓN (DISPONIBLES PARA ADENDA) */}
+        {/* CATÁLOGO DE UPGRADES DISPONIBLES */}
         <div className="border-t border-slate-800 pt-6 space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-xs uppercase tracking-widest text-indigo-400 font-bold">
-                Módulos de Expansión Territorial
+                Módulos de Expansión Estratégica
               </span>
-              <h2 className="text-xl font-black text-white">Upgrades Opcionales Integrables al Ecosistema</h2>
+              <h2 className="text-xl font-black text-white">Upgrades Opcionales Integrables a la Plataforma</h2>
             </div>
             <span className="text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-3 py-1 rounded-full">
-              Escalabilidad Modular Planificada
+              Escalabilidad Modular
             </span>
           </div>
 
-          {/* UPGRADE 1: CRM CIUDADANO (FICHA VECINAL 360°) */}
+          {/* UPGRADE 1: CRM COMUNAL FICHA VECINAL 360° (CON INGRESO DE DATOS) */}
           <div className="bg-slate-800/40 border border-indigo-500/30 rounded-xl p-6 relative overflow-hidden">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-base font-bold text-white">Upgrade: Ficha Única Vecinal 360° (CRM Comunal para Mesón y Terreno)</h3>
+                <h3 className="text-base font-bold text-white">Upgrade: Ficha Única Vecinal 360° (CRM Omnicanal Mesón + Terreno)</h3>
               </div>
               <span className="text-[11px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2.5 py-0.5 rounded-full font-bold">
                 Disponible como Upgrade
               </span>
             </div>
-            <p className="text-xs text-slate-400 mb-5">
-              Unifica en una sola vista las atenciones presenciales de mesón con las solicitudes remotas de WhatsApp por RUN ciudadano.
+            <p className="text-xs text-slate-400 mb-6">
+              Permite a los funcionarios de mesón consultar el historial ciudadano y registrar nuevas atenciones presenciales, unificando el WhatsApp con el edificio consistorial.
             </p>
 
-            {/* Simulador Interactivo de Búsqueda de Vecino */}
-            <form onSubmit={handleSearchCitizen} className="flex gap-3 mb-4 max-w-xl">
-              <input
-                type="text"
-                placeholder="Ingresa RUN del vecino (Ej: 15.432.987-4)..."
-                value={searchRut}
-                onChange={e => setSearchRut(e.target.value)}
-                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              />
-              <button
-                type="submit"
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition flex items-center gap-1.5"
-              >
-                <Search className="w-3.5 h-3.5" /> Consultar Expediente
-              </button>
-            </form>
-
-            {citizenFound && (
-              <div className="bg-slate-900/90 border border-indigo-500/40 rounded-lg p-4 space-y-3 animate-fadeIn text-xs">
-                <div className="flex justify-between items-start border-b border-slate-800 pb-2">
-                  <div>
-                    <h4 className="font-bold text-white text-sm">{citizenFound.nombre}</h4>
-                    <p className="text-slate-400 font-mono">{citizenFound.rut} • {citizenFound.sector}</p>
-                  </div>
-                  <span className="bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded text-[11px] font-bold">
-                    {citizenFound.totalAtenciones} Atenciones Registradas
-                  </span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Columna Izquierda: Formulario de Nueva Atención en Mesón */}
+              <div className="lg:col-span-6 bg-slate-900/80 border border-slate-700/80 rounded-xl p-4">
+                <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase mb-3 border-b border-slate-800 pb-2">
+                  <UserPlus className="w-4 h-4" /> Registrar Nueva Atención en Mesón
                 </div>
-                <div className="space-y-2">
-                  <p className="font-bold text-slate-300 text-[11px] uppercase">Historial Unificado Omnicanal:</p>
-                  {citizenFound.historial.map((h: any, i: number) => (
-                    <div key={i} className="flex items-start gap-2 bg-slate-800/60 p-2 rounded border border-slate-700/50 text-[11px]">
-                      <span className="text-indigo-400 font-bold font-mono min-w-[75px]">{h.canal}</span>
-                      <span className="text-slate-300 flex-1">{h.detalle}</span>
-                      <span className="text-slate-500 font-mono">{h.fecha}</span>
+                <form onSubmit={handleAddCitizenRecord} className="space-y-3 text-xs">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] text-slate-400 mb-1">RUN del Vecino</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: 15.432.987-4"
+                        value={newRut}
+                        onChange={e => setNewRut(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                        required
+                      />
                     </div>
-                  ))}
+                    <div>
+                      <label className="block text-[11px] text-slate-400 mb-1">Nombre Completo</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: Gladys Monsalve"
+                        value={newNombre}
+                        onChange={e => setNewNombre(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] text-slate-400 mb-1">Sector Comunal</label>
+                      <select
+                        value={newSector}
+                        onChange={e => setNewSector(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                      >
+                        <option>Puerto Nuevo</option>
+                        <option>Mashue</option>
+                        <option>Choroico</option>
+                        <option>Trumao / Llancacura</option>
+                        <option>La Unión Centro</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] text-slate-400 mb-1">Departamento</label>
+                      <select
+                        value={newDept}
+                        onChange={e => setNewDept(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                      >
+                        <option>DIDECO (Social)</option>
+                        <option>Dirección de Tránsito</option>
+                        <option>Rentas y Patentes</option>
+                        <option>Obras (DOM)</option>
+                        <option>Secretaría Municipal</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">Motivo / Trámite Realizado</label>
+                    <textarea
+                      rows={2}
+                      placeholder="Ej: Viene a consultar estado de subsidio de agua rural (APR)..."
+                      value={newDetalle}
+                      onChange={e => setNewDetalle(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
+                      required
+                    ></textarea>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded transition flex items-center justify-center gap-1.5"
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5" /> Guardar en Expediente Único
+                  </button>
+
+                  {recordSaved && (
+                    <p className="text-emerald-400 text-[11px] flex items-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5" /> Atención guardada en la base comunal consolidada.
+                    </p>
+                  )}
+                </form>
+              </div>
+
+              {/* Columna Derecha: Buscador y Expediente 360° */}
+              <div className="lg:col-span-6 bg-slate-900/80 border border-slate-700/80 rounded-xl p-4 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase mb-3 border-b border-slate-800 pb-2">
+                    <Search className="w-4 h-4" /> Consultar Expediente Vecinal por RUN
+                  </div>
+                  
+                  <form onSubmit={handleSearchCitizen} className="flex gap-2 mb-3">
+                    <input
+                      type="text"
+                      placeholder="Ingresa RUN (Ej: 15.432.987-4)..."
+                      value={searchRut}
+                      onChange={e => setSearchRut(e.target.value)}
+                      className="flex-1 bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                    />
+                    <button
+                      type="submit"
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded text-xs transition flex items-center gap-1"
+                    >
+                      <Search className="w-3 h-3" /> Buscar
+                    </button>
+                  </form>
+
+                  {searchError && (
+                    <p className="text-amber-400 text-xs mb-3">
+                      Vecino no registra atenciones previas. Puedes ingresarlo con el formulario lateral.
+                    </p>
+                  )}
+
+                  {citizenFound ? (
+                    <div className="bg-slate-950 border border-indigo-500/40 rounded-lg p-3 space-y-2 text-xs">
+                      <div className="flex justify-between items-start border-b border-slate-800 pb-2">
+                        <div>
+                          <h4 className="font-bold text-white text-sm">{citizenFound.nombre}</h4>
+                          <p className="text-slate-400 font-mono text-[11px]">{citizenFound.rut} • {citizenFound.sector}</p>
+                        </div>
+                        <span className="bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded text-[10px] font-bold">
+                          {citizenFound.historial.length} atenciones registradas
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        {citizenFound.historial.map((h, i) => (
+                          <div key={i} className="bg-slate-900 p-2 rounded border border-slate-800 text-[11px]">
+                            <div className="flex justify-between text-indigo-400 font-medium">
+                              <span>{h.canal}</span>
+                              <span className="text-slate-500 font-mono text-[10px]">{h.fecha}</span>
+                            </div>
+                            <p className="text-slate-300 mt-0.5">{h.detalle}</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5">Atendido por: {h.funcionario}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center text-slate-500 border border-dashed border-slate-800 rounded-lg text-xs">
+                      Ingresa el RUN para ver el historial consolidado de atenciones presenciales y de WhatsApp.
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* UPGRADE 2: DIFUSIÓN MASIVA POR WHATSAPP */}
+          {/* UPGRADE 2: DIFUSIÓN MASIVA Y ENCUESTAS CIUDADANAS */}
           <div className="bg-slate-800/40 border border-amber-500/30 rounded-xl p-6 relative overflow-hidden">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <Bell className="w-5 h-5 text-amber-400" />
-                <h3 className="text-base font-bold text-white">Upgrade: Alertas Territoriales Masivas (Meta Broadcast API)</h3>
+                <h3 className="text-base font-bold text-white">Upgrade: Alertas Masivas y Consultas Ciudadanas (Meta Cloud API)</h3>
               </div>
               <span className="text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 rounded-full font-bold">
                 Disponible como Upgrade
               </span>
             </div>
             <p className="text-xs text-slate-400 mb-5">
-              Difusión oficial segmentada por localidad geográfica rural y urbana para cortes de ruta o alertas climáticas.
+              Herramienta de difusión oficial para despachar comunicados de emergencia georreferenciados o realizar votaciones y encuestas breves directo al WhatsApp vecinal.
             </p>
 
             <form onSubmit={handleSendBroadcast} className="grid grid-cols-1 md:grid-cols-12 gap-4">
-              <div className="md:col-span-4">
-                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">Sector Destino</label>
+              <div className="md:col-span-3">
+                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">Tipo de Envío</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBroadcastType('ALERTA')}
+                    className={`flex-1 py-2 rounded text-xs font-bold transition flex items-center justify-center gap-1 ${
+                      broadcastType === 'ALERTA'
+                        ? 'bg-amber-500 text-slate-950 shadow'
+                        : 'bg-slate-900 text-slate-400 border border-slate-700'
+                    }`}
+                  >
+                    <Bell className="w-3.5 h-3.5" /> Comunicado
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBroadcastType('ENCUESTA')}
+                    className={`flex-1 py-2 rounded text-xs font-bold transition flex items-center justify-center gap-1 ${
+                      broadcastType === 'ENCUESTA'
+                        ? 'bg-amber-500 text-slate-950 shadow'
+                        : 'bg-slate-900 text-slate-400 border border-slate-700'
+                    }`}
+                  >
+                    <Vote className="w-3.5 h-3.5" /> Encuesta
+                  </button>
+                </div>
+              </div>
+
+              <div className="md:col-span-3">
+                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">Sector Geográfico Destino</label>
                 <select
                   value={broadcastSector}
                   onChange={e => setBroadcastSector(e.target.value)}
@@ -601,34 +819,53 @@ export default function AdminDashboard() {
                   <option>Sector Mashue (Caminos Rurales)</option>
                   <option>Sector Choroico (Zona Agrícola)</option>
                   <option>Sector Trumao / Llancacura</option>
-                  <option>Radio Urbano Central</option>
+                  <option>Radio Urbano Completo</option>
                 </select>
               </div>
 
-              <div className="md:col-span-6">
-                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">Mensaje Oficial</label>
-                <input
-                  type="text"
-                  value={broadcastMessage}
-                  onChange={e => setBroadcastMessage(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
-                />
+              <div className="md:col-span-4">
+                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
+                  {broadcastType === 'ALERTA' ? 'Contenido del Comunicado Oficial' : 'Pregunta de la Consulta Ciudadana'}
+                </label>
+                {broadcastType === 'ALERTA' ? (
+                  <input
+                    type="text"
+                    value={broadcastMessage}
+                    onChange={e => setBroadcastMessage(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={surveyQuestion}
+                    onChange={e => setSurveyQuestion(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                  />
+                )}
               </div>
 
               <div className="md:col-span-2 flex items-end">
                 <button
                   type="submit"
-                  disabled={isBroadcasting || !broadcastMessage.trim()}
-                  className="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2 px-4 rounded-lg text-xs transition flex items-center justify-center gap-1.5"
+                  disabled={isBroadcasting}
+                  className="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow"
                 >
-                  {isBroadcasting ? 'Despachando...' : 'Transmitir Alerta'}
+                  {isBroadcasting ? (
+                    'Transmitiendo...'
+                  ) : broadcastType === 'ALERTA' ? (
+                    '📢 Despachar Alerta'
+                  ) : (
+                    '🗳️ Lanzar Encuesta'
+                  )}
                 </button>
               </div>
             </form>
 
             {broadcastSuccess && (
               <div className="mt-3 p-2.5 bg-amber-500/20 border border-amber-500/40 rounded-lg text-xs text-amber-200">
-                Alerta de prueba despachada vía Meta Cloud API al sector <strong>{broadcastSector}</strong>.
+                {broadcastType === 'ALERTA'
+                  ? `Comunicado oficial transmitido con éxito al sector ${broadcastSector} vía WhatsApp.`
+                  : `Consulta ciudadana despachada al sector ${broadcastSector}. Las respuestas se tabularán en tiempo real.`}
               </div>
             )}
           </div>
