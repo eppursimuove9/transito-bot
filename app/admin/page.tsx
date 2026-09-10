@@ -147,7 +147,7 @@ const INITIAL_CITIZENS: Record<string, CitizenRecord> = {
 
 export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
-  const [filter, setFilter] = useState<'ALL' | 'CALLBACK' | 'CAMINO' | 'PERMISO' | 'DIDECO'>('ALL');
+  const [filter, setFilter] = useState<'ALL' | 'CALLBACK' | 'CAMINO' | 'CHATARRA' | 'PERMISO' | 'DIDECO'>('ALL');
   
   // Documentos en Cola RAG
   const [docs, setDocs] = useState<IngestedDoc[]>(INITIAL_DOCS);
