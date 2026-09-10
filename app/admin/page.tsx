@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, Search, ShieldCheck, FileText, Bell, Clock, 
-  CheckCircle, Vote, UserPlus, FileSpreadsheet, PlusCircle, Trash2, Smartphone
+  CheckCircle, Vote, UserPlus, FileSpreadsheet, PlusCircle, Trash2, 
+  Smartphone, Camera, Eye, X, ExternalLink, MapPin
 } from 'lucide-react';
 
 interface Ticket {
@@ -17,12 +18,14 @@ interface Ticket {
   slaMinutes: number;
   status: 'PENDIENTE' | 'ATENDIDO' | 'EN_RUTA';
   createdAt: string;
+  imageUrl?: string;
 }
 
 interface IngestedDoc {
   id: string;
   title: string;
   department: string;
+  uploadedBy: string;
   tokens: number;
   status: 'INDEXADO' | 'EN_CURADURIA_TECNICA';
   date: string;
@@ -44,15 +47,15 @@ interface CitizenRecord {
 const INITIAL_TICKETS: Ticket[] = [
   {
     id: '#LUN-2026-1082',
-    citizen: 'Gladys Monsalve',
-    rut: '15.432.987-4',
-    phone: '+56 9 7612 0041',
-    sector: 'Mashue',
+    citizen: 'Reporte Anónimo',
+    phone: '+56 9 •••• 0041',
+    sector: 'Sector Mashue (km 4)',
     type: 'CAMINO',
-    description: 'Hoyo profundo en curva km 4 camino ripio [Foto adjunta validada]',
+    description: 'Hoyo profundo en curva km 4 camino ripio frente a puente madera',
     slaMinutes: 45,
     status: 'EN_RUTA',
-    createdAt: 'Hace 45 min'
+    createdAt: 'Hace 45 min',
+    imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80'
   },
   {
     id: '#LUN-2026-1081',
@@ -60,11 +63,12 @@ const INITIAL_TICKETS: Ticket[] = [
     rut: '17.894.562-K',
     phone: '+56 9 8451 2290',
     sector: 'Puerto Nuevo',
-    type: 'CALLBACK',
-    description: 'Solicita llamado: Consulta de requisitos traslado patente camión',
+    type: 'CHATARRA',
+    description: 'Solicitud retiro 3 baterías de tractor y fierros acumulados en patio',
     slaMinutes: 14,
     status: 'PENDIENTE',
-    createdAt: 'Hace 14 min'
+    createdAt: 'Hace 14 min',
+    imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&auto=format&fit=crop&q=80'
   },
   {
     id: '#LUN-2026-1080',
@@ -92,15 +96,15 @@ const INITIAL_TICKETS: Ticket[] = [
   },
   {
     id: '#LUN-2026-1078',
-    citizen: 'Juan Pablo Ortiz',
-    rut: '18.765.432-1',
-    phone: '+56 9 6554 1120',
+    citizen: 'Reporte Anónimo',
+    phone: '+56 9 •••• 1120',
     sector: 'Choroico',
-    type: 'CHATARRA',
-    description: 'Solicitud retiro chatarra y baterías [Foto validada]',
+    type: 'CAMINO',
+    description: 'Rama grande de eucalipto caída obstaculizando media calzada',
     slaMinutes: 95,
     status: 'PENDIENTE',
-    createdAt: 'Hace 2 horas 15 min'
+    createdAt: 'Hace 2 horas 15 min',
+    imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80'
   }
 ];
 
@@ -109,6 +113,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
     id: 'DOC-01',
     title: 'Decreto Alcaldicio N° 1.420 - Calendario Patentes 2026.pdf',
     department: 'Rentas y Finanzas',
+    uploadedBy: 'Patricio Miranda (Jefe Rentas)',
     tokens: 3420,
     status: 'INDEXADO',
     date: 'Hoy, 09:15'
@@ -117,6 +122,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
     id: 'DOC-02',
     title: 'Bases Postulación Subsidio Rural Agua Potable (APR).pdf',
     department: 'DIDECO (Social)',
+    uploadedBy: 'Marcela Henríquez (DIDECO)',
     tokens: 8150,
     status: 'INDEXADO',
     date: 'Ayer, 16:40'
@@ -125,6 +131,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
     id: 'DOC-03',
     title: 'Ordenanza Local de Cuidado de Caminos y Tránsito Pesado.pdf',
     department: 'Dirección de Tránsito',
+    uploadedBy: 'Gonzalo Vera (Dir. Tránsito)',
     tokens: 5200,
     status: 'INDEXADO',
     date: '04 Sep 2026'
@@ -149,10 +156,14 @@ export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
   const [filter, setFilter] = useState<'ALL' | 'CALLBACK' | 'CAMINO' | 'CHATARRA' | 'PERMISO' | 'DIDECO'>('ALL');
   
+  // Modal para ver foto ampliada
+  const [selectedPhotoTicket, setSelectedPhotoTicket] = useState<Ticket | null>(null);
+
   // Documentos en Cola RAG
   const [docs, setDocs] = useState<IngestedDoc[]>(INITIAL_DOCS);
   const [selectedDept, setSelectedDept] = useState('Dirección de Tránsito');
   const [docName, setDocName] = useState('');
+  const [uploaderName, setUploaderName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
@@ -175,18 +186,16 @@ export default function AdminDashboard() {
   const [broadcastMode, setBroadcastMode] = useState<'ALERTA' | 'ENCUESTA'>('ALERTA');
   const [broadcastSector, setBroadcastSector] = useState('Sector Puerto Nuevo (APR y Ribera)');
   
-  // Estado para Comunicados
   const [broadcastMessage, setBroadcastMessage] = useState(
-    'AVISO IMPORTANTE: Se informa a los vecinos del sector Puerto Nuevo que hoy entre las 14:00 y 18:00 hrs se realizarán trabajos de mejoramiento en la red de Agua Potable Rural (APR). Se solicita tomar los resguardos correspondientes.'
+    'AVISO OFICIAL: Se informa a la comunidad del sector Puerto Nuevo que hoy entre 14:00 y 18:00 hrs se ejecutarán faenas de mantención en el sistema de Agua Potable Rural (APR). Se recomienda acopio preventivo de agua.'
   );
 
-  // Estados para Constructor de Encuestas
   const [surveyType, setSurveyType] = useState<'SI_NO' | 'MULTIPLE' | 'ESCALA' | 'ABIERTA'>('MULTIPLE');
-  const [surveyQuestion, setSurveyQuestion] = useState('¿Cuál de los siguientes proyectos considera prioritario para el presupuesto comunal 2027?');
+  const [surveyQuestion, setSurveyQuestion] = useState('¿Qué obra prioriza para el presupuesto participativo del sector?');
   const [surveyOptions, setSurveyOptions] = useState<string[]>([
-    'Mejoramiento de caminos y bacheo rural',
+    'Ripio y bacheo de ruta principal',
     'Ampliación de luminarias solares',
-    'Nuevos puntos limpios y retiro de chatarra'
+    'Contenedores para reciclaje y chatarra'
   ]);
   const [newOptionText, setNewOptionText] = useState('');
 
@@ -227,9 +236,10 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('storage', handleStorageEvent);
   }, []);
 
-  const markAsResolved = (id: string) => {
+  // Cambiar estado dinámicamente desde el selector
+  const handleStatusChange = (id: string, newStatus: 'PENDIENTE' | 'ATENDIDO' | 'EN_RUTA') => {
     setTickets(prev => {
-      const updated = prev.map(t => (t.id === id ? { ...t, status: 'ATENDIDO' as const } : t));
+      const updated = prev.map(t => (t.id === id ? { ...t, status: newStatus } : t));
       localStorage.setItem('launion_tickets', JSON.stringify(updated));
       return updated;
     });
@@ -237,7 +247,7 @@ export default function AdminDashboard() {
 
   const handleUploadDocument = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!docName.trim()) return;
+    if (!docName.trim() || !uploaderName.trim()) return;
 
     setIsUploading(true);
     setUploadSuccess(false);
@@ -247,6 +257,7 @@ export default function AdminDashboard() {
         id: `DOC-${String(docs.length + 1).padStart(2, '0')}`,
         title: docName.endsWith('.pdf') ? docName : `${docName}.pdf`,
         department: selectedDept,
+        uploadedBy: uploaderName.trim(),
         tokens: Math.floor(Math.random() * 4000) + 2000,
         status: 'EN_CURADURIA_TECNICA',
         date: 'Recién remitido'
@@ -254,6 +265,7 @@ export default function AdminDashboard() {
 
       setDocs([newDoc, ...docs]);
       setDocName('');
+      setUploaderName('');
       setIsUploading(false);
       setUploadSuccess(true);
 
@@ -261,13 +273,11 @@ export default function AdminDashboard() {
     }, 1200);
   };
 
-  // Búsqueda inteligente: Por RUN o por Teléfono
   const handleSearchCitizen = (e: React.FormEvent) => {
     e.preventDefault();
     const query = searchQuery.trim().toLowerCase();
     if (!query) return;
 
-    // Busca coincidencia en RUN o en Teléfono
     const found = Object.values(citizensDb).find(
       c => c.rut.toLowerCase().includes(query) || c.telefono.replace(/\s+/g, '').includes(query.replace(/\s+/g, ''))
     );
@@ -281,7 +291,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Registrar nueva atención en mesón
   const handleAddCitizenRecord = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRut.trim() || !newNombre.trim() || !newDetalle.trim()) return;
@@ -320,7 +329,6 @@ export default function AdminDashboard() {
     setTimeout(() => setRecordSaved(false), 4000);
   };
 
-  // Manejo de Opciones de Encuestas
   const handleAddOption = () => {
     if (newOptionText.trim() && surveyOptions.length < 5) {
       setSurveyOptions([...surveyOptions, newOptionText.trim()]);
@@ -391,13 +399,13 @@ export default function AdminDashboard() {
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Reportes en Terreno</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Reportes con Evidencia</p>
             <p className="text-2xl font-bold text-amber-400 mt-1">23</p>
-            <p className="text-xs text-slate-400 mt-2">Caminos, ramas y chatarra con foto</p>
+            <p className="text-xs text-slate-400 mt-2">Fotos validadas en terreno</p>
           </div>
         </div>
 
-        {/* BANDEJA DE TICKETS */}
+        {/* BANDEJA DE TICKETS CON FOTOS Y SELECTOR DE ESTADO */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
           <div className="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
@@ -405,7 +413,7 @@ export default function AdminDashboard() {
                 <span>Núcleo Base • Requerimientos Territoriales</span>
               </div>
               <h2 className="text-base font-bold text-white">Bandeja de Requerimientos Ciudadanos (WhatsApp)</h2>
-              <p className="text-xs text-slate-400">Incidencias viales anónimas con foto obligatoria y solicitudes asistenciales con folio</p>
+              <p className="text-xs text-slate-400">Incidencias viales anónimas con foto obligatoria, trazabilidad de cuadrillas y estados en vivo</p>
             </div>
             
             <div className="flex flex-wrap gap-1.5">
@@ -429,13 +437,13 @@ export default function AdminDashboard() {
             <table className="w-full text-left text-xs text-slate-300">
               <thead className="bg-slate-900/80 text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-700">
                 <tr>
-                  <th className="p-3">Folio Institucional</th>
-                  <th className="p-3">Vecino / Modalidad</th>
-                  <th className="p-3">Sector Geográfico</th>
-                  <th className="p-3">Detalle Requerimiento</th>
-                  <th className="p-3">Semáforo SLA</th>
-                  <th className="p-3">Estado</th>
-                  <th className="p-3 text-right">Gestión</th>
+                  <th className="p-3">Folio</th>
+                  <th className="p-3">Modalidad / Vecino</th>
+                  <th className="p-3">Sector</th>
+                  <th className="p-3">Detalle del Requerimiento</th>
+                  <th className="p-3 text-center">Foto Evidencia</th>
+                  <th className="p-3">SLA</th>
+                  <th className="p-3">Estado Operativo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700/60">
@@ -443,10 +451,18 @@ export default function AdminDashboard() {
                   <tr key={ticket.id} className="hover:bg-slate-700/30 transition">
                     <td className="p-3 font-mono font-bold text-emerald-400">{ticket.id}</td>
                     <td className="p-3">
-                      <div className="font-semibold text-white">{ticket.citizen}</div>
-                      <div className="text-[11px] text-slate-400 font-mono">
-                        {ticket.rut ? `${ticket.rut} • ` : ''}{ticket.phone}
-                      </div>
+                      {ticket.citizen.includes('Anónimo') ? (
+                        <span className="inline-flex items-center gap-1 bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[11px] font-semibold border border-slate-700">
+                          🛡️ 100% Anónimo
+                        </span>
+                      ) : (
+                        <div>
+                          <div className="font-semibold text-white">{ticket.citizen}</div>
+                          <div className="text-[11px] text-slate-400 font-mono">
+                            {ticket.rut ? `${ticket.rut} • ` : ''}{ticket.phone}
+                          </div>
+                        </div>
+                      )}
                     </td>
                     <td className="p-3">
                       <span className="bg-slate-700/80 px-2 py-0.5 rounded text-slate-200 font-medium">
@@ -457,6 +473,22 @@ export default function AdminDashboard() {
                       <span className="font-semibold text-slate-200 block">[{ticket.type}]</span>
                       <span className="text-slate-400">{ticket.description}</span>
                     </td>
+                    
+                    {/* Visualizador de Foto */}
+                    <td className="p-3 text-center">
+                      {ticket.imageUrl ? (
+                        <button
+                          onClick={() => setSelectedPhotoTicket(ticket)}
+                          className="inline-flex items-center gap-1.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 px-2.5 py-1 rounded text-[11px] font-bold transition group"
+                        >
+                          <Camera className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition" />
+                          <span>Ver Foto</span>
+                        </button>
+                      ) : (
+                        <span className="text-slate-600 text-[11px] italic">Sin foto</span>
+                      )}
+                    </td>
+
                     <td className="p-3">
                       {ticket.status === 'ATENDIDO' ? (
                         <span className="text-emerald-400 font-semibold flex items-center gap-1">
@@ -473,30 +505,24 @@ export default function AdminDashboard() {
                         </span>
                       )}
                     </td>
+
+                    {/* Selector Dinámico de Estado */}
                     <td className="p-3">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      <select
+                        value={ticket.status}
+                        onChange={(e) => handleStatusChange(ticket.id, e.target.value as any)}
+                        className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border outline-none cursor-pointer transition ${
                           ticket.status === 'ATENDIDO'
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            ? 'bg-emerald-950 text-emerald-300 border-emerald-700'
                             : ticket.status === 'EN_RUTA'
-                            ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                            : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            ? 'bg-blue-950 text-blue-300 border-blue-700'
+                            : 'bg-rose-950 text-rose-300 border-rose-700'
                         }`}
                       >
-                        {ticket.status}
-                      </span>
-                    </td>
-                    <td className="p-3 text-right">
-                      {ticket.status !== 'ATENDIDO' ? (
-                        <button
-                          onClick={() => markAsResolved(ticket.id)}
-                          className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-2.5 py-1 rounded text-xs transition shadow-sm"
-                        >
-                          Resolver
-                        </button>
-                      ) : (
-                        <span className="text-slate-500 italic">Auditado ✓</span>
-                      )}
+                        <option value="PENDIENTE" className="bg-slate-900 text-rose-300">⏳ PENDIENTE</option>
+                        <option value="EN_RUTA" className="bg-slate-900 text-blue-300">🚛 EN RUTA / CUADRILLA</option>
+                        <option value="ATENDIDO" className="bg-slate-900 text-emerald-300">✅ ATENDIDO / RESUELTO</option>
+                      </select>
                     </td>
                   </tr>
                 ))}
@@ -505,27 +531,84 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* COLA DE CURADURÍA DOCUMENTAL ASISTIDA (MOTOR RAG) */}
+        {/* MODAL DE FOTO DE EVIDENCIA EN TAMAÑO REAL */}
+        {selectedPhotoTicket && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-fadeIn">
+              <div className="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Camera className="w-5 h-5 text-emerald-400" />
+                  <span className="font-bold text-white text-sm">
+                    Evidencia de Terreno • {selectedPhotoTicket.id}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setSelectedPhotoTicket(null)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-5 space-y-4">
+                <div className="rounded-xl overflow-hidden border border-slate-800 bg-black max-h-[380px] flex items-center justify-center">
+                  <img
+                    src={selectedPhotoTicket.imageUrl}
+                    alt="Evidencia del reporte"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs space-y-2">
+                  <div className="flex items-center justify-between text-slate-300">
+                    <span className="flex items-center gap-1.5 font-bold text-emerald-400">
+                      <MapPin className="w-3.5 h-3.5" /> {selectedPhotoTicket.sector}
+                    </span>
+                    <span className="text-slate-400 font-mono">{selectedPhotoTicket.createdAt}</span>
+                  </div>
+                  <p className="text-slate-200 leading-relaxed">
+                    <strong>Descripción del vecino:</strong> "{selectedPhotoTicket.description}"
+                  </p>
+                  <div className="pt-2 border-t border-slate-800/80 flex justify-between items-center text-[11px] text-slate-400">
+                    <span>Modalidad: {selectedPhotoTicket.citizen}</span>
+                    <span className="font-mono">Estado: {selectedPhotoTicket.status}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-slate-950/60 border-t border-slate-800 flex justify-end">
+                <button
+                  onClick={() => setSelectedPhotoTicket(null)}
+                  className="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition"
+                >
+                  Cerrar Vista Previa
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* COLA DE CURADURÍA DOCUMENTAL ASISTIDA CON IDENTIFICACIÓN DEL FUNCIONARIO */}
         <div className="bg-slate-800/70 border border-blue-500/30 rounded-xl p-6 shadow-xl">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-slate-700/80 pb-4">
             <div>
               <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded text-xs font-semibold mb-2">
                 <FileText className="w-3.5 h-3.5" /> Repositorio Normativo (Curaduría Técnica Asistida)
               </div>
-              <h2 className="text-lg font-bold text-white">Bandeja de Remisión de Documentos para el RAG</h2>
+              <h2 className="text-lg font-bold text-white">Remisión Documental Auditada para el RAG</h2>
               <p className="text-xs text-slate-400">
-                Los decretos cargados son recibidos por el consultor técnico para limpieza semántica, fragmentación vectorial y control de alucinaciones (SLA 48 hrs).
+                Cada documento remitido registra al funcionario emisor para coordinar la limpieza, vectorización y control de calidad con el consultor técnico.
               </p>
             </div>
             <div className="text-right">
               <span className="text-[11px] bg-slate-900 text-blue-300 px-3 py-1.5 rounded-lg border border-blue-800/60 font-mono block">
-                Soporte y Calibración: Ing. Alex Rojas
+                Ingeniería y Soporte: Alex Rojas
               </span>
             </div>
           </div>
 
           <form onSubmit={handleUploadDocument} className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
-            <div className="md:col-span-4">
+            <div className="md:col-span-3">
               <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
                 Departamento Emisor
               </label>
@@ -542,9 +625,23 @@ export default function AdminDashboard() {
               </select>
             </div>
 
-            <div className="md:col-span-5">
+            <div className="md:col-span-3">
               <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
-                Título o Identificador del Decreto / Ordenanza
+                Funcionario Responsable
+              </label>
+              <input
+                type="text"
+                placeholder="Ej: Marcela Henríquez (DIDECO)"
+                value={uploaderName}
+                onChange={e => setUploaderName(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div className="md:col-span-4">
+              <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
+                Título del Decreto u Ordenanza
               </label>
               <input
                 type="text"
@@ -552,22 +649,23 @@ export default function AdminDashboard() {
                 value={docName}
                 onChange={e => setDocName(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                required
               />
             </div>
 
-            <div className="md:col-span-3 flex items-end">
+            <div className="md:col-span-2 flex items-end">
               <button
                 type="submit"
-                disabled={isUploading || !docName.trim()}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-md"
+                disabled={isUploading || !docName.trim() || !uploaderName.trim()}
+                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-md"
               >
                 {isUploading ? (
                   <>
                     <span className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                    Remitiendo a Curaduría...
+                    Remitiendo...
                   </>
                 ) : (
-                  <span>📥 Remitir a Cola RAG</span>
+                  <span>📥 Remitir al RAG</span>
                 )}
               </button>
             </div>
@@ -576,14 +674,14 @@ export default function AdminDashboard() {
           {uploadSuccess && (
             <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/40 rounded-lg text-xs text-blue-200 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-blue-400" />
-              <span><strong>Documento ingresado a la cola:</strong> El equipo técnico iniciará la depuración, vectorización y testeo sintético antes de publicarlo en el WhatsApp comunal.</span>
+              <span><strong>Documento registrado:</strong> El consultor técnico iniciará la depuración semántica, vectorización y testeo sintético antes de activarlo en el WhatsApp comunal.</span>
             </div>
           )}
 
           <div className="bg-slate-900/70 border border-slate-700/60 rounded-lg overflow-hidden">
             <div className="px-4 py-2 bg-slate-950/60 border-b border-slate-700/60 flex justify-between items-center text-xs">
-              <span className="font-semibold text-slate-300">Base Normativa Vectorizada en pgvector</span>
-              <span className="text-slate-400">{docs.length} documentos procesados</span>
+              <span className="font-semibold text-slate-300">Documentación Indexada en pgvector</span>
+              <span className="text-slate-400">{docs.length} archivos en producción</span>
             </div>
             <div className="divide-y divide-slate-800">
               {docs.map(doc => (
@@ -591,7 +689,7 @@ export default function AdminDashboard() {
                   <div>
                     <span className="font-semibold text-white">{doc.title}</span>
                     <div className="text-[11px] text-slate-400 mt-0.5">
-                      <span className="text-blue-400 font-medium">{doc.department}</span> • {doc.date}
+                      <span className="text-blue-400 font-medium">{doc.department}</span> • Remitido por: <strong className="text-slate-300">{doc.uploadedBy}</strong> • {doc.date}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -638,7 +736,7 @@ export default function AdminDashboard() {
               </span>
             </div>
             <p className="text-xs text-slate-400 mb-6">
-              Permite a los funcionarios de mesón consultar el historial ciudadano por RUN o Teléfono y registrar nuevas visitas, unificando la trazabilidad del edificio consistorial con las solicitudes de WhatsApp.
+              Permite a los funcionarios de mesón consultar el historial ciudadano por RUN o Teléfono y registrar nuevas visitas presenciales, unificando la trazabilidad del edificio consistorial con las solicitudes de WhatsApp.
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -675,7 +773,7 @@ export default function AdminDashboard() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[11px] text-slate-400 mb-1">Teléfono de Contacto (Opcional)</label>
+                      <label className="block text-[11px] text-slate-400 mb-1">Teléfono de Contacto</label>
                       <input
                         type="text"
                         placeholder="Ej: +56 9 7612 0041"
@@ -767,7 +865,7 @@ export default function AdminDashboard() {
 
                   {searchError && (
                     <p className="text-amber-400 text-xs mb-3">
-                      No se encontró expediente previo con ese dato. Puedes crearlo en el formulario lateral.
+                      No se encontró expediente con ese dato. Puedes registrarlo con el formulario lateral.
                     </p>
                   )}
 
@@ -826,9 +924,8 @@ export default function AdminDashboard() {
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Columna Izquierda: Configuración del Envío */}
+              {/* Configuración del Envío */}
               <div className="lg:col-span-8 bg-slate-900/80 border border-slate-700/80 rounded-xl p-5 space-y-4">
-                {/* Selector de Modo */}
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -854,7 +951,6 @@ export default function AdminDashboard() {
                   </button>
                 </div>
 
-                {/* Sector Geográfico */}
                 <div>
                   <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
                     Sector Geográfico Destino
@@ -873,7 +969,6 @@ export default function AdminDashboard() {
                   </select>
                 </div>
 
-                {/* Editor según Modo */}
                 {broadcastMode === 'ALERTA' ? (
                   <div>
                     <div className="flex justify-between items-center mb-1.5">
@@ -892,7 +987,6 @@ export default function AdminDashboard() {
                   </div>
                 ) : (
                   <div className="space-y-4 border-t border-slate-800 pt-4">
-                    {/* Selector de Tipo de Encuesta */}
                     <div>
                       <label className="block text-xs uppercase font-bold text-slate-300 mb-2">
                         Tipo de Consulta Ciudadana
@@ -920,7 +1014,6 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    {/* Pregunta */}
                     <div>
                       <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
                         Pregunta o Enunciado de la Encuesta
@@ -934,7 +1027,6 @@ export default function AdminDashboard() {
                       ></textarea>
                     </div>
 
-                    {/* Opciones si es Opción Múltiple */}
                     {surveyType === 'MULTIPLE' && (
                       <div className="space-y-2">
                         <label className="block text-xs uppercase font-bold text-slate-300">
@@ -1004,7 +1096,7 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* Columna Derecha: Vista Previa en WhatsApp */}
+              {/* Vista Previa WhatsApp */}
               <div className="lg:col-span-4 flex flex-col justify-start space-y-3">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase">
                   <Smartphone className="w-4 h-4 text-amber-400" /> Vista Previa en Celular del Vecino
