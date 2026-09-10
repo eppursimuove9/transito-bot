@@ -32,7 +32,7 @@ Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu
 
 1️⃣ 🚗 *Tránsito y Vehículos* (Requisitos Permiso, Licencias, Multas JPL y Pasarela Web)
 2️⃣ 🏪 *Rentas y Comercio* (Patentes Comerciales, Ferias Libres, Plazos y Enlaces)
-3️⃣ 🏡 *Operaciones en Terreno* (Baches, Caminos Rurales, Luminarias, Ramas y Chatarra)
+3️⃣ 🚜 *Reporte de Incidencias Comunitarias* (Hoyos, Caminos Rurales, Luminarias, Ramas y Chatarra)
 4️⃣ 🤝 *DIDECO y Acción Social* (Subsidio Agua Potable Rural APR, Registro Social de Hogares)
 5️⃣ ℹ️ *Guía Comunal e Información RAG* (Ordenanzas, Farmacias de Turno, Eventos)
 6️⃣ 👵 *Modo Asistido / Adulto Mayor* (Texto claro y sencillo)
@@ -78,7 +78,7 @@ export default function LaUnionDemoPage() {
       const newTicket: AdminTicket = {
         id: ticketData.id || `#LUN-2026-${Math.floor(1000 + Math.random() * 9000)}`,
         citizen: ticketData.citizen || 'Vecino WhatsApp',
-        rut: ticketData.rut || 'No informado',
+        rut: ticketData.rut || 'No requerido',
         phone: ticketData.phone || '+56 9 ' + Math.floor(74000000 + Math.random() * 25000000),
         sector: ticketData.sector || 'Radio Urbano',
         type: ticketData.type || 'CAMINO',
@@ -168,7 +168,7 @@ export default function LaUnionDemoPage() {
           Ventanilla Única WhatsApp La Unión
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Arquitectura no invasiva: Asistente RAG, validación sintética Módulo 11 y trazabilidad directa en panel directivo.
+          Arquitectura no invasiva: Asistente RAG comunal, reportes viales confidenciales y trazabilidad en tiempo real.
         </p>
       </header>
 
@@ -232,53 +232,41 @@ export default function LaUnionDemoPage() {
               </div>
             </div>
 
-            {/* 3. Terreno y Validación RUN */}
+            {/* 3. Incidencias Comunitarias (Anónimo + Chatarra) */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="text-orange-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <Home className="w-3.5 h-3.5" /> 3. Terreno & Validación RUN (Opción 3)
+                <Home className="w-3.5 h-3.5" /> 3. Reporte de Incidencias (Opción 3)
               </div>
+              
               <div 
-                onClick={() => copyToClipboard("Sector Mashue km 4")}
+                onClick={() => copyToClipboard("Hay un hoyo peligroso en el camino a Trumao en el km 10, adjunto foto")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
-                  <div className="font-bold text-white">Sector de Prueba</div>
-                  <p className="text-[11px] text-slate-400">Sector Mashue km 4 (Camino rural)</p>
+                  <div className="font-bold text-white flex items-center gap-1.5">
+                    <span>Reporte de Hoyo / Camino</span>
+                    <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1 rounded">100% Anónimo</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Camino a Trumao km 10 (Sin pedir RUN)</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Sector Mashue km 4" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Hay un hoyo peligroso en el camino a Trumao en el km 10, adjunto foto" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
 
               <div 
-                onClick={() => copyToClipboard("Gladys Monsalve 15.432.987-4")}
-                className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-emerald-500/50 cursor-pointer transition flex justify-between items-center group"
+                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Puerto Nuevo, 2 baterías de tractor y fierros")}
+                className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
-                  <div className="font-mono font-bold text-white flex items-center gap-1.5">
-                    <span>15.432.987-4</span>
-                    <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1 rounded">Válido</span>
+                  <div className="font-bold text-white flex items-center gap-1.5">
+                    <span>Chatarra en Domicilio</span>
+                    <span className="text-[10px] bg-blue-950 text-blue-300 px-1 rounded">Nombre + Dirección</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Pasa validación Módulo 11</p>
+                  <p className="text-[11px] text-slate-400">Coordinación directa de retiro en predio</p>
                 </div>
-                <span className="text-slate-500 group-hover:text-emerald-400 text-xs">
-                  {copiedCode === "Gladys Monsalve 15.432.987-4" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                </span>
-              </div>
-
-              <div 
-                onClick={() => copyToClipboard("Juan Perez 11.111.111-2")}
-                className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-rose-500/50 cursor-pointer transition flex justify-between items-center group"
-              >
-                <div>
-                  <div className="font-mono font-bold text-white flex items-center gap-1.5">
-                    <span>11.111.111-2</span>
-                    <span className="text-[10px] bg-rose-950 text-rose-300 px-1 rounded">Inválido</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400">Prueba de rechazo automático</p>
-                </div>
-                <span className="text-slate-500 group-hover:text-rose-400 text-xs">
-                  {copiedCode === "Juan Perez 11.111.111-2" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span className="text-slate-500 group-hover:text-orange-400 text-xs">
+                  {copiedCode === "Héctor Manqui, Parcela 14 Puerto Nuevo, 2 baterías de tractor y fierros" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
             </div>
@@ -363,7 +351,7 @@ export default function LaUnionDemoPage() {
             <button
               type="button"
               onClick={() => handleSendMessage(
-                "📸 Fotografía de socavón en camino sector Mashue km 4",
+                "📸 Hay un hoyo peligroso en el camino a Trumao en el km 10, adjunto foto",
                 "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80"
               )}
               title="Adjuntar fotografía de terreno"

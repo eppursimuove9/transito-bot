@@ -1,37 +1,10 @@
 import { NextResponse } from 'next/server';
 
-// --- VALIDADOR SINTÁCTICO DE RUN CHILENO (MÓDULO 11) ---
-function validarRutChileno(rut: string): boolean {
-  if (!rut || typeof rut !== 'string') return false;
-  const limpio = rut.replace(/\./g, '').replace(/-/g, '').trim().toUpperCase();
-  if (limpio.length < 8 || limpio.length > 9) return false;
-
-  const cuerpo = limpio.slice(0, -1);
-  const dv = limpio.slice(-1);
-  if (!/^\d+$/.test(cuerpo)) return false;
-
-  let suma = 0;
-  let multiplo = 2;
-  for (let i = cuerpo.length - 1; i >= 0; i--) {
-    suma += multiplo * parseInt(cuerpo.charAt(i), 10);
-    multiplo = multiplo < 7 ? multiplo + 1 : 2;
-  }
-
-  const dvEsperado = 11 - (suma % 11);
-  let dvCalculado = '';
-  if (dvEsperado === 11) dvCalculado = '0';
-  else if (dvEsperado === 10) dvCalculado = 'K';
-  else dvCalculado = dvEsperado.toString();
-
-  return dv === dvCalculado;
-}
-
 function generarFolio(anio: number = 2026): string {
   const correlativo = Math.floor(1000 + Math.random() * 9000);
   return `#LUN-${anio}-${correlativo}`;
 }
 
-// --- BASE DE CONOCIMIENTO MUNICIPAL (RAG LA UNIÓN) ---
 const KNOWLEDGE_BASE = [
   {
     keywords: ["EVENTO", "FIESTA", "TRUMAO", "PUERTO NUEVO", "SEMANA", "COSTUMBRISTA"],
@@ -53,7 +26,7 @@ Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu
 
 1️⃣ 🚗 *Tránsito y Vehículos* (Requisitos Permiso, Licencias, Multas JPL y Pasarela Web)
 2️⃣ 🏪 *Rentas y Comercio* (Patentes Comerciales, Ferias Libres, Plazos y Enlaces)
-3️⃣ 🏡 *Operaciones en Terreno* (Baches, Caminos Rurales, Luminarias, Ramas y Chatarra)
+3️⃣ 🚜 *Reporte de Incidencias Comunitarias* (Hoyos, Caminos Rurales, Luminarias, Ramas y Chatarra)
 4️⃣ 🤝 *DIDECO y Acción Social* (Subsidio Agua Potable Rural APR, Registro Social de Hogares)
 5️⃣ ℹ️ *Guía Comunal e Información RAG* (Ordenanzas, Farmacias de Turno, Eventos)
 6️⃣ 👵 *Modo Asistido / Adulto Mayor* (Texto claro y sencillo)
@@ -62,7 +35,7 @@ Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu
 _Escribe el número de tu opción (1-6 o 0). Para emergencias escribe *SOS*._`;
 
 export async function POST(req: Request) {
-  const { message, step } = await req.json();
+  const { message, step, hasImage } = await req.json();
   const rawMessage = (message || '').trim();
   const cleanMsg = rawMessage.toUpperCase();
 
@@ -111,8 +84,8 @@ export async function POST(req: Request) {
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: "🚜 *Aviso de Caminos o Luminarias*\n\n¿En qué sector rural o calle de La Unión está el problema? (Ejemplo: Puerto Nuevo, Mashue, Choroico):\n\n_Escriba *MENU* para volver._",
-        next_step: 'TERRENO_STEP_SECTOR'
+        reply: "🚜 *Aviso de Caminos o Luminarias (100% Anónimo)*\n\nCuéntenos dónde está el problema y qué ocurre (por ejemplo: _\"Hay un hoyo hondo en el camino a Trumao en el km 10\"_). Si puede, tome una foto 📷:\n\n_Escriba *MENU* para volver._",
+        next_step: 'INCIDENCIA_ANONIMA_TEXTO'
       });
     }
     if (cleanMsg === '3') {
@@ -137,34 +110,32 @@ export async function POST(req: Request) {
 
   // --- 4. ENRUTADOR PRINCIPAL ---
   if (step === 'INIT') {
-    // 1. Tránsito y Vehículos
-    if (cleanMsg === '1' || cleanMsg.includes('TRANSITO') || cleanMsg.includes('AUTO') || cleanMsg.includes('PERMISO')) {
+    // 1. Tránsito
+    if (cleanMsg === '1' || cleanMsg.includes('TRANSITO')) {
       const sub = `🚗 *Dirección de Tránsito y Transporte Público*\n\nSelecciona el trámite sobre el que deseas orientación:\n\n1️⃣ *Permiso de Circulación* (Requisitos, fechas y enlace oficial de pago)\n2️⃣ *Licencias de Conducir* (Primeras licencias, renovaciones y cómo pedir hora)\n3️⃣ *Multas y JPL* (Dónde consultar y cómo pagar multas pendientes)\n\n_Escribe tu opción (1-3) o *MENU* para volver._`;
       return NextResponse.json({ reply: sub, next_step: 'SUB_TRANSITO' });
     }
 
-    // 2. Rentas y Comercio
+    // 2. Rentas
     if (cleanMsg === '2' || cleanMsg.includes('RENTA') || cleanMsg.includes('PATENTE') || cleanMsg.includes('COMERCIO')) {
       const sub = `🏪 *Departamento de Rentas y Patentes Comerciales*\n\nSelecciona la consulta de tu interés:\n\n1️⃣ *Patentes Comerciales y MEF* (Requisitos de apertura, plazos y pago web)\n2️⃣ *Derechos de Feria Libre y Permisos Ambulantes* (Días de pago y requisitos)\n3️⃣ *Derechos de Aseo Domiciliario* (Quiénes pagan, exenciones adulto mayor)\n\n_Escribe tu opción (1-3) o *MENU* para volver._`;
       return NextResponse.json({ reply: sub, next_step: 'SUB_RENTAS' });
     }
 
-    // 3. Operaciones en Terreno
-    if (cleanMsg === '3' || cleanMsg.includes('TERRENO') || cleanMsg.includes('CAMINO') || cleanMsg.includes('BACHE') || cleanMsg.includes('LUMINARIA')) {
-      return NextResponse.json({
-        reply: `🏡 *Operaciones en Terreno e Incidencias Territoriales*\n\nCanal directo para canalizar requerimientos sobre caminos rurales, ramas caídas, luminarias apagadas o retiro de chatarra/baterías.\n\n👉 Para iniciar el reporte foliado, indícanos el *Sector o Localidad* (Ej: Puerto Nuevo, Mashue, Choroico, Trumao, Llancacura, Centro):\n\n_Escribe *MENU* para cancelar._`,
-        next_step: 'TERRENO_STEP_SECTOR'
-      });
+    // 3. REPORTE DE INCIDENCIAS COMUNITARIAS (NUEVO NOMBRE Y SUBMENÚ)
+    if (cleanMsg === '3' || cleanMsg.includes('INCIDENCIA') || cleanMsg.includes('CAMINO') || cleanMsg.includes('HOYO') || cleanMsg.includes('BACHE') || cleanMsg.includes('LUMINARIA') || cleanMsg.includes('CHATARRA')) {
+      const sub = `🚜 *Reporte de Incidencias Comunitarias*\n\nCanal directo con la Dirección de Operaciones para atender contingencias en la comuna:\n\n1️⃣ 🕳️ *Reportar Hoyo, Camino en Mal Estado, Luminaria o Rama Caída* (100% Anónimo)\n2️⃣ ♻️ *Solicitar Retiro de Chatarra, Baterías o Metales*\n\n_Escribe 1 o 2, o escribe *MENU* para volver._`;
+      return NextResponse.json({ reply: sub, next_step: 'SUB_INCIDENCIAS' });
     }
 
-    // 4. DIDECO / Acción Social
-    if (cleanMsg === '4' || cleanMsg.includes('DIDECO') || cleanMsg.includes('APR') || cleanMsg.includes('SOCIAL')) {
+    // 4. DIDECO
+    if (cleanMsg === '4' || cleanMsg.includes('DIDECO') || cleanMsg.includes('APR')) {
       const sub = `🤝 *DIDECO - Orientación Social y Subsidios*\n\n1️⃣ *Subsidio al Agua Potable Rural (APR)* (Requisitos y documentos necesarios)\n2️⃣ *Registro Social de Hogares (RSH)* (Horarios, actualización y citas)\n\n_Escribe tu opción (1-2) o *MENU* para volver._`;
       return NextResponse.json({ reply: sub, next_step: 'SUB_DIDECO' });
     }
 
-    // 5. RAG / Información Libre
-    if (cleanMsg === '5' || cleanMsg.includes('INFO') || cleanMsg.includes('GUIA') || cleanMsg.includes('PREGUNTA')) {
+    // 5. RAG / Consultas Libres
+    if (cleanMsg === '5' || cleanMsg.includes('INFO') || cleanMsg.includes('GUIA')) {
       return NextResponse.json({
         reply: `ℹ️ *Consultas Normativas e Información Comunal (RAG)*\n\nPuedes hacerme preguntas directas, tales como:\n• _"¿Qué farmacia está de turno hoy?"_\n• _"¿Qué eventos hay este fin de semana en Trumao o Puerto Nuevo?"_\n• _"¿Cuál es el teléfono de Obras o Tránsito?"_\n• _"¿Cuáles son los horarios del municipio?"_\n\n_Escribe tu consulta o *MENU* para volver._`,
         next_step: 'AWAIT_RAG_QUERY'
@@ -180,7 +151,89 @@ export async function POST(req: Request) {
     return NextResponse.json({ reply: `⚠️ Opción no reconocida.\n\n${MENSAJE_INICIAL}`, next_step: 'INIT' });
   }
 
-  // --- 5. SUBMENÚ TRÁNSITO (ORIENTACIÓN ASISTIVA RAG) ---
+  // --- 5. SUBMENÚ INCIDENCIAS COMUNITARIAS ---
+  if (step === 'SUB_INCIDENCIAS') {
+    // Opción 1: Reporte Anónimo (Caminos, Hoyos, Luminarias, Ramas)
+    if (cleanMsg === '1' || cleanMsg.includes('HOYO') || cleanMsg.includes('CAMINO') || cleanMsg.includes('LUMINARIA')) {
+      return NextResponse.json({
+        reply: `🕳️ *Reporte de Camino, Hoyo, Luminaria o Rama (100% Anónimo)*\n\n🛡️ _No solicitamos tu nombre ni RUT. Tu número no se publica._\n\nPor favor, escribe en un mensaje el lugar aproximado y el problema. Por ejemplo:\n👉 _"Hay un hoyo peligroso en el camino a Trumao en el km 10, adjunto foto"_\n\nSi puedes, adjunta una fotografía usando el botón de la cámara 📷:\n\n_Escribe *MENU* para cancelar._`,
+        next_step: 'INCIDENCIA_ANONIMA_TEXTO'
+      });
+    }
+
+    // Opción 2: Chatarra (Bifurcación: Domicilio vs Lugar Público)
+    if (cleanMsg === '2' || cleanMsg.includes('CHATARRA') || cleanMsg.includes('BATERIA')) {
+      return NextResponse.json({
+        reply: `♻️ *Retiro de Chatarra, Baterías y Metales*\n\n¿Dónde se encuentra la chatarra u objetos a retirar?\n\n🅰️ *En mi domicilio o predio particular*\n🅱️ *En la vía pública, calle o sector rural de la comuna*\n\n_Responde con *A* o *B* (o escribe *MENU* para volver)._`,
+        next_step: 'CHATARRA_UBICACION_SELECT'
+      });
+    }
+  }
+
+  // --- 6. PROCESAMIENTO DE REPORTE ANÓNIMO (HOYOS / CAMINOS / LUMINARIAS) ---
+  if (step === 'INCIDENCIA_ANONIMA_TEXTO') {
+    const folio = generarFolio();
+    return NextResponse.json({
+      reply: `✅ *Reporte Recibido y Foliado (${folio})*\n\n• *Tipo:* Incidencia en Vía Pública (100% Anónimo)\n• *Estado:* Derivado a Cuadrilla de Operaciones\n• *Detalle ingresado:* "${rawMessage}"\n\nTu aviso ha ingresado al panel de control municipal para programar la inspección en terreno.\n\n_Escribe *MENU* para realizar otro trámite._`,
+      next_step: 'INIT',
+      ticketSync: {
+        id: folio,
+        citizen: 'Reporte Vecinal Anónimo',
+        type: 'CAMINO',
+        description: rawMessage || 'Reporte territorial en vía pública',
+        slaMinutes: 120
+      }
+    });
+  }
+
+  // --- 7. FLUJO DE RETIRO DE CHATARRA ---
+  if (step === 'CHATARRA_UBICACION_SELECT') {
+    if (cleanMsg === 'A' || cleanMsg.includes('DOMICILIO') || cleanMsg.includes('CASA')) {
+      return NextResponse.json({
+        reply: `🏠 *Retiro de Chatarra en Domicilio Particular*\n\nPara que la cuadrilla coordine la visita a tu hogar, por favor indícanos:\n\n1. Tu *Nombre*\n2. Tu *Dirección o Sector rural exacto*\n3. Breve detalle de lo que necesitas retirar (ej: _"2 baterías viejas y planchas de zinc"_) y foto opcional 📷.\n\n_Escribe tus datos en un solo mensaje o *MENU* para cancelar._`,
+        next_step: 'CHATARRA_DOMICILIO_DATOS'
+      });
+    }
+
+    if (cleanMsg === 'B' || cleanMsg.includes('CALLE') || cleanMsg.includes('PUBLICA') || cleanMsg.includes('COMUNA')) {
+      return NextResponse.json({
+        reply: `🚜 *Chatarra o Microbasural en Espacio Público (100% Anónimo)*\n\nIndícanos la ubicación aproximada donde se encuentran los fierros, chatarra o escombros abandonados (ej: _"A orillas del camino a Mashue frente al puente"_). Si puedes, adjunta foto 📷:\n\n_Escribe tu mensaje o *MENU* para cancelar._`,
+        next_step: 'CHATARRA_PUBLICA_TEXTO'
+      });
+    }
+  }
+
+  if (step === 'CHATARRA_DOMICILIO_DATOS') {
+    const folio = generarFolio();
+    return NextResponse.json({
+      reply: `✅ *Solicitud de Retiro en Domicilio Registrada (${folio})*\n\n• *Estado:* Agendado para evaluación de ruta\n• *Datos registrados:* "${rawMessage}"\n\nLa Dirección de Operaciones o la empresa recicladora en convenio se comunicará o visitará el sector en las próximas rondas programadas.\n\n_Escribe *MENU* para volver al inicio._`,
+      next_step: 'INIT',
+      ticketSync: {
+        id: folio,
+        citizen: 'Vecino en Domicilio',
+        type: 'CHATARRA',
+        description: `Retiro domicilio: ${rawMessage}`,
+        slaMinutes: 180
+      }
+    });
+  }
+
+  if (step === 'CHATARRA_PUBLICA_TEXTO') {
+    const folio = generarFolio();
+    return NextResponse.json({
+      reply: `✅ *Aviso de Chatarra en Espacio Público Foliado (${folio})*\n\n• *Tipo:* Limpieza y Retiro en Vía Pública (Anónimo)\n• *Ubicación informada:* "${rawMessage}"\n\nEl sector ha sido registrado en la hoja de ruta de aseo y reciclaje comunal.\n\n_Escribe *MENU* para volver al inicio._`,
+      next_step: 'INIT',
+      ticketSync: {
+        id: folio,
+        citizen: 'Reporte Anónimo Vía Pública',
+        type: 'CHATARRA',
+        description: `Chatarra vía pública: ${rawMessage}`,
+        slaMinutes: 240
+      }
+    });
+  }
+
+  // --- 8. SUBMENÚ TRÁNSITO (ORIENTACIÓN ASISTIVA RAG) ---
   if (step === 'SUB_TRANSITO') {
     if (cleanMsg === '1') {
       return NextResponse.json({
@@ -202,7 +255,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // --- 6. SUBMENÚ RENTAS Y COMERCIO (ORIENTACIÓN RAG) ---
+  // --- 9. SUBMENÚ RENTAS Y COMERCIO (ORIENTACIÓN RAG) ---
   if (step === 'SUB_RENTAS') {
     if (cleanMsg === '1') {
       return NextResponse.json({
@@ -224,7 +277,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // --- 7. SUBMENÚ DIDECO / SUBSIDIO APR ---
+  // --- 10. SUBMENÚ DIDECO / SUBSIDIO APR ---
   if (step === 'SUB_DIDECO') {
     if (cleanMsg === '1') {
       return NextResponse.json({
@@ -240,48 +293,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // --- 8. FLUJO OPERACIONES EN TERRENO (REPORTE CON FOTO Y VALIDACIÓN RUN) ---
-  if (step === 'TERRENO_STEP_SECTOR') {
-    return NextResponse.json({
-      reply: `📍 Sector registrado: *${rawMessage}*.\n\nPor favor, indícanos tu *Nombre completo y RUN* para asociarlo al folio oficial de seguimiento municipal (Ejemplo: *Gladys Monsalve 15.432.987-4*):\n\n_Escribe *MENU* para cancelar._`,
-      next_step: 'TERRENO_STEP_IDENTIFICACION'
-    });
-  }
-
-  if (step === 'TERRENO_STEP_IDENTIFICACION') {
-    const rutEncontrado = rawMessage.match(/(\d{1,2}\.?\d{3}\.?\d{3}-?[\dkK])/);
-    const rutCandidato = rutEncontrado ? rutEncontrado[0] : rawMessage;
-
-    if (!validarRutChileno(rutCandidato)) {
-      return NextResponse.json({
-        reply: `⚠️ El RUN ingresado (*${rutCandidato}*) no es válido según el algoritmo oficial (Módulo 11).\n\nPor favor, escribe un RUN chileno válido con su dígito verificador para generar el folio de seguimiento (Ejemplo: \`15.432.987-4\`):\n\n_O escribe *MENU* para volver._`,
-        next_step: 'TERRENO_STEP_IDENTIFICACION'
-      });
-    }
-
-    return NextResponse.json({
-      reply: `✅ RUN validado exitosamente: *${rutCandidato}*.\n\n📸 *Detalle del Requerimiento:*\nDescribe brevemente la situación (bache en camino, rama caída, luminaria o chatarra) y adjunta una fotografía usando el botón de la cámara 📷:\n\n_Escribe *MENU* para cancelar._`,
-      next_step: 'TERRENO_STEP_EVIDENCIA'
-    });
-  }
-
-  if (step === 'TERRENO_STEP_EVIDENCIA') {
-    const folio = generarFolio();
-    return NextResponse.json({
-      reply: `✅ *Requerimiento Territorial Foliado (${folio})*\n\n• *Tipo:* Operaciones en Terreno / Incidencia Vial\n• *Estado:* Pendiente de Asignación de Cuadrilla\n• *Respaldo:* Sincronizado en tiempo real con el panel directivo '/admin'.\n\nGuarda tu número de folio (*${folio}*) para hacer seguimiento de los trabajos.\n\n_Escribe *MENU* para realizar otro trámite._`,
-      next_step: 'INIT',
-      ticketSync: {
-        id: folio,
-        citizen: 'Vecino Identificado',
-        rut: 'Validado Módulo 11',
-        type: 'CAMINO',
-        description: `Reporte en terreno: "${rawMessage}"`,
-        slaMinutes: 120
-      }
-    });
-  }
-
-  // --- 9. MOTOR RAG (PREGUNTAS LIBRES) ---
+  // --- 11. MOTOR RAG (PREGUNTAS LIBRES) ---
   if (step === 'AWAIT_RAG_QUERY') {
     const match = KNOWLEDGE_BASE.find(item => item.keywords.some(kw => cleanMsg.includes(kw)));
     if (match) {
