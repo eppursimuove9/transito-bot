@@ -26,58 +26,16 @@ function validarRutChileno(rut: string): boolean {
   return dv === dvCalculado;
 }
 
-// Generador de folio institucional
 function generarFolio(anio: number = 2026): string {
   const correlativo = Math.floor(1000 + Math.random() * 9000);
   return `#LUN-${anio}-${correlativo}`;
 }
 
-// --- BASES DE DATOS LOCALES SIMULADAS ---
-const VEHICULOS_DB: Record<string, any> = {
-  "ABCD12": {
-    ppu: "ABCD12",
-    marca: "Toyota",
-    modelo: "Hilux 4x4",
-    anio: 2021,
-    comuna: "La Unión",
-    sector: "Puerto Nuevo",
-    propietario: "Héctor Manqui",
-    prt_vigente: true,
-    prt_vence: "30-Nov-2026",
-    valor_permiso: 54200,
-    multas: []
-  },
-  "GFHY45": {
-    ppu: "GFHY45",
-    marca: "Nissan",
-    modelo: "Terrano",
-    anio: 2018,
-    comuna: "La Unión",
-    sector: "Mashue",
-    propietario: "Gladys Monsalve",
-    prt_vigente: true,
-    prt_vence: "31-Oct-2026",
-    valor_permiso: 38000,
-    multas: [
-      { juzgado: "JPL La Unión", motivo: "Estacionamiento indebido en calle Prat", monto: 35000 }
-    ]
-  }
-};
-
-const PATENTES_COMERCIALES_DB: Record<string, any> = {
-  "761234567": {
-    rut: "76.123.456-7",
-    razon_social: "Agrícola y Lácteos Puerto Nuevo SpA",
-    rol: "ROL-COM-2026-412",
-    monto_semestre: 42300
-  }
-};
-
-// --- BASE DE CONOCIMIENTO (RAG COMUNAL DE LA UNIÓN) ---
+// --- BASE DE CONOCIMIENTO MUNICIPAL (RAG LA UNIÓN) ---
 const KNOWLEDGE_BASE = [
   {
     keywords: ["EVENTO", "FIESTA", "TRUMAO", "PUERTO NUEVO", "SEMANA", "COSTUMBRISTA"],
-    response: `🎭 *Eventos y Festividades en La Unión 2026*\n\n• *Feria Fluvial y Tradiciones de Trumao:* Sábado y Domingo en el Muelle de Trumao.\n• *Muestra Costumbrista Puerto Nuevo:* Todo el fin de semana a orillas del Lago Ranco.\n• *Semana Unionina:* Actividades en Plaza de la Concordia y Parque Municipal.\n\n_Escribe otra consulta comunal o *MENU* para volver._`
+    response: `🎭 *Eventos y Actividades en La Unión 2026*\n\n• *Muestra Fluvial de Trumao:* Sábado y Domingo en el Muelle Fluvial.\n• *Feria Costumbrista Puerto Nuevo:* Fin de semana en ribera Lago Ranco.\n• *Semana Unionina:* Actividades en Plaza de la Concordia y Parque Municipal.\n\n_Escribe otra consulta o *MENU* para volver._`
   },
   {
     keywords: ["FARMACIA", "TURNO", "REMEDIO", "SALUD", "HOSPITAL", "CESFAM"],
@@ -85,7 +43,7 @@ const KNOWLEDGE_BASE = [
   },
   {
     keywords: ["TELEFONO", "ANEXO", "CONTACTO", "DIDECO", "OBRAS", "TRANSITO"],
-    response: `📞 *Directorio Municipal de La Unión*\n\n• *Central Consistorial:* +56 64 232 2000\n• *DIDECO:* Anexo 104 • Manuel Montt 530\n• *Dirección de Tránsito:* Anexo 112 • Comercio 340\n• *Dirección de Operaciones y Obras:* Anexo 108\n• *Seguridad Pública y Cuadrante:* +56 64 276 5230 (24/7)\n\n_Escribe otra consulta o *MENU* para volver._`
+    response: `📞 *Directorio Municipal de La Unión*\n\n• *Central Telefónica:* +56 64 232 2000\n• *Tránsito y Licencias:* Anexo 112 • Comercio 340\n• *Rentas y Finanzas:* Anexo 106 • Comercio 340\n• *DIDECO (Social):* Anexo 104 • Manuel Montt 530\n• *Operaciones y Emergencias:* +56 64 276 5230 (24/7)\n\n_Escribe otra consulta o *MENU* para volver._`
   }
 ];
 
@@ -93,8 +51,8 @@ const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital
 
 Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu trámite:
 
-1️⃣ 🚗 *Tránsito y Vehículos* (Permisos de Circulación, Licencias, Multas JPL)
-2️⃣ 🏪 *Rentas y Comercio* (Patentes Comerciales, Ferias Libres)
+1️⃣ 🚗 *Tránsito y Vehículos* (Requisitos Permiso, Licencias, Multas JPL y Pasarela Web)
+2️⃣ 🏪 *Rentas y Comercio* (Patentes Comerciales, Ferias Libres, Plazos y Enlaces)
 3️⃣ 🏡 *Operaciones en Terreno* (Baches, Caminos Rurales, Luminarias, Ramas y Chatarra)
 4️⃣ 🤝 *DIDECO y Acción Social* (Subsidio Agua Potable Rural APR, Registro Social de Hogares)
 5️⃣ ℹ️ *Guía Comunal e Información RAG* (Ordenanzas, Farmacias de Turno, Eventos)
@@ -104,26 +62,27 @@ Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu
 _Escribe el número de tu opción (1-6 o 0). Para emergencias escribe *SOS*._`;
 
 export async function POST(req: Request) {
-  const { message, step, hasImage } = await req.json();
+  const { message, step } = await req.json();
   const rawMessage = (message || '').trim();
   const cleanMsg = rawMessage.toUpperCase();
 
-  // --- 1. INTERCEPTOR DE EMERGENCIA (SOS) ---
+  // --- 1. SOS DE EMERGENCIA ---
   if (['SOS', 'EMERGENCIA', 'BOMBEROS', 'CARABINEROS', 'AMBULANCIA'].some(k => cleanMsg.includes(k))) {
-    const sosReply = `🚨 *CENTRAL DE EMERGENCIAS • LA UNIÓN* 🚨\n\nComunícate de inmediato con las unidades de respuesta:\n\n🚒 *Bomberos La Unión:* 132\n🚓 *Carabineros (3ª Comisaría La Unión):* 133 / +56 64 276 5230\n🚓 *Retén Puerto Nuevo:* +56 64 276 5240\n🚑 *Ambulancia SAMU:* 131\n📞 *Seguridad Pública Municipal:* +56 64 232 2000\n\n_Escribe *MENU* para volver a la atención municipal._`;
-    return NextResponse.json({ reply: sosReply, next_step: 'INIT' });
+    return NextResponse.json({
+      reply: `🚨 *CENTRAL DE EMERGENCIAS • LA UNIÓN* 🚨\n\nComunícate de inmediato:\n\n🚒 *Bomberos La Unión:* 132\n🚓 *Carabineros (3ª Comisaría La Unión):* 133 / +56 64 276 5230\n🚓 *Retén Puerto Nuevo:* +56 64 276 5240\n🚑 *Ambulancia SAMU:* 131\n📞 *Seguridad Pública Municipal:* +56 64 232 2000\n\n_Escribe *MENU* para volver._`,
+      next_step: 'INIT'
+    });
   }
 
-  // --- 2. COMANDOS UNIVERSALES ---
+  // --- 2. COMANDOS GLOBALES ---
   if (['MENU', 'VOLVER', 'INICIO', 'HOLA', 'CANCELAR'].includes(cleanMsg)) {
     return NextResponse.json({ reply: MENSAJE_INICIAL, next_step: 'INIT' });
   }
 
-  // Solicitud de contacto telefónico (Opción 0)
   if (cleanMsg === '0' || ['FUNCIONARIO', 'HUMANO', 'LLAMAR'].includes(cleanMsg)) {
     const folio = generarFolio();
     return NextResponse.json({
-      reply: `👤 *Solicitud de Contacto Telefónico Registrada (${folio})*\n\nUn funcionario municipal se comunicará al número telefónico de este WhatsApp durante el próximo bloque de atención hábil (08:30 a 14:00 hrs).\n\n_El requerimiento ha ingresado al panel de control directivo._\n\nEscribe *MENU* para volver.`,
+      reply: `👤 *Solicitud de Contacto Telefónico Registrada (${folio})*\n\nUn funcionario municipal se comunicará al número de este WhatsApp durante horario hábil (08:30 a 14:00 hrs).\n\n_Escribe *MENU* para volver al inicio._`,
       next_step: 'INIT',
       ticketSync: {
         id: folio,
@@ -135,17 +94,19 @@ export async function POST(req: Request) {
     });
   }
 
-  // --- 3. MODO ASISTIDO / ADULTO MAYOR (Opción 6) ---
+  // --- 3. MODO ASISTIDO (ADULTO MAYOR) ---
   if (cleanMsg === '6' || cleanMsg === 'MODO SIMPLE') {
-    const modoSenior = `👵👴 *MODO ASISTIDO (Lenguaje Claro y Letra Grande)*\n\nBienvenido(a) a la Municipalidad de La Unión. Le ayudamos paso a paso:\n\n1️⃣ *Pagar el Permiso de Circulación de su vehículo*\n2️⃣ *Avisar de un camino en mal estado, rama caída o luminaria*\n3️⃣ *Pedir que un funcionario le llame por teléfono a su casa*\n4️⃣ *Consultar farmacias de turno*\n\n👉 Escriba el número de lo que necesita (por ejemplo: *1*).\nPara salir escriba *MENU*. Para emergencias escriba *SOS*.`;
-    return NextResponse.json({ reply: modoSenior, next_step: 'AWAIT_SENIOR_OPTION' });
+    return NextResponse.json({
+      reply: `👵👴 *MODO ASISTIDO (Lenguaje Claro y Letra Grande)*\n\nLe ayudamos con sus dudas sobre trámites en La Unión:\n\n1️⃣ *Cómo pagar el Permiso de Circulación y qué papeles necesita*\n2️⃣ *Avisar de un camino con hoyos, rama caída o luminaria apagada*\n3️⃣ *Pedir que un funcionario le llame por teléfono a su casa*\n4️⃣ *Saber las farmacias de turno hoy*\n\n👉 Escriba el número de su opción (por ejemplo: *1*).\nPara salir escriba *MENU*. Para emergencias escriba *SOS*.`,
+      next_step: 'AWAIT_SENIOR_OPTION'
+    });
   }
 
   if (step === 'AWAIT_SENIOR_OPTION') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: "🚗 *Pago de Permiso*\n\nPor favor, escriba la patente de su auto o camioneta (ejemplo: ABCD12):\n\n_Escriba *MENU* para volver._",
-        next_step: 'AWAIT_PATENTE'
+        reply: `🚗 *Información Permiso de Circulación*\n\nPara renovar su permiso en La Unión necesita:\n1. Permiso de circulación anterior pagado.\n2. Revisión técnica y gases al día.\n3. Seguro Obligatorio (SOAP) vigente al 2027.\n\n📍 *Lugar de pago presencial:* Dirección de Tránsito (Comercio 340).\n🌐 *Pago por internet:* Puede pagar directo en el portal municipal: https://www.munilaunion.cl/pagos\n\n_Escriba *MENU* para volver._`,
+        next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
@@ -157,13 +118,13 @@ export async function POST(req: Request) {
     if (cleanMsg === '3') {
       const folio = generarFolio();
       return NextResponse.json({
-        reply: `📞 *Solicitud Registrada (${folio})*\n\nUn funcionario municipal le llamará por teléfono con tiempo y paciencia para ayudarle.\n\n_Escriba *MENU* para volver._`,
+        reply: `📞 *Solicitud Registrada (${folio})*\n\nUn funcionario municipal le llamará con calma a este número para ayudarle.\n\n_Escriba *MENU* para volver._`,
         next_step: 'INIT',
         ticketSync: {
           id: folio,
           citizen: 'Adulto Mayor (Modo Asistido)',
           type: 'CALLBACK',
-          description: 'Llamado prioritario Modo Senior',
+          description: 'Llamado prioritario Adulto Mayor',
           slaMinutes: 30
         }
       });
@@ -174,43 +135,43 @@ export async function POST(req: Request) {
     }
   }
 
-  // --- 4. ENRUTADOR DEL MENÚ PRINCIPAL ---
+  // --- 4. ENRUTADOR PRINCIPAL ---
   if (step === 'INIT') {
-    // 1. Tránsito
-    if (cleanMsg === '1' || cleanMsg.includes('TRANSITO')) {
-      const sub = `🚗 *Dirección de Tránsito - Municipalidad de La Unión*\n\n1️⃣ Pagar Permiso de Circulación (Enlace Oficial Webpay)\n2️⃣ Consultar Multas JPL Pendientes\n3️⃣ Requisitos y Agendamiento de Licencia de Conducir\n\n_Escribe el número de tu opción (1-3) o *MENU* para volver._`;
+    // 1. Tránsito y Vehículos
+    if (cleanMsg === '1' || cleanMsg.includes('TRANSITO') || cleanMsg.includes('AUTO') || cleanMsg.includes('PERMISO')) {
+      const sub = `🚗 *Dirección de Tránsito y Transporte Público*\n\nSelecciona el trámite sobre el que deseas orientación:\n\n1️⃣ *Permiso de Circulación* (Requisitos, fechas y enlace oficial de pago)\n2️⃣ *Licencias de Conducir* (Primeras licencias, renovaciones y cómo pedir hora)\n3️⃣ *Multas y JPL* (Dónde consultar y cómo pagar multas pendientes)\n\n_Escribe tu opción (1-3) o *MENU* para volver._`;
       return NextResponse.json({ reply: sub, next_step: 'SUB_TRANSITO' });
     }
 
-    // 2. Rentas
-    if (cleanMsg === '2' || cleanMsg.includes('RENTA') || cleanMsg.includes('COMERCIO')) {
-      const sub = `🏪 *Departamento de Rentas y Patentes*\n\n1️⃣ Consultar y Pagar Patente Comercial / MEF (Por RUT)\n2️⃣ Orientación Pago Feria Libre y Permisos Ambulantes\n\n_Escribe tu opción (1-2) o *MENU* para volver._`;
+    // 2. Rentas y Comercio
+    if (cleanMsg === '2' || cleanMsg.includes('RENTA') || cleanMsg.includes('PATENTE') || cleanMsg.includes('COMERCIO')) {
+      const sub = `🏪 *Departamento de Rentas y Patentes Comerciales*\n\nSelecciona la consulta de tu interés:\n\n1️⃣ *Patentes Comerciales y MEF* (Requisitos de apertura, plazos y pago web)\n2️⃣ *Derechos de Feria Libre y Permisos Ambulantes* (Días de pago y requisitos)\n3️⃣ *Derechos de Aseo Domiciliario* (Quiénes pagan, exenciones adulto mayor)\n\n_Escribe tu opción (1-3) o *MENU* para volver._`;
       return NextResponse.json({ reply: sub, next_step: 'SUB_RENTAS' });
     }
 
-    // 3. Operaciones en Terreno (Baches, Caminos, Ramas, Chatarra)
-    if (cleanMsg === '3' || cleanMsg.includes('TERRENO') || cleanMsg.includes('CAMINO')) {
+    // 3. Operaciones en Terreno
+    if (cleanMsg === '3' || cleanMsg.includes('TERRENO') || cleanMsg.includes('CAMINO') || cleanMsg.includes('BACHE') || cleanMsg.includes('LUMINARIA')) {
       return NextResponse.json({
-        reply: `🏡 *Operaciones en Terreno e Incidencias Territoriales*\n\nCanal directo para atender problemas viales y de aseo en sectores urbanos y rurales (Puerto Nuevo, Mashue, Choroico, Trumao, Llancacura, etc.).\n\n👉 Para iniciar el reporte foliado, indícanos el *Sector o Localidad* afectada:\n\n_Escribe *MENU* para cancelar._`,
+        reply: `🏡 *Operaciones en Terreno e Incidencias Territoriales*\n\nCanal directo para canalizar requerimientos sobre caminos rurales, ramas caídas, luminarias apagadas o retiro de chatarra/baterías.\n\n👉 Para iniciar el reporte foliado, indícanos el *Sector o Localidad* (Ej: Puerto Nuevo, Mashue, Choroico, Trumao, Llancacura, Centro):\n\n_Escribe *MENU* para cancelar._`,
         next_step: 'TERRENO_STEP_SECTOR'
       });
     }
 
-    // 4. DIDECO / APR
-    if (cleanMsg === '4' || cleanMsg.includes('DIDECO') || cleanMsg.includes('APR')) {
-      const sub = `🤝 *DIDECO - Atención Social y Subsidios Comunitarios*\n\n1️⃣ Requisitos y Postulación a Subsidio de Agua Potable Rural (APR)\n2️⃣ Orientación Actualización Registro Social de Hogares (RSH)\n\n_Escribe tu opción (1-2) o *MENU* para volver._`;
+    // 4. DIDECO / Acción Social
+    if (cleanMsg === '4' || cleanMsg.includes('DIDECO') || cleanMsg.includes('APR') || cleanMsg.includes('SOCIAL')) {
+      const sub = `🤝 *DIDECO - Orientación Social y Subsidios*\n\n1️⃣ *Subsidio al Agua Potable Rural (APR)* (Requisitos y documentos necesarios)\n2️⃣ *Registro Social de Hogares (RSH)* (Horarios, actualización y citas)\n\n_Escribe tu opción (1-2) o *MENU* para volver._`;
       return NextResponse.json({ reply: sub, next_step: 'SUB_DIDECO' });
     }
 
-    // 5. RAG / Consultas Libres
-    if (cleanMsg === '5' || cleanMsg.includes('INFO') || cleanMsg.includes('GUIA')) {
+    // 5. RAG / Información Libre
+    if (cleanMsg === '5' || cleanMsg.includes('INFO') || cleanMsg.includes('GUIA') || cleanMsg.includes('PREGUNTA')) {
       return NextResponse.json({
-        reply: `ℹ️ *Consultas Normativas e Información Comunal (RAG)*\n\nPuedes consultar directamente:\n• _"¿Qué farmacia está de turno hoy?"_\n• _"¿Qué eventos hay este fin de semana en Trumao o Puerto Nuevo?"_\n• _"¿Cuál es el teléfono de Obras o Tránsito?"_\n• _"¿Cuáles son los horarios de atención?"_\n\n_Escribe tu pregunta o *MENU* para volver._`,
+        reply: `ℹ️ *Consultas Normativas e Información Comunal (RAG)*\n\nPuedes hacerme preguntas directas, tales como:\n• _"¿Qué farmacia está de turno hoy?"_\n• _"¿Qué eventos hay este fin de semana en Trumao o Puerto Nuevo?"_\n• _"¿Cuál es el teléfono de Obras o Tránsito?"_\n• _"¿Cuáles son los horarios del municipio?"_\n\n_Escribe tu consulta o *MENU* para volver._`,
         next_step: 'AWAIT_RAG_QUERY'
       });
     }
 
-    // Búsqueda RAG directa en el menú raíz
+    // Match RAG directo desde la raíz
     const ragMatch = KNOWLEDGE_BASE.find(item => item.keywords.some(kw => cleanMsg.includes(kw)));
     if (ragMatch) {
       return NextResponse.json({ reply: ragMatch.response, next_step: 'INIT' });
@@ -219,10 +180,70 @@ export async function POST(req: Request) {
     return NextResponse.json({ reply: `⚠️ Opción no reconocida.\n\n${MENSAJE_INICIAL}`, next_step: 'INIT' });
   }
 
-  // --- 5. FLUJO OPERACIONES EN TERRENO (CON VALIDACIÓN RUN MÓDULO 11) ---
+  // --- 5. SUBMENÚ TRÁNSITO (ORIENTACIÓN ASISTIVA RAG) ---
+  if (step === 'SUB_TRANSITO') {
+    if (cleanMsg === '1') {
+      return NextResponse.json({
+        reply: `🚗 *Guía de Pago: Permiso de Circulación*\n\n📄 *Documentos obligatorios para renovar:*\n1. Permiso de circulación del año anterior.\n2. Certificado de Revisión Técnica y Emisión de Gases vigente.\n3. Seguro Obligatorio de Accidentes Personales (SOAP) con vencimiento al 31 de marzo del próximo año.\n4. Padrón del vehículo (si hubo cambio de propietario).\n\n💳 *¿Dónde pagar?*\n• *En línea:* Directo en el portal oficial de la municipalidad:\n👉 https://pagos.munilaunion.cl/transito\n• *Presencial:* Dirección de Tránsito, Calle Comercio 340 (08:30 a 14:00 hrs).\n\n_Escribe *MENU* para volver o *0* para que te contacte un funcionario._`,
+        next_step: 'INIT'
+      });
+    }
+    if (cleanMsg === '2') {
+      return NextResponse.json({
+        reply: `🪪 *Licencias de Conducir - Dirección de Tránsito*\n\n• *Lugar de atención:* Calle Comercio 340.\n• *Horario de atención:* Lunes a Viernes de 08:30 a 13:30 hrs.\n\n📋 *Requisitos por trámite:*\n• *Renovación:* Cédula de identidad vigente y licencia anterior.\n• *Primera Licencia (Clase B/C):* 18 años cumplidos, certificado de estudios (mínimo 8° básico aprobado) y cédula de identidad.\n\n📅 *Agendamiento de horas:* Las horas se solicitan presencialmente en mesón de Tránsito o llamando al anexo 112 (+56 64 232 2000).\n\n_Escribe *0* si deseas solicitar orientación telefónica directa o *MENU* para volver._`,
+        next_step: 'INIT'
+      });
+    }
+    if (cleanMsg === '3') {
+      return NextResponse.json({
+        reply: `⚖️ *Multas y Juzgado de Policía Local (JPL)*\n\n• *Juzgado de Policía Local de La Unión:* Calle Arturo Prat 680.\n• *Atención:* Lunes a Viernes de 08:30 a 13:00 hrs.\n\nℹ️ *¿Cómo saber si tu vehículo tiene multas impagas en el Registro Civil?*\nPuedes consultar el Certificado de Multas de Tránsito No Empadronadas directamente en el portal oficial del Registro Civil (\`registrocivil.cl\`) con la patente del móvil.\n\n_Escribe *MENU* para volver al menú principal._`,
+        next_step: 'INIT'
+      });
+    }
+  }
+
+  // --- 6. SUBMENÚ RENTAS Y COMERCIO (ORIENTACIÓN RAG) ---
+  if (step === 'SUB_RENTAS') {
+    if (cleanMsg === '1') {
+      return NextResponse.json({
+        reply: `🏪 *Patentes Comerciales, Industriales y Profesionales*\n\n📅 *Plazos de Pago:* Se cancelan semestralmente en los meses de **Enero** (1er semestre) y **Julio** (2do semestre).\n\n📄 *Requisitos para nueva patente:* Formulario de solicitud en Rentas, inicio de actividades del SII, acreditación de título de dominio o contrato de arriendo del local, y recepción definitiva de la Dirección de Obras (DOM).\n\n💳 *Pago en línea:* Si tu patente ya está enrolada, cancela en:\n👉 https://pagos.munilaunion.cl/rentas\n\n_Escribe *MENU* para volver._`,
+        next_step: 'INIT'
+      });
+    }
+    if (cleanMsg === '2') {
+      return NextResponse.json({
+        reply: `🧺 *Derechos de Feria Libre y Permisos Ambulantes*\n\n• *Oficina encargada:* Departamento de Rentas y Patentes (Comercio 340).\n• *Pago mensual:* Se cancela los primeros 5 días hábiles de cada mes en Tesorería Municipal.\n• *Requisitos:* Cédula de identidad, registro en el padrón comunal de feriantes y pago al día de derechos de aseo.\n\n_Escribe *MENU* para volver._`,
+        next_step: 'INIT'
+      });
+    }
+    if (cleanMsg === '3') {
+      return NextResponse.json({
+        reply: `🧹 *Derechos de Aseo Domiciliario*\n\n• *¿Quiénes pagan?* Las propiedades cuyo avalúo fiscal supere las 225 UTM y que no estén exentas por ley.\n• *Exención Adulto Mayor:* Personas mayores con vulnerabilidad socioeconómica (RSH) pueden postular en DIDECO durante el mes de octubre para exención total o parcial del año siguiente.\n\n_Escribe *MENU* para volver._`,
+        next_step: 'INIT'
+      });
+    }
+  }
+
+  // --- 7. SUBMENÚ DIDECO / SUBSIDIO APR ---
+  if (step === 'SUB_DIDECO') {
+    if (cleanMsg === '1') {
+      return NextResponse.json({
+        reply: `💧 *Orientación: Subsidio de Agua Potable Rural (APR)*\n\nPara que la asistente social tramite tu subsidio en los sectores rurales (Puerto Nuevo, Mashue, Choroico, Trumao, Llancacura), debes presentar en DIDECO:\n\n1. Fotocopia de la cédula de identidad del jefe(a) de hogar.\n2. Cartola del *Registro Social de Hogares (RSH)* en la comuna de La Unión (prioridad hasta el 40% y 60%).\n3. Última boleta o comprobante de pago emitido por tu comité de APR al día (sin deuda pendiente).\n\n📍 *Atención:* Manuel Montt 530, de Lunes a Viernes de 08:30 a 14:00 hrs.\n\n_Escribe *0* para solicitar un llamado municipal o *MENU* para volver._`,
+        next_step: 'INIT'
+      });
+    }
+    if (cleanMsg === '2') {
+      return NextResponse.json({
+        reply: `📋 *Registro Social de Hogares (RSH)*\n\n• *Presencial:* Departamento Social DIDECO (Manuel Montt 530).\n• *Documentos para actualizar:* Boleta de consumo para certificar domicilio (luz o agua) y cédula de identidad de los integrantes del hogar.\n• *En línea:* Puedes realizar solicitudes de ingreso y actualización directamente con tu ClaveÚnica en:\n👉 https://www.registrosocial.gob.cl\n\n_Escribe *MENU* para volver._`,
+        next_step: 'INIT'
+      });
+    }
+  }
+
+  // --- 8. FLUJO OPERACIONES EN TERRENO (REPORTE CON FOTO Y VALIDACIÓN RUN) ---
   if (step === 'TERRENO_STEP_SECTOR') {
     return NextResponse.json({
-      reply: `📍 Sector registrado: *${rawMessage}*.\n\nPor favor, indícanos tu *Nombre completo y RUN* para asociarlo al folio oficial de seguimiento (Ejemplo: *Gladys Monsalve 15.432.987-4*):\n\n_Escribe *MENU* para cancelar._`,
+      reply: `📍 Sector registrado: *${rawMessage}*.\n\nPor favor, indícanos tu *Nombre completo y RUN* para asociarlo al folio oficial de seguimiento municipal (Ejemplo: *Gladys Monsalve 15.432.987-4*):\n\n_Escribe *MENU* para cancelar._`,
       next_step: 'TERRENO_STEP_IDENTIFICACION'
     });
   }
@@ -233,13 +254,13 @@ export async function POST(req: Request) {
 
     if (!validarRutChileno(rutCandidato)) {
       return NextResponse.json({
-        reply: `⚠️ El RUN ingresado (*${rutCandidato}*) no es válido según el algoritmo oficial (Módulo 11).\n\nPor favor, escribe un RUN chileno válido con su dígito verificador para generar el folio de seguimiento municipal (Ejemplo: \`15.432.987-4\`):\n\n_O escribe *MENU* para volver._`,
+        reply: `⚠️ El RUN ingresado (*${rutCandidato}*) no es válido según el algoritmo oficial (Módulo 11).\n\nPor favor, escribe un RUN chileno válido con su dígito verificador para generar el folio de seguimiento (Ejemplo: \`15.432.987-4\`):\n\n_O escribe *MENU* para volver._`,
         next_step: 'TERRENO_STEP_IDENTIFICACION'
       });
     }
 
     return NextResponse.json({
-      reply: `✅ RUN validado exitosamente: *${rutCandidato}*.\n\n📸 *Detalle del Requerimiento:*\nDescribe brevemente la situación y adjunta una fotografía (usa el botón de la cámara 📷 en el chat):\n\n_Escribe *MENU* para cancelar._`,
+      reply: `✅ RUN validado exitosamente: *${rutCandidato}*.\n\n📸 *Detalle del Requerimiento:*\nDescribe brevemente la situación (bache en camino, rama caída, luminaria o chatarra) y adjunta una fotografía usando el botón de la cámara 📷:\n\n_Escribe *MENU* para cancelar._`,
       next_step: 'TERRENO_STEP_EVIDENCIA'
     });
   }
@@ -247,135 +268,27 @@ export async function POST(req: Request) {
   if (step === 'TERRENO_STEP_EVIDENCIA') {
     const folio = generarFolio();
     return NextResponse.json({
-      reply: `✅ *Requerimiento Territorial Foliado (${folio})*\n\n• *Tipo:* Inspección Operativa en Terreno\n• *Estado:* Pendiente de Asignación de Cuadrilla\n• *Respaldo:* Evidencia fotográfica sincronizada con la Dirección de Operaciones.\n\nPodrás hacer seguimiento de los trabajos con el folio *${folio}*.\n\n_Escribe *MENU* para realizar otro trámite._`,
+      reply: `✅ *Requerimiento Territorial Foliado (${folio})*\n\n• *Tipo:* Operaciones en Terreno / Incidencia Vial\n• *Estado:* Pendiente de Asignación de Cuadrilla\n• *Respaldo:* Sincronizado en tiempo real con el panel directivo `/admin`.\n\nGuarda tu número de folio (*${folio}*) para hacer seguimiento de los trabajos.\n\n_Escribe *MENU* para realizar otro trámite._`,
       next_step: 'INIT',
       ticketSync: {
         id: folio,
-        citizen: 'Vecino Acreditado',
+        citizen: 'Vecino Identificado',
         rut: 'Validado Módulo 11',
         type: 'CAMINO',
-        description: `Incidencia en terreno: "${rawMessage}"`,
+        description: `Reporte en terreno: "${rawMessage}"`,
         slaMinutes: 120
       }
     });
   }
 
-  // --- 6. SUBMENÚ DIDECO / SUBSIDIO APR ---
-  if (step === 'SUB_DIDECO') {
-    if (cleanMsg === '1') {
-      return NextResponse.json({
-        reply: `💧 *Orientación Subsidio Agua Potable Rural (APR)*\n\nPara postular en la comuna de La Unión necesitas cumplir con los siguientes requisitos previos:\n\n1. Estar inscrito en el *Registro Social de Hogares (RSH)* en la comuna de La Unión (tramo hasta el 40% o 60% según cupos vigentes).\n2. Ser residente permanente del sector rural postulado (Puerto Nuevo, Mashue, Choroico, Trumao, Llancacura, etc.).\n3. Contar con la última boleta o colilla de cobro del comité de APR pagada y al día.\n\n📍 *Lugar de Entrega de Antecedentes:*\nDIDECO (Manuel Montt 530) o en rondas rurales periódicas.\n\n_Escribe *0* si deseas que un funcionario de DIDECO te contacte o *MENU* para volver._`,
-        next_step: 'INIT'
-      });
-    }
-    if (cleanMsg === '2') {
-      return NextResponse.json({
-        reply: `📋 *Actualización Registro Social de Hogares (RSH)*\n\n• Atención presencial: Lunes a Viernes de 08:30 a 14:00 hrs en Manuel Montt 530.\n• Documentos habituales: Cédula de identidad vigente y boleta de servicios para acreditar domicilio.\n• Trámite digital autónomo: \`registrosocial.gob.cl\` (requiere ClaveÚnica).\n\n_Escribe *MENU* para volver._`,
-        next_step: 'INIT'
-      });
-    }
-  }
-
-  // --- 7. SUBMENÚ TRÁNSITO & DERIVACIÓN SEGURA WEBPAY ---
-  if (step === 'SUB_TRANSITO') {
-    if (cleanMsg === '1') {
-      return NextResponse.json({
-        reply: "🚗 *Pago de Permiso de Circulación*\n\nIngresa la *Placa Patente (PPU)* de tu vehículo (ejemplo: `ABCD12`, `GFHY45`):\n\n_Escribe *MENU* para volver._",
-        next_step: 'AWAIT_PATENTE'
-      });
-    }
-    if (cleanMsg === '2') {
-      return NextResponse.json({
-        reply: "⚖️ *Consulta de Multas - Juzgado de Policía Local*\n\nIngresa la Placa Patente a verificar:\n\n_Escribe *MENU* para volver._",
-        next_step: 'AWAIT_PATENTE_MULTA'
-      });
-    }
-    if (cleanMsg === '3') {
-      return NextResponse.json({
-        reply: `🪪 *Licencias de Conducir - Dirección de Tránsito*\n\n• *Renovaciones y Primeras Licencias:* Calle Comercio 340.\n• *Requisitos Base:* Cédula de identidad vigente, certificado de residencia comunal y acreditar estudios mínimos.\n• *Días de Examen Práctico:* Martes y Jueves (coordinado con recorrido de transporte rural).\n\n_Escribe *0* para solicitar agendamiento telefónico o *MENU* para volver._`,
-        next_step: 'INIT'
-      });
-    }
-  }
-
-  if (step === 'AWAIT_PATENTE') {
-    const v = VEHICULOS_DB[cleanMsg];
-    if (!v) {
-      return NextResponse.json({
-        reply: `⚠️ La patente *${cleanMsg}* no registra historial en La Unión. Patentes demo: \`ABCD12\` (Al día) o \`GFHY45\` (Multa JPL).\n\n_Ingresa otra patente o escribe *MENU*._`,
-        next_step: 'AWAIT_PATENTE'
-      });
-    }
-
-    const totalMultas = v.multas.reduce((acc: number, m: any) => acc + m.monto, 0);
-    const totalPagar = v.valor_permiso + totalMultas;
-
-    let res = `✅ *Liquidación Permiso de Circulación*\n\n`;
-    res += `• Patente: *${v.ppu}*\n`;
-    res += `• Propietario: *${v.propietario}* (${v.sector})\n`;
-    res += `• Permiso: *$${v.valor_permiso.toLocaleString('es-CL')}*\n`;
-    if (totalMultas > 0) res += `• Multas JPL: *$${totalMultas.toLocaleString('es-CL')}*\n`;
-    res += `• *TOTAL A PAGAR: $${totalPagar.toLocaleString('es-CL')}*\n\n`;
-    res += `🔗 *Enlace Oficial de Recaudación Municipal (Webpay / TGR):*\n`;
-    res += `https://pagos.munilaunion.cl/transito/pay?ppu=${v.ppu}\n\n`;
-    res += `_La transacción se ejecuta directamente en los servidores de recaudación institucional sin intermediación de fondos._\n\nEscribe *MENU* para volver.`;
-
-    return NextResponse.json({ reply: res, next_step: 'INIT' });
-  }
-
-  if (step === 'AWAIT_PATENTE_MULTA') {
-    const v = VEHICULOS_DB[cleanMsg];
-    if (!v || v.multas.length === 0) {
-      return NextResponse.json({
-        reply: `✅ La patente *${cleanMsg}* no registra multas pendientes en el Juzgado de Policía Local de La Unión.\n\n_Escribe *MENU* para volver._`,
-        next_step: 'INIT'
-      });
-    }
-    return NextResponse.json({
-      reply: `⚠️ *Infracción Registrada en JPL La Unión*\n\n• Causa: *${v.multas[0].motivo}*\n• Tribunal: *${v.multas[0].juzgado}*\n• Monto: *$${v.multas[0].monto.toLocaleString('es-CL')}*\n\n🔗 *Portal de Pago Oficial:* https://pagos.munilaunion.cl/jpl/multas\n\n_Escribe *MENU* para volver._`,
-      next_step: 'INIT'
-    });
-  }
-
-  // --- 8. SUBMENÚ RENTAS ---
-  if (step === 'SUB_RENTAS') {
-    if (cleanMsg === '1') {
-      return NextResponse.json({
-        reply: "🏪 *Consulta de Patentes Comerciales*\n\nIngresa el RUT de la empresa o titular (ejemplo: `76.123.456-7`):\n\n_Escribe *MENU* para volver._",
-        next_step: 'AWAIT_RUT_PATENTE'
-      });
-    }
-    if (cleanMsg === '2') {
-      return NextResponse.json({
-        reply: `🧺 *Derechos de Feria Libre y Comercio Ambulante*\n\n• Unidad de Rentas: Calle Comercio 340.\n• Horario de pago presencial: 08:30 a 14:00 hrs.\n• Enlace de derivación tributaria: https://pagos.munilaunion.cl/rentas/ferias\n\n_Escribe *MENU* para volver._`,
-        next_step: 'INIT'
-      });
-    }
-  }
-
-  if (step === 'AWAIT_RUT_PATENTE') {
-    const rutLimpio = cleanMsg.replace(/\./g, '').replace(/-/g, '');
-    const p = PATENTES_COMERCIALES_DB[rutLimpio];
-    if (!p) {
-      return NextResponse.json({
-        reply: `⚠️ RUT no encontrado en el padrón activo. Usa el registro demo: \`76.123.456-7\`.\n\n_Ingresa otro RUT o escribe *MENU*._`,
-        next_step: 'AWAIT_RUT_PATENTE'
-      });
-    }
-    return NextResponse.json({
-      reply: `🏪 *Patente Comercial Registrada*\n\n• Razón Social: *${p.razon_social}*\n• Rol: *${p.rol}*\n• Monto Semestre: *$${p.monto_semestre.toLocaleString('es-CL')}*\n\n🔗 *Enlace de Pago Oficial:* https://pagos.munilaunion.cl/rentas/pay?rol=${p.rol}\n\n_Escribe *MENU* para volver._`,
-      next_step: 'INIT'
-    });
-  }
-
-  // --- 9. MOTOR RAG (CONSULTAS LIBRES) ---
+  // --- 9. MOTOR RAG (PREGUNTAS LIBRES) ---
   if (step === 'AWAIT_RAG_QUERY') {
     const match = KNOWLEDGE_BASE.find(item => item.keywords.some(kw => cleanMsg.includes(kw)));
     if (match) {
       return NextResponse.json({ reply: match.response, next_step: 'AWAIT_RAG_QUERY' });
     }
     return NextResponse.json({
-      reply: `🏛️ *Asistente Comunal de La Unión*\n\nNo se halló normativa u ordenanza indexada para tu consulta ("${rawMessage}").\n\nPuedes consultar por: Eventos en Trumao/Puerto Nuevo, Farmacias de turno o Teléfonos municipales.\n\n_O escribe *0* para solicitar el llamado de un funcionario._`,
+      reply: `🏛️ *Asistente Comunal de La Unión*\n\nNo se encontró información oficial sobre "${rawMessage}". Recuerda que puedo responder sobre farmacias de turno, eventos locales en Trumao/Puerto Nuevo, teléfonos de departamentos o trámites municipales.\n\n_Escribe otra consulta, *MENU* para volver o *0* para que te contacte un funcionario._`,
       next_step: 'AWAIT_RAG_QUERY'
     });
   }

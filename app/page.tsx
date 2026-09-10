@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Send, Car, Camera, RefreshCw, Home, Sparkles, Store, Copy, Check, HeartHandshake, PhoneCall
+  Send, Car, Camera, RefreshCw, Home, Sparkles, Store, Copy, Check, HeartHandshake
 } from 'lucide-react';
 
 interface Message {
@@ -30,8 +30,8 @@ const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital
 
 Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu trámite:
 
-1️⃣ 🚗 *Tránsito y Vehículos* (Permisos de Circulación, Licencias, Multas JPL)
-2️⃣ 🏪 *Rentas y Comercio* (Patentes Comerciales, Ferias Libres)
+1️⃣ 🚗 *Tránsito y Vehículos* (Requisitos Permiso, Licencias, Multas JPL y Pasarela Web)
+2️⃣ 🏪 *Rentas y Comercio* (Patentes Comerciales, Ferias Libres, Plazos y Enlaces)
 3️⃣ 🏡 *Operaciones en Terreno* (Baches, Caminos Rurales, Luminarias, Ramas y Chatarra)
 4️⃣ 🤝 *DIDECO y Acción Social* (Subsidio Agua Potable Rural APR, Registro Social de Hogares)
 5️⃣ ℹ️ *Guía Comunal e Información RAG* (Ordenanzas, Farmacias de Turno, Eventos)
@@ -168,19 +168,19 @@ export default function LaUnionDemoPage() {
           Ventanilla Única WhatsApp La Unión
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Arquitectura no invasiva: RAG comunal, validación sintética Módulo 11 y trazabilidad directa en panel directivo.
+          Arquitectura no invasiva: Asistente RAG, validación sintética Módulo 11 y trazabilidad directa en panel directivo.
         </p>
       </header>
 
       <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        {/* Panel Guía Informativa */}
+        {/* Panel Izquierdo: Casos de Prueba */}
         <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 max-h-[660px] overflow-y-auto">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h2 className="font-bold text-sm text-white flex items-center gap-1.5">
                 <span>📋 Casos de Prueba Rápida</span>
               </h2>
-              <p className="text-[11px] text-slate-400">Haz clic en cualquier caja para copiar al chat:</p>
+              <p className="text-[11px] text-slate-400">Haz clic en cualquier opción para copiar al chat:</p>
             </div>
             <button
               onClick={restartDemo}
@@ -192,102 +192,93 @@ export default function LaUnionDemoPage() {
           </div>
 
           <div className="space-y-3 text-xs">
-            {/* 1. Tránsito */}
+            {/* 1. Tránsito Asistencial */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
-              <div className="flex items-center justify-between text-emerald-400 font-bold uppercase tracking-wider text-[11px]">
-                <span className="flex items-center gap-1.5"><Car className="w-3.5 h-3.5" /> 1. Tránsito (Opción 1)</span>
+              <div className="text-emerald-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <Car className="w-3.5 h-3.5" /> 1. Tránsito & Vehículos (Opción 1)
               </div>
               <div className="space-y-1.5">
                 <div 
-                  onClick={() => copyToClipboard("ABCD12")}
+                  onClick={() => copyToClipboard("1")}
                   className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-emerald-500/50 cursor-pointer transition flex justify-between items-center group"
                 >
                   <div>
-                    <div className="font-mono font-bold text-white flex items-center gap-2">
-                      <span>ABCD12</span>
-                      <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 rounded">Al día</span>
-                    </div>
-                    <p className="text-[11px] text-slate-400">Toyota Hilux (Puerto Nuevo) • Derivación directa Webpay</p>
+                    <div className="font-bold text-white">Opción 1: Menú Tránsito</div>
+                    <p className="text-[11px] text-slate-400">Requisitos Permisos, Licencias y JPL</p>
                   </div>
                   <span className="text-slate-500 group-hover:text-emerald-400 text-xs">
-                    {copiedCode === "ABCD12" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
-                  </span>
-                </div>
-
-                <div 
-                  onClick={() => copyToClipboard("GFHY45")}
-                  className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-amber-500/50 cursor-pointer transition flex justify-between items-center group"
-                >
-                  <div>
-                    <div className="font-mono font-bold text-white flex items-center gap-2">
-                      <span>GFHY45</span>
-                      <span className="text-[10px] bg-amber-950 text-amber-300 px-1.5 rounded">Multa JPL</span>
-                    </div>
-                    <p className="text-[11px] text-slate-400">Nissan Terrano (Mashue) • Infracción JPL La Unión</p>
-                  </div>
-                  <span className="text-slate-500 group-hover:text-amber-400 text-xs">
-                    {copiedCode === "GFHY45" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                    {copiedCode === "1" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* 2. Rentas */}
+            {/* 2. Rentas Asistencial */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="text-indigo-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                 <Store className="w-3.5 h-3.5" /> 2. Rentas & Comercio (Opción 2)
               </div>
               <div 
-                onClick={() => copyToClipboard("76.123.456-7")}
+                onClick={() => copyToClipboard("2")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-indigo-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
-                  <div className="font-mono font-bold text-white flex items-center gap-2">
-                    <span>76.123.456-7</span>
-                    <span className="text-[10px] bg-indigo-950 text-indigo-300 px-1.5 rounded">Patente MEF</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400">Agrícola y Lácteos Puerto Nuevo SpA ($42.300)</p>
+                  <div className="font-bold text-white">Opción 2: Menú Rentas</div>
+                  <p className="text-[11px] text-slate-400">Patentes Comerciales, Ferias y Aseo</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-indigo-400 text-xs">
-                  {copiedCode === "76.123.456-7" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                  {copiedCode === "2" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
             </div>
 
-            {/* 3. Operaciones Territoriales con Validación RUN */}
+            {/* 3. Terreno y Validación RUN */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="text-orange-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                 <Home className="w-3.5 h-3.5" /> 3. Terreno & Validación RUN (Opción 3)
               </div>
               <div 
-                onClick={() => copyToClipboard("15.432.987-4")}
+                onClick={() => copyToClipboard("Sector Mashue km 4")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
-                  <div className="font-mono font-bold text-white flex items-center gap-2">
-                    <span>15.432.987-4</span>
-                    <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1.5 rounded">RUN Válido</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400">Gladys Monsalve (Sector Mashue)</p>
+                  <div className="font-bold text-white">Sector de Prueba</div>
+                  <p className="text-[11px] text-slate-400">Sector Mashue km 4 (Camino rural)</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "15.432.987-4" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                  {copiedCode === "Sector Mashue km 4" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
 
               <div 
-                onClick={() => copyToClipboard("11.111.111-2")}
+                onClick={() => copyToClipboard("Gladys Monsalve 15.432.987-4")}
+                className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-emerald-500/50 cursor-pointer transition flex justify-between items-center group"
+              >
+                <div>
+                  <div className="font-mono font-bold text-white flex items-center gap-1.5">
+                    <span>15.432.987-4</span>
+                    <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1 rounded">Válido</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Pasa validación Módulo 11</p>
+                </div>
+                <span className="text-slate-500 group-hover:text-emerald-400 text-xs">
+                  {copiedCode === "Gladys Monsalve 15.432.987-4" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                </span>
+              </div>
+
+              <div 
+                onClick={() => copyToClipboard("Juan Perez 11.111.111-2")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-rose-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
-                  <div className="font-mono font-bold text-white flex items-center gap-2">
+                  <div className="font-mono font-bold text-white flex items-center gap-1.5">
                     <span>11.111.111-2</span>
-                    <span className="text-[10px] bg-rose-950 text-rose-300 px-1.5 rounded">RUN Inválido</span>
+                    <span className="text-[10px] bg-rose-950 text-rose-300 px-1 rounded">Inválido</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Prueba de rechazo automático Módulo 11</p>
+                  <p className="text-[11px] text-slate-400">Prueba de rechazo automático</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-rose-400 text-xs">
-                  {copiedCode === "11.111.111-2" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
+                  {copiedCode === "Juan Perez 11.111.111-2" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
             </div>
@@ -297,23 +288,22 @@ export default function LaUnionDemoPage() {
               <div className="text-emerald-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-1">
                 <HeartHandshake className="w-3.5 h-3.5" /> 4. DIDECO & Subsidio APR (Opción 4)
               </div>
-              <p>• Orienta requisitos de APR en sectores rurales sin intermediar decretos.</p>
-              <p>• Genera el checklist exacto para evitar traslados en vano al centro cívico.</p>
+              <p>• Explica los requisitos del subsidio de agua rural y los documentos necesarios para evitar que el vecino viaje en vano.</p>
             </div>
 
-            {/* Atajos */}
+            {/* Comandos Rápidos */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-1 text-[11px] text-slate-300">
               <div className="text-cyan-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-1">
                 <Sparkles className="w-3.5 h-3.5" /> Comandos Rápidos
               </div>
               <p>• Escribe <strong className="text-rose-300 font-mono">SOS</strong> para emergencias inmediatas.</p>
               <p>• Escribe <strong className="text-amber-300 font-mono">6</strong> para activar el Modo Adulto Mayor.</p>
-              <p>• Escribe <strong className="text-purple-300 font-mono">0</strong> para solicitar un llamado municipal.</p>
+              <p>• Escribe <strong className="text-purple-300 font-mono">0</strong> para pedir que te llame un funcionario.</p>
             </div>
           </div>
         </aside>
 
-        {/* Panel WhatsApp */}
+        {/* Panel Derecho: WhatsApp */}
         <main className="md:col-span-7 bg-slate-900 border-4 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[660px]">
           <div className="bg-[#075E54] text-white p-3.5 flex items-center gap-3 shadow-md">
             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm border border-white/20">
