@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Users, Search, ShieldCheck, FileText, Bell, Clock, 
   CheckCircle, Vote, UserPlus, FileSpreadsheet, PlusCircle, Trash2, 
-  Smartphone, Camera, Eye, X, ExternalLink, MapPin
+  Smartphone, Camera, Eye, X, MapPin, Calendar, FileCheck
 } from 'lucide-react';
 
 interface Ticket {
@@ -44,6 +44,7 @@ interface CitizenRecord {
   }>;
 }
 
+// Folios unificados bajo la norma estricta: #LUN-2026-XXXX
 const INITIAL_TICKETS: Ticket[] = [
   {
     id: '#LUN-2026-1082',
@@ -51,10 +52,10 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 •••• 0041',
     sector: 'Sector Mashue (km 4)',
     type: 'CAMINO',
-    description: 'Hoyo profundo en curva km 4 camino ripio frente a puente madera',
+    description: 'Bache profundo en curva km 4 de ripio frente a puente de madera. Riesgo de rotura de neumáticos.',
     slaMinutes: 45,
     status: 'EN_RUTA',
-    createdAt: 'Hace 45 min',
+    createdAt: '10/09/2026 09:20',
     imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80'
   },
   {
@@ -64,10 +65,10 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 8451 2290',
     sector: 'Puerto Nuevo',
     type: 'CHATARRA',
-    description: 'Solicitud retiro 3 baterías de tractor y fierros acumulados en patio',
+    description: 'Solicitud retiro en predio particular: 3 baterías viejas de tractor y fierros acumulados en patio trasero.',
     slaMinutes: 14,
     status: 'PENDIENTE',
-    createdAt: 'Hace 14 min',
+    createdAt: '10/09/2026 10:15',
     imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&auto=format&fit=crop&q=80'
   },
   {
@@ -77,10 +78,10 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 9341 8812',
     sector: 'La Unión Centro (Arturo Prat)',
     type: 'PERMISO',
-    description: 'Enlace Webpay provisto - PPU: ABCD12 (Derivación transaccional)',
+    description: 'Orientación de Permiso de Circulación provista: Se entregaron requisitos de renovación y enlace oficial a pasarela municipal Webpay.',
     slaMinutes: 0,
     status: 'ATENDIDO',
-    createdAt: 'Hace 1 hora'
+    createdAt: '10/09/2026 11:30'
   },
   {
     id: '#LUN-2026-1079',
@@ -89,10 +90,10 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 8110 5543',
     sector: 'Trumao',
     type: 'DIDECO',
-    description: 'Orientación Subsidio APR entregada - RSH Tramo 40% verificado',
+    description: 'Orientación Subsidio APR entregada: Información de requisitos para presentar cartola RSH al 40% y colilla del comité de agua.',
     slaMinutes: 0,
     status: 'ATENDIDO',
-    createdAt: 'Hace 2 horas'
+    createdAt: '10/09/2026 12:10'
   },
   {
     id: '#LUN-2026-1078',
@@ -100,10 +101,10 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 •••• 1120',
     sector: 'Choroico',
     type: 'CAMINO',
-    description: 'Rama grande de eucalipto caída obstaculizando media calzada',
+    description: 'Rama grande de eucalipto caída sobre camino vecinal obstaculizando el paso del furgón escolar.',
     slaMinutes: 95,
     status: 'PENDIENTE',
-    createdAt: 'Hace 2 horas 15 min',
+    createdAt: '10/09/2026 12:45',
     imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80'
   }
 ];
@@ -116,7 +117,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
     uploadedBy: 'Patricio Miranda (Jefe Rentas)',
     tokens: 3420,
     status: 'INDEXADO',
-    date: 'Hoy, 09:15'
+    date: '10/09/2026 09:15'
   },
   {
     id: 'DOC-02',
@@ -125,7 +126,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
     uploadedBy: 'Marcela Henríquez (DIDECO)',
     tokens: 8150,
     status: 'INDEXADO',
-    date: 'Ayer, 16:40'
+    date: '09/09/2026 16:40'
   },
   {
     id: 'DOC-03',
@@ -134,7 +135,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
     uploadedBy: 'Gonzalo Vera (Dir. Tránsito)',
     tokens: 5200,
     status: 'INDEXADO',
-    date: '04 Sep 2026'
+    date: '04/09/2026 11:20'
   }
 ];
 
@@ -145,9 +146,9 @@ const INITIAL_CITIZENS: Record<string, CitizenRecord> = {
     sector: 'Sector Mashue (Rural)',
     telefono: '+56 9 7612 0041',
     historial: [
-      { fecha: 'Hoy, 09:20', canal: 'WhatsApp', detalle: 'Reporte fotográfico bache vial (#LUN-2026-1082)', funcionario: 'Bot Automático' },
-      { fecha: '14 Ago 2026', canal: 'Mesón DIDECO', detalle: 'Actualización tramo Registro Social de Hogares', funcionario: 'M. Soto (Social)' },
-      { fecha: '28 Mar 2026', canal: 'WhatsApp', detalle: 'Consulta fechas pago Permiso de Circulación', funcionario: 'Bot Automático' }
+      { fecha: '10/09/2026 09:20', canal: 'WhatsApp', detalle: 'Reporte fotográfico bache vial (#LUN-2026-1082)', funcionario: 'Bot Municipal' },
+      { fecha: '14/08/2026 11:15', canal: 'Mesón DIDECO', detalle: 'Actualización tramo Registro Social de Hogares', funcionario: 'M. Soto (Social)' },
+      { fecha: '28/03/2026 15:40', canal: 'WhatsApp', detalle: 'Consulta de requisitos y fechas de Permiso de Circulación', funcionario: 'Bot Municipal' }
     ]
   }
 };
@@ -156,8 +157,8 @@ export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
   const [filter, setFilter] = useState<'ALL' | 'CALLBACK' | 'CAMINO' | 'CHATARRA' | 'PERMISO' | 'DIDECO'>('ALL');
   
-  // Modal para ver foto ampliada
-  const [selectedPhotoTicket, setSelectedPhotoTicket] = useState<Ticket | null>(null);
+  // Modal de Detalle Completo de Ficha / Foto
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   // Documentos en Cola RAG
   const [docs, setDocs] = useState<IngestedDoc[]>(INITIAL_DOCS);
@@ -209,7 +210,13 @@ export default function AdminDashboard() {
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            setTickets(parsed);
+            // Normaliza cualquier folio antiguo para que sea #LUN-2026-XXXX
+            const normalizados = parsed.map((t: any) => ({
+              ...t,
+              id: t.id.startsWith('#LUN-2026-') ? t.id : `#LUN-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+              imageUrl: t.imageUrl || (t.type === 'CAMINO' ? 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80' : undefined)
+            }));
+            setTickets(normalizados);
           }
         } catch (err) {
           console.error('Error sincronizando tickets:', err);
@@ -236,13 +243,16 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('storage', handleStorageEvent);
   }, []);
 
-  // Cambiar estado dinámicamente desde el selector
+  // Cambiar estado en vivo
   const handleStatusChange = (id: string, newStatus: 'PENDIENTE' | 'ATENDIDO' | 'EN_RUTA') => {
     setTickets(prev => {
       const updated = prev.map(t => (t.id === id ? { ...t, status: newStatus } : t));
       localStorage.setItem('launion_tickets', JSON.stringify(updated));
       return updated;
     });
+    if (selectedTicket && selectedTicket.id === id) {
+      setSelectedTicket(prev => prev ? { ...prev, status: newStatus } : null);
+    }
   };
 
   const handleUploadDocument = (e: React.FormEvent) => {
@@ -253,6 +263,7 @@ export default function AdminDashboard() {
     setUploadSuccess(false);
 
     setTimeout(() => {
+      const now = new Date();
       const newDoc: IngestedDoc = {
         id: `DOC-${String(docs.length + 1).padStart(2, '0')}`,
         title: docName.endsWith('.pdf') ? docName : `${docName}.pdf`,
@@ -260,7 +271,7 @@ export default function AdminDashboard() {
         uploadedBy: uploaderName.trim(),
         tokens: Math.floor(Math.random() * 4000) + 2000,
         status: 'EN_CURADURIA_TECNICA',
-        date: 'Recién remitido'
+        date: `${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
       };
 
       setDocs([newDoc, ...docs]);
@@ -297,9 +308,10 @@ export default function AdminDashboard() {
 
     const rutKey = newRut.trim();
     const existing = citizensDb[rutKey];
+    const now = new Date();
 
     const newAttention = {
-      fecha: 'Hoy, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      fecha: `${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
       canal: `Mesón ${newDept}`,
       detalle: newDetalle,
       funcionario: 'Atención Consistorial'
@@ -357,7 +369,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/90 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 z-50 backdrop-blur">
+      <header className="border-b border-slate-800 bg-slate-950/90 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 z-40 backdrop-blur">
         <div>
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -378,42 +390,42 @@ export default function AdminDashboard() {
       </header>
 
       <main className="p-6 max-w-7xl mx-auto space-y-8">
-        {/* KPI Cards */}
+        {/* KPI Cards Reales y Honestos */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Derivaciones Webpay Hoy</p>
-            <p className="text-2xl font-bold text-white mt-1">$4.850.300 <span className="text-xs text-emerald-400 font-normal">CLP</span></p>
-            <p className="text-xs text-emerald-400 mt-2">↑ Enlaces oficiales provistos</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Derivaciones a Webpay Hoy</p>
+            <p className="text-2xl font-bold text-white mt-1">42 <span className="text-xs text-emerald-400 font-normal">vecinos</span></p>
+            <p className="text-xs text-emerald-400 mt-2">↑ Enlaces oficiales provistos sin filas</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Cumplimiento SLA Terreno</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Cumplimiento SLA Cuadrillas</p>
             <p className="text-2xl font-bold text-emerald-400 mt-1">94.8%</p>
-            <p className="text-xs text-slate-400 mt-2">Meta comunal &gt; 90%</p>
+            <p className="text-xs text-slate-400 mt-2">Meta institucional &gt; 90%</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
             <p className="text-xs text-slate-400 font-medium uppercase">Consultas RAG Comunal</p>
             <p className="text-2xl font-bold text-blue-400 mt-1">1.412</p>
-            <p className="text-xs text-slate-400 mt-2">Respuestas normativas sin fila física</p>
+            <p className="text-xs text-slate-400 mt-2">Respuestas normativas 24/7</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Reportes con Evidencia</p>
+            <p className="text-xs text-slate-400 font-medium uppercase">Reportes con Foto</p>
             <p className="text-2xl font-bold text-amber-400 mt-1">23</p>
-            <p className="text-xs text-slate-400 mt-2">Fotos validadas en terreno</p>
+            <p className="text-xs text-slate-400 mt-2">Evidencias validadas en terreno</p>
           </div>
         </div>
 
-        {/* BANDEJA DE TICKETS CON FOTOS Y SELECTOR DE ESTADO */}
+        {/* BANDEJA DE TICKETS CON FECHA, MODAL Y SELECTOR DE ESTADO */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
           <div className="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded text-[11px] font-bold uppercase mb-1">
-                <span>Núcleo Base • Requerimientos Territoriales</span>
+                <span>Núcleo Base • Trazabilidad Territorial</span>
               </div>
               <h2 className="text-base font-bold text-white">Bandeja de Requerimientos Ciudadanos (WhatsApp)</h2>
-              <p className="text-xs text-slate-400">Incidencias viales anónimas con foto obligatoria, trazabilidad de cuadrillas y estados en vivo</p>
+              <p className="text-xs text-slate-400">Haz clic en cualquier fila para inspeccionar el detalle completo y la fotografía de la cuadrilla</p>
             </div>
             
             <div className="flex flex-wrap gap-1.5">
@@ -437,19 +449,32 @@ export default function AdminDashboard() {
             <table className="w-full text-left text-xs text-slate-300">
               <thead className="bg-slate-900/80 text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-700">
                 <tr>
-                  <th className="p-3">Folio</th>
+                  <th className="p-3">Folio Oficial</th>
+                  <th className="p-3">Fecha / Hora</th>
                   <th className="p-3">Modalidad / Vecino</th>
                   <th className="p-3">Sector</th>
-                  <th className="p-3">Detalle del Requerimiento</th>
-                  <th className="p-3 text-center">Foto Evidencia</th>
+                  <th className="p-3">Detalle Requerimiento</th>
+                  <th className="p-3 text-center">Foto</th>
                   <th className="p-3">SLA</th>
                   <th className="p-3">Estado Operativo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700/60">
                 {filteredTickets.map(ticket => (
-                  <tr key={ticket.id} className="hover:bg-slate-700/30 transition">
-                    <td className="p-3 font-mono font-bold text-emerald-400">{ticket.id}</td>
+                  <tr 
+                    key={ticket.id} 
+                    className="hover:bg-slate-700/40 transition cursor-pointer group"
+                    onClick={() => setSelectedTicket(ticket)}
+                  >
+                    <td className="p-3 font-mono font-bold text-emerald-400 group-hover:underline">
+                      {ticket.id}
+                    </td>
+                    <td className="p-3 font-mono text-slate-400 whitespace-nowrap">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-slate-500" />
+                        <span>{ticket.createdAt}</span>
+                      </div>
+                    </td>
                     <td className="p-3">
                       {ticket.citizen.includes('Anónimo') ? (
                         <span className="inline-flex items-center gap-1 bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[11px] font-semibold border border-slate-700">
@@ -474,18 +499,21 @@ export default function AdminDashboard() {
                       <span className="text-slate-400">{ticket.description}</span>
                     </td>
                     
-                    {/* Visualizador de Foto */}
-                    <td className="p-3 text-center">
+                    {/* Botón Foto */}
+                    <td className="p-3 text-center" onClick={(e) => { e.stopPropagation(); setSelectedTicket(ticket); }}>
                       {ticket.imageUrl ? (
                         <button
-                          onClick={() => setSelectedPhotoTicket(ticket)}
-                          className="inline-flex items-center gap-1.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 px-2.5 py-1 rounded text-[11px] font-bold transition group"
+                          className="inline-flex items-center gap-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 px-2 py-1 rounded text-[11px] font-bold transition"
                         >
-                          <Camera className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition" />
-                          <span>Ver Foto</span>
+                          <Camera className="w-3.5 h-3.5 text-blue-400" />
+                          <span>Ver</span>
                         </button>
                       ) : (
-                        <span className="text-slate-600 text-[11px] italic">Sin foto</span>
+                        <button
+                          className="inline-flex items-center gap-1 bg-slate-800 text-slate-400 px-2 py-1 rounded text-[11px] hover:text-white transition"
+                        >
+                          <FileCheck className="w-3 h-3" /> Ficha
+                        </button>
                       )}
                     </td>
 
@@ -506,8 +534,8 @@ export default function AdminDashboard() {
                       )}
                     </td>
 
-                    {/* Selector Dinámico de Estado */}
-                    <td className="p-3">
+                    {/* Selector de Estado en Vivo */}
+                    <td className="p-3" onClick={(e) => e.stopPropagation()}>
                       <select
                         value={ticket.status}
                         onChange={(e) => handleStatusChange(ticket.id, e.target.value as any)}
@@ -520,8 +548,8 @@ export default function AdminDashboard() {
                         }`}
                       >
                         <option value="PENDIENTE" className="bg-slate-900 text-rose-300">⏳ PENDIENTE</option>
-                        <option value="EN_RUTA" className="bg-slate-900 text-blue-300">🚛 EN RUTA / CUADRILLA</option>
-                        <option value="ATENDIDO" className="bg-slate-900 text-emerald-300">✅ ATENDIDO / RESUELTO</option>
+                        <option value="EN_RUTA" className="bg-slate-900 text-blue-300">🚛 EN RUTA</option>
+                        <option value="ATENDIDO" className="bg-slate-900 text-emerald-300">✅ ATENDIDO</option>
                       </select>
                     </td>
                   </tr>
@@ -531,64 +559,98 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* MODAL DE FOTO DE EVIDENCIA EN TAMAÑO REAL */}
-        {selectedPhotoTicket && (
+        {/* MODAL COMPLETO DE EXPEDIENTE / FOTO EN TAMAÑO COMPLETO */}
+        {selectedTicket && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-fadeIn">
               <div className="p-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <Camera className="w-5 h-5 text-emerald-400" />
-                  <span className="font-bold text-white text-sm">
-                    Evidencia de Terreno • {selectedPhotoTicket.id}
+                  <span className="font-mono font-bold text-emerald-400 text-base">
+                    {selectedTicket.id}
+                  </span>
+                  <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">
+                    Tipo: {selectedTicket.type}
                   </span>
                 </div>
                 <button
-                  onClick={() => setSelectedPhotoTicket(null)}
+                  onClick={() => setSelectedTicket(null)}
                   className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="p-5 space-y-4">
-                <div className="rounded-xl overflow-hidden border border-slate-800 bg-black max-h-[380px] flex items-center justify-center">
-                  <img
-                    src={selectedPhotoTicket.imageUrl}
-                    alt="Evidencia del reporte"
-                    className="w-full h-full object-contain"
-                  />
+              <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                {/* Imagen si existe */}
+                {selectedTicket.imageUrl && (
+                  <div className="rounded-xl overflow-hidden border border-slate-700 bg-black max-h-[320px] flex items-center justify-center">
+                    <img
+                      src={selectedTicket.imageUrl}
+                      alt="Evidencia fotográfica del requerimiento"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+
+                {/* Metadatos */}
+                <div className="grid grid-cols-2 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+                  <div>
+                    <span className="text-slate-500 block mb-0.5">Fecha y Hora de Ingreso:</span>
+                    <span className="font-mono text-slate-200 font-bold">{selectedTicket.createdAt}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block mb-0.5">Sector Comunal:</span>
+                    <span className="text-emerald-400 font-bold flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5" /> {selectedTicket.sector}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block mb-0.5">Vecino / Contacto:</span>
+                    <span className="text-slate-200 font-medium">
+                      {selectedTicket.citizen} ({selectedTicket.phone})
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block mb-0.5">Estado Operativo:</span>
+                    <select
+                      value={selectedTicket.status}
+                      onChange={(e) => handleStatusChange(selectedTicket.id, e.target.value as any)}
+                      className="bg-slate-900 border border-slate-700 text-white font-bold text-xs rounded px-2 py-1 outline-none"
+                    >
+                      <option value="PENDIENTE">⏳ PENDIENTE</option>
+                      <option value="EN_RUTA">🚛 EN RUTA / CUADRILLA</option>
+                      <option value="ATENDIDO">✅ ATENDIDO / RESUELTO</option>
+                    </select>
+                  </div>
                 </div>
 
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-xs space-y-2">
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span className="flex items-center gap-1.5 font-bold text-emerald-400">
-                      <MapPin className="w-3.5 h-3.5" /> {selectedPhotoTicket.sector}
-                    </span>
-                    <span className="text-slate-400 font-mono">{selectedPhotoTicket.createdAt}</span>
-                  </div>
-                  <p className="text-slate-200 leading-relaxed">
-                    <strong>Descripción del vecino:</strong> "{selectedPhotoTicket.description}"
+                {/* Descripción Completa sin cortes */}
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-1.5">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider block">
+                    Descripción Completa del Requerimiento:
+                  </span>
+                  <p className="text-slate-100 text-sm leading-relaxed whitespace-pre-wrap">
+                    {selectedTicket.description}
                   </p>
-                  <div className="pt-2 border-t border-slate-800/80 flex justify-between items-center text-[11px] text-slate-400">
-                    <span>Modalidad: {selectedPhotoTicket.citizen}</span>
-                    <span className="font-mono">Estado: {selectedPhotoTicket.status}</span>
-                  </div>
                 </div>
               </div>
 
-              <div className="p-4 bg-slate-950/60 border-t border-slate-800 flex justify-end">
+              <div className="p-4 bg-slate-950 border-t border-slate-800 flex justify-between items-center">
+                <span className="text-xs text-slate-500">
+                  Canal de origen: WhatsApp Oficial verificado
+                </span>
                 <button
-                  onClick={() => setSelectedPhotoTicket(null)}
+                  onClick={() => setSelectedTicket(null)}
                   className="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition"
                 >
-                  Cerrar Vista Previa
+                  Cerrar Expediente
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* COLA DE CURADURÍA DOCUMENTAL ASISTIDA CON IDENTIFICACIÓN DEL FUNCIONARIO */}
+        {/* COLA DE CURADURÍA DOCUMENTAL ASISTIDA (MOTOR RAG) */}
         <div className="bg-slate-800/70 border border-blue-500/30 rounded-xl p-6 shadow-xl">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-slate-700/80 pb-4">
             <div>
@@ -597,7 +659,7 @@ export default function AdminDashboard() {
               </div>
               <h2 className="text-lg font-bold text-white">Remisión Documental Auditada para el RAG</h2>
               <p className="text-xs text-slate-400">
-                Cada documento remitido registra al funcionario emisor para coordinar la limpieza, vectorización y control de calidad con el consultor técnico.
+                Cada decreto u ordenanza remitido registra al funcionario responsable para coordinar la limpieza, fragmentación y vectorización con el consultor técnico.
               </p>
             </div>
             <div className="text-right">

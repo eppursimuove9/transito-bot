@@ -16,7 +16,7 @@ interface Message {
 interface AdminTicket {
   id: string;
   citizen: string;
-  rut: string;
+  rut?: string;
   phone: string;
   sector: string;
   type: 'CALLBACK' | 'CAMINO' | 'PERMISO' | 'CHATARRA' | 'DIDECO';
@@ -24,6 +24,7 @@ interface AdminTicket {
   slaMinutes: number;
   status: 'PENDIENTE' | 'ATENDIDO' | 'EN_RUTA';
   createdAt: string;
+  imageUrl?: string;
 }
 
 const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de La Unión* 🇨🇱
@@ -51,6 +52,7 @@ export default function LaUnionDemoPage() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [currentStep, setCurrentStep] = useState('INIT');
+  const [lastAttachedImage, setLastAttachedImage] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -70,45 +72,51 @@ export default function LaUnionDemoPage() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const syncTicketToAdminDashboard = (ticketData: Partial<AdminTicket>) => {
+  const syncTicketToAdminDashboard = (ticketData: Partial<AdminTicket>, imageAttached?: string) => {
     try {
       const stored = localStorage.getItem('launion_tickets');
       const currentTickets: AdminTicket[] = stored ? JSON.parse(stored) : [];
 
+      const now = new Date();
+      const horaStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
       const newTicket: AdminTicket = {
         id: ticketData.id || `#LUN-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-        citizen: ticketData.citizen || 'Vecino WhatsApp',
+        citizen: ticketData.citizen || 'Reporte Anónimo',
         rut: ticketData.rut || 'No requerido',
-        phone: ticketData.phone || '+56 9 ' + Math.floor(74000000 + Math.random() * 25000000),
-        sector: ticketData.sector || 'Radio Urbano',
+        phone: ticketData.phone || '+56 9 ' + Math.floor(70000000 + Math.random() * 29000000),
+        sector: ticketData.sector || 'Sector Rural / Urbano',
         type: ticketData.type || 'CAMINO',
-        description: ticketData.description || 'Requerimiento ingresado vía WhatsApp',
+        description: ticketData.description || 'Requerimiento ciudadano vía WhatsApp',
         slaMinutes: ticketData.slaMinutes || 120,
         status: 'PENDIENTE',
-        createdAt: 'Hace unos momentos'
+        createdAt: `Hoy, ${horaStr} hrs`,
+        imageUrl: imageAttached || ticketData.imageUrl || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80'
       };
 
       const updated = [newTicket, ...currentTickets];
       localStorage.setItem('launion_tickets', JSON.stringify(updated));
     } catch (err) {
-      console.error('Error al sincronizar ticket con el panel directivo:', err);
+      console.error('Error sincronizando ticket con el panel directivo:', err);
     }
   };
 
   const handleSendMessage = async (customText?: string, customImage?: string) => {
     const textToSend = customText !== undefined ? customText : inputValue;
-    if (!textToSend.trim() && !customImage) return;
+    const imageToSend = customImage !== undefined ? customImage : lastAttachedImage;
+    if (!textToSend.trim() && !imageToSend) return;
 
     const userMsg: Message = {
       id: Date.now().toString(),
       sender: 'user',
-      text: textToSend || (customImage ? "📸 [Fotografía de evidencia adjunta]" : ""),
+      text: textToSend || (imageToSend ? "📸 [Fotografía de evidencia adjunta]" : ""),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      imageUrl: customImage
+      imageUrl: imageToSend
     };
 
     setMessages(prev => [...prev, userMsg]);
     if (customText === undefined) setInputValue('');
+    setLastAttachedImage(undefined);
     setLoading(true);
 
     try {
@@ -118,7 +126,7 @@ export default function LaUnionDemoPage() {
         body: JSON.stringify({
           message: textToSend,
           step: currentStep,
-          hasImage: !!customImage
+          hasImage: !!imageToSend
         })
       });
 
@@ -126,7 +134,7 @@ export default function LaUnionDemoPage() {
       setCurrentStep(data.next_step);
 
       if (data.ticketSync) {
-        syncTicketToAdminDashboard(data.ticketSync);
+        syncTicketToAdminDashboard(data.ticketSync, imageToSend);
       }
 
       setMessages(prev => [
@@ -168,7 +176,7 @@ export default function LaUnionDemoPage() {
           Ventanilla Única WhatsApp La Unión
         </h1>
         <p className="text-sm text-slate-400 mt-1">
-          Arquitectura no invasiva: Asistente RAG comunal, reportes viales confidenciales y trazabilidad en tiempo real.
+          Arquitectura no invasiva: Asistente RAG comunal, reportes viales con foto obligatoria y trazabilidad foliada.
         </p>
       </header>
 
@@ -204,7 +212,7 @@ export default function LaUnionDemoPage() {
                 >
                   <div>
                     <div className="font-bold text-white">Opción 1: Menú Tránsito</div>
-                    <p className="text-[11px] text-slate-400">Requisitos Permisos, Licencias y JPL</p>
+                    <p className="text-[11px] text-slate-400">Requisitos Permisos, Licencias y enlace Webpay</p>
                   </div>
                   <span className="text-slate-500 group-hover:text-emerald-400 text-xs">
                     {copiedCode === "1" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -239,23 +247,23 @@ export default function LaUnionDemoPage() {
               </div>
               
               <div 
-                onClick={() => copyToClipboard("Hay un hoyo peligroso en el camino a Trumao en el km 10, adjunto foto")}
+                onClick={() => copyToClipboard("Hay un hoyo profundo en Arturo Prat cerca de la municipalidad")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
                   <div className="font-bold text-white flex items-center gap-1.5">
-                    <span>Reporte de Hoyo / Camino</span>
+                    <span>Paso 1: Detalle y Ubicación</span>
                     <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1 rounded">100% Anónimo</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Camino a Trumao km 10 (Sin pedir RUN)</p>
+                  <p className="text-[11px] text-slate-400">Arturo Prat cerca municipalidad</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Hay un hoyo peligroso en el camino a Trumao en el km 10, adjunto foto" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Hay un hoyo profundo en Arturo Prat cerca de la municipalidad" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
 
               <div 
-                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Puerto Nuevo, 2 baterías de tractor y fierros")}
+                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Puerto Nuevo, 3 baterías viejas de tractor")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
@@ -263,10 +271,10 @@ export default function LaUnionDemoPage() {
                     <span>Chatarra en Domicilio</span>
                     <span className="text-[10px] bg-blue-950 text-blue-300 px-1 rounded">Nombre + Dirección</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Coordinación directa de retiro en predio</p>
+                  <p className="text-[11px] text-slate-400">Coordinación directa de cuadrilla en predio</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Héctor Manqui, Parcela 14 Puerto Nuevo, 2 baterías de tractor y fierros" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Héctor Manqui, Parcela 14 Puerto Nuevo, 3 baterías viejas de tractor" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
             </div>
@@ -351,8 +359,8 @@ export default function LaUnionDemoPage() {
             <button
               type="button"
               onClick={() => handleSendMessage(
-                "📸 Hay un hoyo peligroso en el camino a Trumao en el km 10, adjunto foto",
-                "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=600&auto=format&fit=crop&q=80"
+                "📸 Fotografía de socavón en ruta rural",
+                "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80"
               )}
               title="Adjuntar fotografía de terreno"
               className="w-9 h-9 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-full flex items-center justify-center transition shrink-0"
@@ -364,7 +372,7 @@ export default function LaUnionDemoPage() {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Escribe un número (1-6), SOS o tu consulta comunal..."
+              placeholder="Escribe un número (1-6), SOS o tu consulta..."
               className="flex-1 bg-[#2a3942] text-white placeholder-slate-400 text-xs md:text-sm px-3.5 py-2.5 rounded-full focus:outline-none focus:ring-1 focus:ring-[#00a884]"
             />
             <button
