@@ -268,7 +268,7 @@ export async function POST(req: Request) {
   if (step === 'TERRENO_STEP_EVIDENCIA') {
     const folio = generarFolio();
     return NextResponse.json({
-      reply: `✅ *Requerimiento Territorial Foliado (${folio})*\n\n• *Tipo:* Operaciones en Terreno / Incidencia Vial\n• *Estado:* Pendiente de Asignación de Cuadrilla\n• *Respaldo:* Sincronizado en tiempo real con el panel directivo `/admin`.\n\nGuarda tu número de folio (*${folio}*) para hacer seguimiento de los trabajos.\n\n_Escribe *MENU* para realizar otro trámite._`,
+      reply: `✅ *Requerimiento Territorial Foliado (${folio})*\n\n• *Tipo:* Operaciones en Terreno / Incidencia Vial\n• *Estado:* Pendiente de Asignación de Cuadrilla\n• *Respaldo:* Sincronizado en tiempo real con el panel directivo '/admin'.\n\nGuarda tu número de folio (*${folio}*) para hacer seguimiento de los trabajos.\n\n_Escribe *MENU* para realizar otro trámite._`,
       next_step: 'INIT',
       ticketSync: {
         id: folio,
