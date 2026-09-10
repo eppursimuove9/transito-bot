@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Users, Search, ShieldCheck, FileText, Bell, Clock, 
   CheckCircle, Vote, UserPlus, FileSpreadsheet, PlusCircle, Trash2, 
-  Smartphone, Camera, Eye, X, MapPin, Calendar, FileCheck
+  Smartphone, Camera, Eye, X, MapPin, Calendar, FileCheck, 
+  TrendingUp, BarChart3, HelpCircle, Activity, Award
 } from 'lucide-react';
 
 interface Ticket {
@@ -44,7 +45,6 @@ interface CitizenRecord {
   }>;
 }
 
-// Folios unificados bajo la norma estricta: #LUN-2026-XXXX
 const INITIAL_TICKETS: Ticket[] = [
   {
     id: '#LUN-2026-1082',
@@ -52,7 +52,7 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 •••• 0041',
     sector: 'Sector Mashue (km 4)',
     type: 'CAMINO',
-    description: 'Bache profundo en curva km 4 de ripio frente a puente de madera. Riesgo de rotura de neumáticos.',
+    description: 'Bache profundo en curva km 4 de ripio frente a puente de madera. Riesgo para vehículos y furgones.',
     slaMinutes: 45,
     status: 'EN_RUTA',
     createdAt: '10/09/2026 09:20',
@@ -78,7 +78,7 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 9341 8812',
     sector: 'La Unión Centro (Arturo Prat)',
     type: 'PERMISO',
-    description: 'Orientación de Permiso de Circulación provista: Se entregaron requisitos de renovación y enlace oficial a pasarela municipal Webpay.',
+    description: 'Orientación de Permiso de Circulación provista: Requisitos de renovación y enlace oficial a pasarela Webpay comunal.',
     slaMinutes: 0,
     status: 'ATENDIDO',
     createdAt: '10/09/2026 11:30'
@@ -90,7 +90,7 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 8110 5543',
     sector: 'Trumao',
     type: 'DIDECO',
-    description: 'Orientación Subsidio APR entregada: Información de requisitos para presentar cartola RSH al 40% y colilla del comité de agua.',
+    description: 'Orientación Subsidio APR entregada: Documentación para presentar cartola RSH al 40% y última boleta pagada.',
     slaMinutes: 0,
     status: 'ATENDIDO',
     createdAt: '10/09/2026 12:10'
@@ -101,7 +101,7 @@ const INITIAL_TICKETS: Ticket[] = [
     phone: '+56 9 •••• 1120',
     sector: 'Choroico',
     type: 'CAMINO',
-    description: 'Rama grande de eucalipto caída sobre camino vecinal obstaculizando el paso del furgón escolar.',
+    description: 'Rama grande de eucalipto caída sobre calzada rural tras fuertes vientos.',
     slaMinutes: 95,
     status: 'PENDIENTE',
     createdAt: '10/09/2026 12:45',
@@ -112,7 +112,7 @@ const INITIAL_TICKETS: Ticket[] = [
 const INITIAL_DOCS: IngestedDoc[] = [
   {
     id: 'DOC-01',
-    title: 'Decreto Alcaldicio N° 1.420 - Calendario Patentes 2026.pdf',
+    title: 'Decreto Alcaldicio N° 1.420 - Calendario Oficial y Bases para Pago de Patentes Comerciales e Industriales 2026.pdf',
     department: 'Rentas y Finanzas',
     uploadedBy: 'Patricio Miranda (Jefe Rentas)',
     tokens: 3420,
@@ -121,7 +121,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
   },
   {
     id: 'DOC-02',
-    title: 'Bases Postulación Subsidio Rural Agua Potable (APR).pdf',
+    title: 'Bases Técnicas y Criterios de Postulación al Subsidio Rural de Agua Potable (APR) Comuna de La Unión.pdf',
     department: 'DIDECO (Social)',
     uploadedBy: 'Marcela Henríquez (DIDECO)',
     tokens: 8150,
@@ -130,7 +130,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
   },
   {
     id: 'DOC-03',
-    title: 'Ordenanza Local de Cuidado de Caminos y Tránsito Pesado.pdf',
+    title: 'Ordenanza Local sobre Circulación de Transporte Pesado y Resguardo de Caminos Rurales y Carpetas de Ripio.pdf',
     department: 'Dirección de Tránsito',
     uploadedBy: 'Gonzalo Vera (Dir. Tránsito)',
     tokens: 5200,
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
   const [filter, setFilter] = useState<'ALL' | 'CALLBACK' | 'CAMINO' | 'CHATARRA' | 'PERMISO' | 'DIDECO'>('ALL');
   
-  // Modal de Detalle Completo de Ficha / Foto
+  // Modal de Detalle
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   // Documentos en Cola RAG
@@ -210,7 +210,6 @@ export default function AdminDashboard() {
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            // Normaliza cualquier folio antiguo para que sea #LUN-2026-XXXX
             const normalizados = parsed.map((t: any) => ({
               ...t,
               id: t.id.startsWith('#LUN-2026-') ? t.id : `#LUN-2026-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -243,7 +242,6 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('storage', handleStorageEvent);
   }, []);
 
-  // Cambiar estado en vivo
   const handleStatusChange = (id: string, newStatus: 'PENDIENTE' | 'ATENDIDO' | 'EN_RUTA') => {
     setTickets(prev => {
       const updated = prev.map(t => (t.id === id ? { ...t, status: newStatus } : t));
@@ -266,7 +264,7 @@ export default function AdminDashboard() {
       const now = new Date();
       const newDoc: IngestedDoc = {
         id: `DOC-${String(docs.length + 1).padStart(2, '0')}`,
-        title: docName.endsWith('.pdf') ? docName : `${docName}.pdf`,
+        title: docName.trim().endsWith('.pdf') ? docName.trim() : `${docName.trim()}.pdf`,
         department: selectedDept,
         uploadedBy: uploaderName.trim(),
         tokens: Math.floor(Math.random() * 4000) + 2000,
@@ -366,6 +364,23 @@ export default function AdminDashboard() {
 
   const filteredTickets = filter === 'ALL' ? tickets : tickets.filter(t => t.type === filter);
 
+  // Datos para los nuevos Dashboards y Línea de Tiempo
+  const timelineData = [
+    { dia: 'Lun', recibidos: 18, atendidos: 16, pct: 88 },
+    { dia: 'Mar', recibidos: 24, atendidos: 23, pct: 95 },
+    { dia: 'Mié', recibidos: 29, atendidos: 27, pct: 93 },
+    { dia: 'Jue', recibidos: 35, atendidos: 34, pct: 97 },
+    { dia: 'Hoy', recibidos: 23, atendidos: 21, pct: 91 }
+  ];
+
+  const sectorDistribution = [
+    { sector: 'Sector Puerto Nuevo (Lago Ranco)', porcentaje: 32, total: 38, color: 'bg-emerald-500' },
+    { sector: 'Sector Mashue (Forestal y Agrícola)', porcentaje: 26, total: 31, color: 'bg-blue-500' },
+    { sector: 'Sector Choroico (Troncal Rural)', porcentaje: 18, total: 22, color: 'bg-amber-500' },
+    { sector: 'Sector Trumao / Llancacura (Río Bueno)', porcentaje: 14, total: 17, color: 'bg-purple-500' },
+    { sector: 'Radio Urbano (La Unión Centro)', porcentaje: 10, total: 12, color: 'bg-cyan-500' }
+  ];
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
       {/* Header */}
@@ -390,30 +405,133 @@ export default function AdminDashboard() {
       </header>
 
       <main className="p-6 max-w-7xl mx-auto space-y-8">
-        {/* KPI Cards Reales y Honestos */}
+        
+        {/* BANNER PEDAGÓGICO: ¿QUÉ ES EL SLA MUNICIPAL? */}
+        <div className="bg-slate-800/40 border border-emerald-500/30 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+              <Award className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="font-bold text-white text-sm">Control de Plazos Comprometidos de Respuesta (SLA Municipal)</span>
+              <p className="text-slate-400 mt-0.5">
+                El <strong>SLA</strong> (<em>Service Level Agreement</em>) es el estándar que mide que ninguna denuncia comunitaria quede botada: fija un <strong>plazo máximo de 120 minutos</strong> para que una cuadrilla revise la foto y pase a estado <em>En Ruta</em>.
+              </p>
+            </div>
+          </div>
+          <span className="bg-slate-900 border border-slate-700 px-3 py-1 rounded text-slate-300 font-mono shrink-0">
+            Meta Comunal: &gt; 90% en Plazo
+          </span>
+        </div>
+
+        {/* KPI CARDS (HONESTOS Y MEDIBLES) */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Derivaciones a Webpay Hoy</p>
-            <p className="text-2xl font-bold text-white mt-1">42 <span className="text-xs text-emerald-400 font-normal">vecinos</span></p>
-            <p className="text-xs text-emerald-400 mt-2">↑ Enlaces oficiales provistos sin filas</p>
+            <div className="flex justify-between items-start">
+              <p className="text-xs text-slate-400 font-medium uppercase">Consultas RAG Resueltas</p>
+              <Activity className="w-4 h-4 text-blue-400" />
+            </div>
+            <p className="text-2xl font-bold text-white mt-1">1.412</p>
+            <p className="text-xs text-blue-400 mt-2">Respuestas oficiales 24/7 sin filas en mesón</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Cumplimiento SLA Cuadrillas</p>
+            <div className="flex justify-between items-start">
+              <p className="text-xs text-slate-400 font-medium uppercase">Cumplimiento Plazo SLA</p>
+              <Award className="w-4 h-4 text-emerald-400" />
+            </div>
             <p className="text-2xl font-bold text-emerald-400 mt-1">94.8%</p>
-            <p className="text-xs text-slate-400 mt-2">Meta institucional &gt; 90%</p>
+            <p className="text-xs text-slate-400 mt-2">Cuadrillas asignadas en &lt; 2 hrs</p>
           </div>
 
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Consultas RAG Comunal</p>
-            <p className="text-2xl font-bold text-blue-400 mt-1">1.412</p>
-            <p className="text-xs text-slate-400 mt-2">Respuestas normativas 24/7</p>
-          </div>
-
-          <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-slate-400 font-medium uppercase">Reportes con Foto</p>
+            <div className="flex justify-between items-start">
+              <p className="text-xs text-slate-400 font-medium uppercase">Reportes con Foto</p>
+              <Camera className="w-4 h-4 text-amber-400" />
+            </div>
             <p className="text-2xl font-bold text-amber-400 mt-1">23</p>
-            <p className="text-xs text-slate-400 mt-2">Evidencias validadas en terreno</p>
+            <p className="text-xs text-slate-400 mt-2">Cero salidas en vano a verificar falsos avisos</p>
+          </div>
+
+          <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
+            <div className="flex justify-between items-start">
+              <p className="text-xs text-slate-400 font-medium uppercase">Derivaciones Webpay Hoy</p>
+              <TrendingUp className="w-4 h-4 text-purple-400" />
+            </div>
+            <p className="text-2xl font-bold text-purple-400 mt-1">42 <span className="text-xs text-slate-400 font-normal">vecinos</span></p>
+            <p className="text-xs text-slate-400 mt-2">Enlaces oficiales provistos para pago en línea</p>
+          </div>
+        </div>
+
+        {/* NUEVA SECCIÓN: DASHBOARDS EN LA LÍNEA DE TIEMPO Y DISTRIBUCIÓN TERRITORIAL */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Línea de Tiempo: Evolución de Cumplimiento Semanal */}
+          <div className="lg:col-span-6 bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-emerald-400" />
+                  Evolución Semanal de Cumplimiento de Plazos (SLA)
+                </h3>
+                <span className="text-[11px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded font-mono border border-emerald-800">
+                  Semana en Curso
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mb-5">
+                Comparativa entre requerimientos recibidos y casos resueltos a tiempo por las cuadrillas de operaciones.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-5 gap-3 pt-3 border-t border-slate-800">
+              {timelineData.map((d, i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  <span className="text-xs font-mono font-bold text-emerald-400">{d.pct}%</span>
+                  <div className="w-full bg-slate-900 rounded-t-lg h-32 flex items-end p-1">
+                    <div 
+                      className="w-full bg-gradient-to-t from-emerald-600 to-teal-400 rounded-md transition-all duration-500"
+                      style={{ height: `${d.pct}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-xs font-bold text-slate-300">{d.dia}</span>
+                  <span className="text-[10px] text-slate-500 font-mono">{d.atendidos}/{d.recibidos}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Distribución Territorial de Requerimientos (Justicia Rural) */}
+          <div className="lg:col-span-6 bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-blue-400" />
+                  Origen de Requerimientos por Localidad (Justicia Territorial)
+                </h3>
+                <span className="text-[11px] bg-blue-950 text-blue-300 px-2 py-0.5 rounded font-mono border border-blue-800">
+                  90% Cobertura Rural
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mb-4">
+                Porcentaje de incidencias viales y solicitudes canalizadas sin obligar al vecino a viajar a La Unión Centro.
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              {sectorDistribution.map((item, idx) => (
+                <div key={idx} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-300 font-medium">{item.sector}</span>
+                    <span className="font-mono text-slate-400 font-bold">{item.porcentaje}% ({item.total} tickets)</span>
+                  </div>
+                  <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-800">
+                    <div 
+                      className={`h-full ${item.color} rounded-full transition-all duration-700`}
+                      style={{ width: `${item.porcentaje}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -455,7 +573,7 @@ export default function AdminDashboard() {
                   <th className="p-3">Sector</th>
                   <th className="p-3">Detalle Requerimiento</th>
                   <th className="p-3 text-center">Foto</th>
-                  <th className="p-3">SLA</th>
+                  <th className="p-3">SLA (120m)</th>
                   <th className="p-3">Estado Operativo</th>
                 </tr>
               </thead>
@@ -466,7 +584,7 @@ export default function AdminDashboard() {
                     className="hover:bg-slate-700/40 transition cursor-pointer group"
                     onClick={() => setSelectedTicket(ticket)}
                   >
-                    <td className="p-3 font-mono font-bold text-emerald-400 group-hover:underline">
+                    <td className="p-3 font-mono font-bold text-emerald-400 group-hover:underline whitespace-nowrap">
                       {ticket.id}
                     </td>
                     <td className="p-3 font-mono text-slate-400 whitespace-nowrap">
@@ -559,7 +677,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* MODAL COMPLETO DE EXPEDIENTE / FOTO EN TAMAÑO COMPLETO */}
+        {/* MODAL COMPLETO DE EXPEDIENTE / FOTO */}
         {selectedTicket && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-fadeIn">
@@ -581,7 +699,6 @@ export default function AdminDashboard() {
               </div>
 
               <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-                {/* Imagen si existe */}
                 {selectedTicket.imageUrl && (
                   <div className="rounded-xl overflow-hidden border border-slate-700 bg-black max-h-[320px] flex items-center justify-center">
                     <img
@@ -592,7 +709,6 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                {/* Metadatos */}
                 <div className="grid grid-cols-2 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
                   <div>
                     <span className="text-slate-500 block mb-0.5">Fecha y Hora de Ingreso:</span>
@@ -611,7 +727,7 @@ export default function AdminDashboard() {
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block mb-0.5">Estado Operativo:</span>
+                    <span className="text-slate-500 block mb-0.5">Estado de la Cuadrilla:</span>
                     <select
                       value={selectedTicket.status}
                       onChange={(e) => handleStatusChange(selectedTicket.id, e.target.value as any)}
@@ -624,7 +740,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Descripción Completa sin cortes */}
                 <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs space-y-1.5">
                   <span className="text-slate-400 font-bold uppercase tracking-wider block">
                     Descripción Completa del Requerimiento:
@@ -650,7 +765,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* COLA DE CURADURÍA DOCUMENTAL ASISTIDA (MOTOR RAG) */}
+        {/* COLA DE CURADURÍA DOCUMENTAL ASISTIDA (CON ÁREA DE TEXTO AMPLIADA) */}
         <div className="bg-slate-800/70 border border-blue-500/30 rounded-xl p-6 shadow-xl">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-slate-700/80 pb-4">
             <div>
@@ -669,65 +784,71 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <form onSubmit={handleUploadDocument} className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
-            <div className="md:col-span-3">
-              <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
-                Departamento Emisor
-              </label>
-              <select
-                value={selectedDept}
-                onChange={e => setSelectedDept(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
-              >
-                <option>Dirección de Tránsito</option>
-                <option>DIDECO (Desarrollo Comunitario)</option>
-                <option>Rentas y Patentes Comerciales</option>
-                <option>Dirección de Operaciones y Medio Ambiente</option>
-                <option>Secretaría Municipal / Alcaldía</option>
-              </select>
+          <form onSubmit={handleUploadDocument} className="space-y-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
+                  Departamento Emisor
+                </label>
+                <select
+                  value={selectedDept}
+                  onChange={e => setSelectedDept(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                >
+                  <option>Dirección de Tránsito</option>
+                  <option>DIDECO (Desarrollo Comunitario)</option>
+                  <option>Rentas y Patentes Comerciales</option>
+                  <option>Dirección de Operaciones y Medio Ambiente</option>
+                  <option>Secretaría Municipal / Alcaldía</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
+                  Funcionario Responsable de la Remisión
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej: Marcela Henríquez (Asistente Social DIDECO)"
+                  value={uploaderName}
+                  onChange={e => setUploaderName(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="md:col-span-3">
+            {/* CAMPO DE TEXTO AMPLIADO PARA TÍTULOS LARGOS DE DECRETOS */}
+            <div>
               <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
-                Funcionario Responsable
+                Título Completo del Decreto, Ordenanza o Documento Público
               </label>
-              <input
-                type="text"
-                placeholder="Ej: Marcela Henríquez (DIDECO)"
-                value={uploaderName}
-                onChange={e => setUploaderName(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-                required
-              />
-            </div>
-
-            <div className="md:col-span-4">
-              <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
-                Título del Decreto u Ordenanza
-              </label>
-              <input
-                type="text"
-                placeholder="Ej: Decreto 512 - Exención Aseo Adulto Mayor 2026"
+              <textarea
+                rows={3}
+                placeholder="Ej: Decreto Alcaldicio Exento N° 1.482 que aprueba el reglamento sobre extracción, disposición y cobro de derechos por retiro de escombros y chatarra en sectores rurales y urbanos de la comuna de La Unión..."
                 value={docName}
                 onChange={e => setDocName(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed font-sans"
                 required
-              />
+              ></textarea>
+              <span className="text-[11px] text-slate-500 mt-1 block">
+                Espacio ampliado para consignar el encabezado normativo completo sin recortes.
+              </span>
             </div>
 
-            <div className="md:col-span-2 flex items-end">
+            <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={isUploading || !docName.trim() || !uploaderName.trim()}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5 shadow-md"
+                className="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold py-2.5 px-6 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-md"
               >
                 {isUploading ? (
                   <>
                     <span className="h-3 w-3 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                    Remitiendo...
+                    Remitiendo a Cola de Curaduría...
                   </>
                 ) : (
-                  <span>📥 Remitir al RAG</span>
+                  <span>📥 Remitir al RAG para Curaduría</span>
                 )}
               </button>
             </div>
@@ -747,14 +868,14 @@ export default function AdminDashboard() {
             </div>
             <div className="divide-y divide-slate-800">
               {docs.map(doc => (
-                <div key={doc.id} className="px-4 py-2.5 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2">
-                  <div>
-                    <span className="font-semibold text-white">{doc.title}</span>
-                    <div className="text-[11px] text-slate-400 mt-0.5">
+                <div key={doc.id} className="px-4 py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs gap-2">
+                  <div className="max-w-2xl">
+                    <span className="font-semibold text-white leading-relaxed">{doc.title}</span>
+                    <div className="text-[11px] text-slate-400 mt-1">
                       <span className="text-blue-400 font-medium">{doc.department}</span> • Remitido por: <strong className="text-slate-300">{doc.uploadedBy}</strong> • {doc.date}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 shrink-0">
                     <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">
                       {doc.tokens} tokens
                     </span>
