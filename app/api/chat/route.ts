@@ -2,25 +2,25 @@ import { NextResponse } from 'next/server';
 
 function generarFolio(anio: number = 2026): string {
   const correlativo = Math.floor(1000 + Math.random() * 9000);
-  return `#LUN-${anio}-${correlativo}`;
+  return `#SPB-${anio}-${correlativo}`;
 }
 
 const KNOWLEDGE_BASE = [
   {
-    keywords: ["EVENTO", "FIESTA", "TRUMAO", "PUERTO NUEVO", "SEMANA", "COSTUMBRISTA"],
-    response: `🎭 *Eventos y Actividades en La Unión 2026*\n\n• *Muestra Fluvial de Trumao:* Sábado y Domingo en el Muelle Fluvial.\n• *Feria Costumbrista Puerto Nuevo:* Fin de semana en ribera Lago Ranco.\n• *Semana Unionina:* Actividades en Plaza de la Concordia y Parque Municipal.\n\n_Escribe otra consulta o *MENU* para volver._`
+    keywords: ["EVENTO", "FIESTA", "QUILACAHUIN", "CHIFCA", "SEMANA", "COSTUMBRISTA"],
+    response: `🎭 *Eventos y Actividades en San Pablo 2026*\n\n• *Feria Costumbrista de Quilacahuín:* Sábado y Domingo en recinto ex-misión.\n• *Fiesta Agrícola de Chifca:* Fin de semana en sede vecinal.\n• *Semana Sanpablina:* Actividades en Plaza de Armas y Parque Municipal.\n\n_Escribe otra consulta o *MENU* para volver._`
   },
   {
-    keywords: ["FARMACIA", "TURNO", "REMEDIO", "SALUD", "HOSPITAL", "CESFAM"],
-    response: `💊 *Farmacias de Turno y Salud Comunal*\n\n• *Farmacia Cruz Verde (Calle Comercio 310)*: Turno 24 Horas activo hoy.\n• *Hospital de La Unión (Urgencias)*: 24/7 en Los Canelos s/n.\n• *CESFAM Dr. Alfredo Gantz Mann*: Atención diurna y SAPU de urgencia.\n\n_Escribe otra consulta o *MENU* para volver._`
+    keywords: ["FARMACIA", "TURNO", "REMEDIO", "SALUD", "HOSPITAL", "CESFAM", "POSTA"],
+    response: `💊 *Farmacias de Turno y Salud Comunal*\n\n• *Farmacia San Pablo (Calle Bolivia 310)*: Turno activo hoy.\n• *CESFAM San Pablo (Urgencias)*: 24/7 en sector centro.\n• *Posta Rural Quilacahuín*: Atención diurna y paramédico de turno.\n\n_Escribe otra consulta o *MENU* para volver._`
   },
   {
     keywords: ["TELEFONO", "ANEXO", "CONTACTO", "DIDECO", "OBRAS", "TRANSITO"],
-    response: `📞 *Directorio Municipal de La Unión*\n\n• *Central Telefónica:* +56 64 232 2000\n• *Tránsito y Licencias:* Anexo 112 • Comercio 340\n• *Rentas y Finanzas:* Anexo 106 • Comercio 340\n• *DIDECO (Social):* Anexo 104 • Manuel Montt 530\n• *Operaciones y Emergencias:* +56 64 276 5230 (24/7)\n\n_Escribe otra consulta o *MENU* para volver._`
+    response: `📞 *Directorio Municipal de San Pablo*\n\n• *Central Telefónica:* +56 64 232 2000\n• *Tránsito y Licencias:* Anexo 112 • Bolivia s/n\n• *Rentas y Finanzas:* Anexo 106 • Bolivia s/n\n• *DIDECO (Social):* Anexo 104 • Crucero s/n\n• *Operaciones y Emergencias:* +56 64 276 5230 (24/7)\n\n_Escribe otra consulta o *MENU* para volver._`
   }
 ];
 
-const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de La Unión* 🇨🇱
+const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de San Pablo* 🇨🇱
 
 Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu trámite:
 
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   // --- 1. SOS DE EMERGENCIA ---
   if (['SOS', 'EMERGENCIA', 'BOMBEROS', 'CARABINEROS', 'AMBULANCIA'].some(k => cleanMsg.includes(k))) {
     return NextResponse.json({
-      reply: `🚨 *CENTRAL DE EMERGENCIAS • LA UNIÓN* 🚨\n\nComunícate de inmediato:\n\n🚒 *Bomberos La Unión:* 132\n🚓 *Carabineros (3ª Comisaría La Unión):* 133 / +56 64 276 5230\n🚓 *Retén Puerto Nuevo:* +56 64 276 5240\n🚑 *Ambulancia SAMU:* 131\n📞 *Seguridad Pública Municipal:* +56 64 232 2000\n\n_Escribe *MENU* para volver._`,
+      reply: `🚨 *CENTRAL DE EMERGENCIAS • SAN PABLO* 🚨\n\nComunícate de inmediato:\n\n🚒 *Bomberos San Pablo:* 132\n🚓 *Carabineros (Tenencia San Pablo):* 133 / +56 64 276 5230\n🚓 *Retén Quilacahuín:* +56 64 276 5240\n🚑 *Ambulancia SAMU:* 131\n📞 *Seguridad Pública Municipal:* +56 64 232 2000\n\n_Escribe *MENU* para volver._`,
       next_step: 'INIT'
     });
   }
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
   // --- 3. MODO ASISTIDO (ADULTO MAYOR) ---
   if (cleanMsg === '6' || cleanMsg === 'MODO SIMPLE') {
     return NextResponse.json({
-      reply: `👵👴 *MODO ASISTIDO (Lenguaje Claro y Letra Grande)*\n\nLe ayudamos con sus dudas sobre trámites en La Unión:\n\n1️⃣ *Cómo pagar el Permiso de Circulación y qué papeles necesita*\n2️⃣ *Avisar de un camino con hoyos, rama caída o luminaria apagada*\n3️⃣ *Pedir que un funcionario le llame por teléfono a su casa*\n4️⃣ *Saber las farmacias de turno hoy*\n\n👉 Escriba el número de su opción (por ejemplo: *1*).\nPara salir escriba *MENU*. Para emergencias escriba *SOS*.`,
+      reply: `👵👴 *MODO ASISTIDO (Lenguaje Claro y Letra Grande)*\n\nLe ayudamos con sus dudas sobre trámites en San Pablo:\n\n1️⃣ *Cómo pagar el Permiso de Circulación y qué papeles necesita*\n2️⃣ *Avisar de un camino con hoyos, rama caída o luminaria apagada*\n3️⃣ *Pedir que un funcionario le llame por teléfono a su casa*\n4️⃣ *Saber las farmacias de turno hoy*\n\n👉 Escriba el número de su opción (por ejemplo: *1*).\nPara salir escriba *MENU*. Para emergencias escriba *SOS*.`,
       next_step: 'AWAIT_SENIOR_OPTION'
     });
   }
@@ -78,13 +78,13 @@ export async function POST(req: Request) {
   if (step === 'AWAIT_SENIOR_OPTION') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: `🚗 *Información Permiso de Circulación*\n\nPara renovar su permiso en La Unión necesita:\n1. Permiso de circulación anterior pagado.\n2. Revisión técnica y gases al día.\n3. Seguro Obligatorio (SOAP) vigente al 2027.\n\n📍 *Lugar de pago presencial:* Dirección de Tránsito (Comercio 340).\n🌐 *Pago por internet:* Puede pagar directo en el portal municipal: https://www.munilaunion.cl/pagos\n\n_Escriba *MENU* para volver._`,
+        reply: `🚗 *Información Permiso de Circulación*\n\nPara renovar su permiso en San Pablo necesita:\n1. Permiso de circulación anterior pagado.\n2. Revisión técnica y gases al día.\n3. Seguro Obligatorio (SOAP) vigente al 2027.\n\n📍 *Lugar de pago presencial:* Dirección de Tránsito (Calle Bolivia s/n).\n🌐 *Pago por internet:* Puede pagar directo en el portal municipal: https://www.munisanpablo.cl/pagos\n\n_Escriba *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: "🚜 *Aviso de Caminos o Luminarias (100% Anónimo)*\n\nIndícanos qué problema hay y dónde se ubica exactamente (por ejemplo: _\"Hay un hoyo en Arturo Prat cerca de la municipalidad\"_):\n\n_Escriba *MENU* para volver._",
+        reply: "🚜 *Aviso de Caminos o Luminarias (100% Anónimo)*\n\nIndícanos qué problema hay y dónde se ubica exactamente (por ejemplo: _\"Hay un hoyo en calle Bolivia cerca de la plaza\"_):\n\n_Escriba *MENU* para volver._",
         next_step: 'AWAIT_INCIDENCIA_DESCRIPCION'
       });
     }
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
     }
     if (cleanMsg === '4') {
       const farmacia = KNOWLEDGE_BASE.find(k => k.keywords.includes("FARMACIA"));
-      return NextResponse.json({ reply: farmacia ? farmacia.response : "Farmacia Cruz Verde (Comercio 310) de turno 24 hrs.", next_step: 'INIT' });
+      return NextResponse.json({ reply: farmacia ? farmacia.response : "Farmacia San Pablo (Calle Bolivia 310) de turno.", next_step: 'INIT' });
     }
   }
 
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
 
     if (cleanMsg === '5' || cleanMsg.includes('INFO') || cleanMsg.includes('GUIA')) {
       return NextResponse.json({
-        reply: `ℹ️ *Consultas Normativas e Información Comunal (RAG)*\n\nPuedes hacerme preguntas directas:\n• _"¿Qué farmacia está de turno hoy?"_\n• _"¿Qué eventos hay este fin de semana en Trumao o Puerto Nuevo?"_\n• _"¿Cuál es el teléfono de Obras o Tránsito?"_\n• _"¿Cuáles son los horarios del municipio?"_\n\n_Escribe tu consulta o *MENU* para volver._`,
+        reply: `ℹ️ *Consultas Normativas e Información Comunal (RAG)*\n\nPuedes hacerme preguntas directas:\n• _"¿Qué farmacia está de turno hoy?"_\n• _"¿Qué eventos hay este fin de semana en Quilacahuín o Chifca?"_\n• _"¿Cuál es el teléfono de Obras o Tránsito?"_\n• _"¿Cuáles son los horarios del municipio?"_\n\n_Escribe tu consulta o *MENU* para volver._`,
         next_step: 'AWAIT_RAG_QUERY'
       });
     }
@@ -149,7 +149,7 @@ export async function POST(req: Request) {
   if (step === 'SUB_INCIDENCIAS') {
     if (cleanMsg === '1' || cleanMsg.includes('HOYO') || cleanMsg.includes('CAMINO') || cleanMsg.includes('LUMINARIA')) {
       return NextResponse.json({
-        reply: `🕳️ *Reporte de Hoyo, Camino, Luminaria o Rama (100% Anónimo)*\n\nPor favor, describe en un mensaje **el problema y la ubicación exacta o referencia cercana**.\n\nEjemplo:\n👉 _"Hay un hoyo profundo en Arturo Prat cerca de la municipalidad"_\n👉 _"Camino a Trumao km 10 rama grande sobre tendido"_\n\n_Escribe tu detalle o *MENU* para volver._`,
+        reply: `🕳️ *Reporte de Hoyo, Camino, Luminaria o Rama (100% Anónimo)*\n\nPor favor, describe en un mensaje **el problema y la ubicación exacta o referencia cercana**.\n\nEjemplo:\n👉 _"Hay un hoyo profundo en calle Bolivia cerca de la plaza"_\n👉 _"Camino a Trafún km 10 rama grande sobre tendido"_\n\n_Escribe tu detalle o *MENU* para volver._`,
         next_step: 'AWAIT_INCIDENCIA_DESCRIPCION'
       });
     }
@@ -171,7 +171,6 @@ export async function POST(req: Request) {
   }
 
   if (step === 'AWAIT_INCIDENCIA_FOTO') {
-    // FILTRO ESTRICTO: Si no viene foto, se rechaza y no se genera folio
     if (!hasImage) {
       return NextResponse.json({
         reply: `⚠️ **Falta la Fotografía de Evidencia**\n\nNo hemos recibido la foto del problema. Por protocolo municipal para evitar el gasto innecesario de recursos, **no podemos emitir un folio de inspección sin una imagen que corrobore el hecho**.\n\n📷 Usa el botón de la cámara adjunto al chat para subir la foto.\n_O escribe *MENU* para cancelar el reporte._`,
@@ -197,7 +196,7 @@ export async function POST(req: Request) {
   if (step === 'CHATARRA_UBICACION_SELECT') {
     if (cleanMsg === 'A' || cleanMsg.includes('DOMICILIO') || cleanMsg.includes('CASA')) {
       return NextResponse.json({
-        reply: `🏠 *Retiro de Chatarra en Domicilio*\n\nIndícanos tu **Nombre**, **Dirección / Sector exacto** y una breve descripción de lo que se va a retirar (ej: _"Héctor Manqui, Parcela 14 Puerto Nuevo, 2 baterías de tractor y fierros"_):\n\n_Escribe tus datos o *MENU* para cancelar._`,
+        reply: `🏠 *Retiro de Chatarra en Domicilio*\n\nIndícanos tu **Nombre**, **Dirección / Sector exacto** y una breve descripción de lo que se va a retirar (ej: _"Héctor Manqui, Parcela 14 Chifca, 2 baterías de tractor y fierros"_):\n\n_Escribe tus datos o *MENU* para cancelar._`,
         next_step: 'AWAIT_CHATARRA_DOMICILIO_DESC'
       });
     }
@@ -274,19 +273,19 @@ export async function POST(req: Request) {
   if (step === 'SUB_TRANSITO') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: `🚗 *Guía de Pago: Permiso de Circulación*\n\n📄 *Documentos obligatorios para renovar:*\n1. Permiso de circulación anterior pagado.\n2. Certificado de Revisión Técnica y Gases vigente.\n3. Seguro Obligatorio (SOAP) vigente al 31 de marzo del próximo año.\n4. Padrón del vehículo (si hubo transferencia).\n\n💳 *¿Dónde pagar?*\n• *En línea:* En el portal oficial: https://pagos.munilaunion.cl/transito\n• *Presencial:* Dirección de Tránsito, Comercio 340 (08:30 a 14:00 hrs).\n\n_Escribe *MENU* para volver._`,
+        reply: `🚗 *Guía de Pago: Permiso de Circulación*\n\n📄 *Documentos obligatorios para renovar:*\n1. Permiso de circulación anterior pagado.\n2. Certificado de Revisión Técnica y Gases vigente.\n3. Seguro Obligatorio (SOAP) vigente al 31 de marzo del próximo año.\n4. Padrón del vehículo (si hubo transferencia).\n\n💳 *¿Dónde pagar?*\n• *En línea:* En el portal oficial: https://pagos.munisanpablo.cl/transito\n• *Presencial:* Dirección de Tránsito, Calle Bolivia s/n (08:30 a 14:00 hrs).\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: `🪪 *Licencias de Conducir - Dirección de Tránsito*\n\n• *Atención:* Calle Comercio 340 (08:30 a 13:30 hrs).\n• *Renovaciones:* Cédula de identidad vigente y licencia anterior.\n• *Primera Licencia:* 18 años, certificado de estudios (mínimo 8° básico) y cédula.\n\n📅 *Agendamiento:* Presencial en mesón o al anexo 112 (+56 64 232 2000).\n\n_Escribe *MENU* para volver._`,
+        reply: `🪪 *Licencias de Conducir - Dirección de Tránsito*\n\n• *Atención:* Calle Bolivia s/n (08:30 a 13:30 hrs).\n• *Renovaciones:* Cédula de identidad vigente y licencia anterior.\n• *Primera Licencia:* 18 años, certificado de estudios (mínimo 8° básico) y cédula.\n\n📅 *Agendamiento:* Presencial en mesón o al anexo 112 (+56 64 232 2000).\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '3') {
       return NextResponse.json({
-        reply: `⚖️ *Multas y JPL de La Unión*\n\n• *Juzgado de Policía Local:* Calle Arturo Prat 680.\n• *Atención:* Lunes a Viernes de 08:30 a 13:00 hrs.\n\nℹ️ Consulta el Certificado de Multas No Empadronadas en \`registrocivil.cl\` con la patente del vehículo.\n\n_Escribe *MENU* para volver._`,
+        reply: `⚖️ *Multas y JPL de San Pablo*\n\n• *Juzgado de Policía Local:* Calle Bolivia 450.\n• *Atención:* Lunes a Viernes de 08:30 a 13:00 hrs.\n\nℹ️ Consulta el Certificado de Multas No Empadronadas en \`registrocivil.cl\` con la patente del vehículo.\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
@@ -296,13 +295,13 @@ export async function POST(req: Request) {
   if (step === 'SUB_RENTAS') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: `🏪 *Patentes Comerciales e Industriales*\n\n📅 *Plazos:* Vencen semestralmente en Enero y Julio.\n💳 *Pago en línea:* https://pagos.munilaunion.cl/rentas\n\n_Escribe *MENU* para volver._`,
+        reply: `🏪 *Patentes Comerciales e Industriales*\n\n📅 *Plazos:* Vencen semestralmente en Enero y Julio.\n💳 *Pago en línea:* https://pagos.munisanpablo.cl/rentas\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: `🧺 *Derechos de Feria Libre y Ambulantes*\n\n• *Oficina:* Departamento de Rentas (Comercio 340).\n• *Pago:* Primeros 5 días hábiles de cada mes en Tesorería.\n\n_Escribe *MENU* para volver._`,
+        reply: `🧺 *Derechos de Feria Libre y Ambulantes*\n\n• *Oficina:* Departamento de Rentas (Bolivia s/n).\n• *Pago:* Primeros 5 días hábiles de cada mes en Tesorería.\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
@@ -318,13 +317,13 @@ export async function POST(req: Request) {
   if (step === 'SUB_DIDECO') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: `💧 *Orientación: Subsidio Agua Potable Rural (APR)*\n\nRequisitos para postular en DIDECO (Manuel Montt 530):\n1. Fotocopia cédula de identidad del jefe(a) de hogar.\n2. Cartola Registro Social de Hogares en La Unión (hasta 60%).\n3. Última boleta del comité de APR pagada y al día.\n\n_Escribe *MENU* para volver o *0* para contacto telefónico._`,
+        reply: `💧 *Orientación: Subsidio Agua Potable Rural (APR)*\n\nRequisitos para postular en DIDECO (Calle Crucero s/n):\n1. Fotocopia cédula de identidad del jefe(a) de hogar.\n2. Cartola Registro Social de Hogares en San Pablo (hasta 60%).\n3. Última boleta del comité de APR pagada y al día.\n\n_Escribe *MENU* para volver o *0* para contacto telefónico._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: `📋 *Registro Social de Hogares (RSH)*\n\n• *Presencial:* Manuel Montt 530 (08:30 a 14:00 hrs).\n• *En línea:* https://www.registrosocial.gob.cl (con ClaveÚnica).\n\n_Escribe *MENU* para volver._`,
+        reply: `📋 *Registro Social de Hogares (RSH)*\n\n• *Presencial:* Calle Crucero s/n (08:30 a 14:00 hrs).\n• *En línea:* https://www.registrosocial.gob.cl (con ClaveÚnica).\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
@@ -337,7 +336,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ reply: match.response, next_step: 'AWAIT_RAG_QUERY' });
     }
     return NextResponse.json({
-      reply: `🏛️ *Asistente Comunal de La Unión*\n\nNo se encontró información oficial sobre "${rawMessage}". Recuerda que puedo responder sobre farmacias de turno, eventos comunales, teléfonos o trámites municipales.\n\n_Escribe otra consulta o *MENU* para volver._`,
+      reply: `🏛️ *Asistente Comunal de San Pablo*\n\nNo se encontró información oficial sobre "${rawMessage}". Recuerda que puedo responder sobre farmacias de turno, eventos comunales, teléfonos o trámites municipales.\n\n_Escribe otra consulta o *MENU* para volver._`,
       next_step: 'AWAIT_RAG_QUERY'
     });
   }
