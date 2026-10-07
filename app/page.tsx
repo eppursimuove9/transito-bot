@@ -27,7 +27,7 @@ interface AdminTicket {
   imageUrl?: string;
 }
 
-const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de La Unión* 🇨🇱
+const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de San Pablo* 🇨🇱
 
 Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu trámite:
 
@@ -41,7 +41,7 @@ Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu
 
 _Escribe el número de tu opción (1-6 o 0). Para emergencias escribe *SOS*._`;
 
-export default function LaUnionDemoPage() {
+export default function SanPabloDemoPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -74,14 +74,14 @@ export default function LaUnionDemoPage() {
 
   const syncTicketToAdminDashboard = (ticketData: Partial<AdminTicket>, imageAttached?: string) => {
     try {
-      const stored = localStorage.getItem('launion_tickets');
+      const stored = localStorage.getItem('sanpablo_tickets');
       const currentTickets: AdminTicket[] = stored ? JSON.parse(stored) : [];
 
       const now = new Date();
       const horaStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       const newTicket: AdminTicket = {
-        id: ticketData.id || `#LUN-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        id: ticketData.id || `#SPB-2026-${Math.floor(1000 + Math.random() * 9000)}`,
         citizen: ticketData.citizen || 'Reporte Anónimo',
         rut: ticketData.rut || 'No requerido',
         phone: ticketData.phone || '+56 9 ' + Math.floor(70000000 + Math.random() * 29000000),
@@ -95,7 +95,7 @@ export default function LaUnionDemoPage() {
       };
 
       const updated = [newTicket, ...currentTickets];
-      localStorage.setItem('launion_tickets', JSON.stringify(updated));
+      localStorage.setItem('sanpablo_tickets', JSON.stringify(updated));
     } catch (err) {
       console.error('Error sincronizando ticket con el panel directivo:', err);
     }
@@ -170,10 +170,10 @@ export default function LaUnionDemoPage() {
       <header className="max-w-5xl w-full text-center mb-6">
         <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300 mb-3">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Plataforma de Modernización Territorial • I. Municipalidad de La Unión
+          Plataforma de Modernización Territorial • I. Municipalidad de San Pablo
         </div>
         <h1 className="text-3xl font-bold text-white tracking-tight">
-          Ventanilla Única WhatsApp La Unión
+          Ventanilla Única WhatsApp San Pablo
         </h1>
         <p className="text-sm text-slate-400 mt-1">
           Arquitectura no invasiva: Asistente RAG comunal, reportes viales con foto obligatoria y trazabilidad foliada.
@@ -247,7 +247,7 @@ export default function LaUnionDemoPage() {
               </div>
               
               <div 
-                onClick={() => copyToClipboard("Hay un hoyo profundo en Arturo Prat cerca de la municipalidad")}
+                onClick={() => copyToClipboard("Hay un hoyo profundo en calle Bolivia cerca de la plaza")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
@@ -255,15 +255,15 @@ export default function LaUnionDemoPage() {
                     <span>Paso 1: Detalle y Ubicación</span>
                     <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1 rounded">100% Anónimo</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Arturo Prat cerca municipalidad</p>
+                  <p className="text-[11px] text-slate-400">Calle Bolivia cerca de la plaza</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Hay un hoyo profundo en Arturo Prat cerca de la municipalidad" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Hay un hoyo profundo en calle Bolivia cerca de la plaza" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
 
               <div 
-                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Puerto Nuevo, 3 baterías viejas de tractor")}
+                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Chifca, 3 baterías viejas de tractor")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
@@ -274,7 +274,7 @@ export default function LaUnionDemoPage() {
                   <p className="text-[11px] text-slate-400">Coordinación directa de cuadrilla en predio</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Héctor Manqui, Parcela 14 Puerto Nuevo, 3 baterías viejas de tractor" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Héctor Manqui, Parcela 14 Chifca, 3 baterías viejas de tractor" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
             </div>
@@ -306,7 +306,7 @@ export default function LaUnionDemoPage() {
               🇨🇱
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm leading-tight truncate">Muni La Unión • Canal Vecinal Oficial</h3>
+              <h3 className="font-semibold text-sm leading-tight truncate">Muni San Pablo • Canal Vecinal Oficial</h3>
               <p className="text-[11px] text-emerald-200 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span> Verificado Meta Business
               </p>
