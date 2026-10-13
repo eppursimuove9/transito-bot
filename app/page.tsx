@@ -27,7 +27,7 @@ interface AdminTicket {
   imageUrl?: string;
 }
 
-const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de San Pablo* 🇨🇱
+const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱
 
 Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu trámite:
 
@@ -41,7 +41,7 @@ Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu
 
 _Escribe el número de tu opción (1-6 o 0). Para emergencias escribe *SOS*._`;
 
-export default function SanPabloDemoPage() {
+export default function PurranqueDemoPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -74,14 +74,14 @@ export default function SanPabloDemoPage() {
 
   const syncTicketToAdminDashboard = (ticketData: Partial<AdminTicket>, imageAttached?: string) => {
     try {
-      const stored = localStorage.getItem('sanpablo_tickets');
+      const stored = localStorage.getItem('purranque_tickets');
       const currentTickets: AdminTicket[] = stored ? JSON.parse(stored) : [];
 
       const now = new Date();
       const horaStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       const newTicket: AdminTicket = {
-        id: ticketData.id || `#SPB-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        id: ticketData.id || `#PRQ-2026-${Math.floor(1000 + Math.random() * 9000)}`,
         citizen: ticketData.citizen || 'Reporte Anónimo',
         rut: ticketData.rut || 'No requerido',
         phone: ticketData.phone || '+56 9 ' + Math.floor(70000000 + Math.random() * 29000000),
@@ -95,7 +95,7 @@ export default function SanPabloDemoPage() {
       };
 
       const updated = [newTicket, ...currentTickets];
-      localStorage.setItem('sanpablo_tickets', JSON.stringify(updated));
+      localStorage.setItem('purranque_tickets', JSON.stringify(updated));
     } catch (err) {
       console.error('Error sincronizando ticket con el panel directivo:', err);
     }
@@ -170,10 +170,10 @@ export default function SanPabloDemoPage() {
       <header className="max-w-5xl w-full text-center mb-6">
         <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300 mb-3">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Plataforma de Modernización Territorial • I. Municipalidad de San Pablo
+          Plataforma de Modernización Territorial • I. Municipalidad de Purranque
         </div>
         <h1 className="text-3xl font-bold text-white tracking-tight">
-          Ventanilla Única WhatsApp San Pablo
+          Ventanilla Única WhatsApp Purranque
         </h1>
         <p className="text-sm text-slate-400 mt-1">
           Arquitectura no invasiva: Asistente RAG comunal, reportes viales con foto obligatoria y trazabilidad foliada.
@@ -203,7 +203,7 @@ export default function SanPabloDemoPage() {
             {/* 1. Tránsito Asistencial */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="text-emerald-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <Car className="w-3.5 h-3.5" /> 1. Tránsito & Vehículos (Opción 1)
+1.                 <Car className="w-3.5 h-3.5" />Tránsito & Vehículos (Opción 1)
               </div>
               <div className="space-y-1.5">
                 <div 
@@ -247,7 +247,7 @@ export default function SanPabloDemoPage() {
               </div>
               
               <div 
-                onClick={() => copyToClipboard("Hay un hoyo profundo en calle Bolivia cerca de la plaza")}
+                onClick={() => copyToClipboard("Hay una rama grande caída sobre el camino principal frente al CESFAM de Corte Alto")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
@@ -255,15 +255,15 @@ export default function SanPabloDemoPage() {
                     <span>Paso 1: Detalle y Ubicación</span>
                     <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1 rounded">100% Anónimo</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Calle Bolivia cerca de la plaza</p>
+                  <p className="text-[11px] text-slate-400">Rama caída camino CESFAM Corte Alto</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Hay un hoyo profundo en calle Bolivia cerca de la plaza" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Hay una rama grande caída sobre el camino principal frente al CESFAM de Corte Alto" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
 
               <div 
-                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Chifca, 3 baterías viejas de tractor")}
+                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Hueyusca, 3 baterías viejas de tractor y fierros en patio trasero")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
@@ -271,10 +271,10 @@ export default function SanPabloDemoPage() {
                     <span>Chatarra en Domicilio</span>
                     <span className="text-[10px] bg-blue-950 text-blue-300 px-1 rounded">Nombre + Dirección</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Coordinación directa de cuadrilla en predio</p>
+                  <p className="text-[11px] text-slate-400">Coordinación directa de cuadrilla en predio Hueyusca</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Héctor Manqui, Parcela 14 Chifca, 3 baterías viejas de tractor" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Héctor Manqui, Parcela 14 Hueyusca, 3 baterías viejas de tractor y fierros en patio trasero" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
             </div>
@@ -284,7 +284,8 @@ export default function SanPabloDemoPage() {
               <div className="text-emerald-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-1">
                 <HeartHandshake className="w-3.5 h-3.5" /> 4. DIDECO & Subsidio APR (Opción 4)
               </div>
-              <p>• Explica los requisitos del subsidio de agua rural y los documentos necesarios para evitar que el vecino viaje en vano.</p>
+              <p>Explica los requisitos del subsidio de agua rural y los documentos necesarios para evitar que el vecino viaje en vano.
+</p>
             </div>
 
             {/* Comandos Rápidos */}
@@ -292,9 +293,12 @@ export default function SanPabloDemoPage() {
               <div className="text-cyan-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-1">
                 <Sparkles className="w-3.5 h-3.5" /> Comandos Rápidos
               </div>
-              <p>• Escribe <strong className="text-rose-300 font-mono">SOS</strong> para emergencias inmediatas.</p>
-              <p>• Escribe <strong className="text-amber-300 font-mono">6</strong> para activar el Modo Adulto Mayor.</p>
-              <p>• Escribe <strong className="text-purple-300 font-mono">0</strong> para pedir que te llame un funcionario.</p>
+              <p>Escribe 
+<strong className="text-rose-300 font-mono">SOS</strong> para emergencias inmediatas.</p>
+              <p>Escribe 
+<strong className="text-amber-300 font-mono">6</strong> para activar el Modo Adulto Mayor.</p>
+              <p>Escribe 
+<strong className="text-purple-300 font-mono">0</strong> para pedir que te llame un funcionario.</p>
             </div>
           </div>
         </aside>
@@ -306,7 +310,7 @@ export default function SanPabloDemoPage() {
               🇨🇱
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm leading-tight truncate">Muni San Pablo • Canal Vecinal Oficial</h3>
+              <h3 className="font-semibold text-sm leading-tight truncate">Muni Purranque • Canal Vecinal Oficial</h3>
               <p className="text-[11px] text-emerald-200 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span> Verificado Meta Business
               </p>

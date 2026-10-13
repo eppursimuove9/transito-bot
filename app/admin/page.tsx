@@ -47,64 +47,64 @@ interface CitizenRecord {
 
 const INITIAL_TICKETS: Ticket[] = [
   {
-    id: '#SPB-2026-1082',
+    id: '#PRQ-2026-1082',
     citizen: 'Reporte Anónimo',
     phone: '+56 9 •••• 0041',
-    sector: 'Sector Quilacahuín (km 4)',
+    sector: 'Sector Hueyusca (Cruce)',
     type: 'CAMINO',
-    description: 'Bache profundo en curva km 4 de ripio frente a puente de madera. Riesgo para vehículos y furgones.',
+    description: 'Camino cortado por desborde de canaleta en Ruta V-90. Requiere maquinaria.',
     slaMinutes: 45,
     status: 'EN_RUTA',
-    createdAt: '10/09/2026 09:20',
+    createdAt: '13/10/2026 09:20',
     imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80'
   },
   {
-    id: '#SPB-2026-1081',
+    id: '#PRQ-2026-1081',
     citizen: 'Héctor Manqui',
     rut: '17.894.562-K',
     phone: '+56 9 8451 2290',
-    sector: 'Chifca',
+    sector: 'Corte Alto',
     type: 'CHATARRA',
-    description: 'Solicitud retiro en predio particular: 3 baterías viejas de tractor y fierros acumulados en patio trasero.',
+    description: 'Solicitud retiro en predio particular: 3 baterías viejas de tractor y chatarra agrícola.',
     slaMinutes: 14,
     status: 'PENDIENTE',
-    createdAt: '10/09/2026 10:15',
+    createdAt: '13/10/2026 10:15',
     imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&auto=format&fit=crop&q=80'
   },
   {
-    id: '#SPB-2026-1080',
+    id: '#PRQ-2026-1080',
     citizen: 'Carlos Vera',
     rut: '14.220.891-3',
     phone: '+56 9 9341 8812',
-    sector: 'San Pablo Centro (Bolivia)',
+    sector: 'Purranque Centro (Pedro Montt)',
     type: 'PERMISO',
     description: 'Orientación de Permiso de Circulación provista: Requisitos de renovación y enlace oficial a pasarela Webpay comunal.',
     slaMinutes: 0,
     status: 'ATENDIDO',
-    createdAt: '10/09/2026 11:30'
+    createdAt: '13/10/2026 11:30'
   },
   {
-    id: '#SPB-2026-1079',
+    id: '#PRQ-2026-1079',
     citizen: 'Rosa Cárdenas',
     rut: '11.890.345-2',
     phone: '+56 9 8110 5543',
-    sector: 'Cuinco',
+    sector: 'Crucero',
     type: 'DIDECO',
     description: 'Orientación Subsidio APR entregada: Documentación para presentar cartola RSH al 40% y última boleta pagada.',
     slaMinutes: 0,
     status: 'ATENDIDO',
-    createdAt: '10/09/2026 12:10'
+    createdAt: '13/10/2026 12:10'
   },
   {
-    id: '#SPB-2026-1078',
+    id: '#PRQ-2026-1078',
     citizen: 'Reporte Anónimo',
     phone: '+56 9 •••• 1120',
-    sector: 'Trafún',
+    sector: 'Concordia',
     type: 'CAMINO',
-    description: 'Rama grande de eucalipto caída sobre calzada rural tras fuertes vientos.',
+    description: 'Foco apagado en paradero principal ruta a Osorno.',
     slaMinutes: 95,
     status: 'PENDIENTE',
-    createdAt: '10/09/2026 12:45',
+    createdAt: '13/10/2026 12:45',
     imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80'
   }
 ];
@@ -117,25 +117,25 @@ const INITIAL_DOCS: IngestedDoc[] = [
     uploadedBy: 'Patricio Miranda (Jefe Rentas)',
     tokens: 3420,
     status: 'INDEXADO',
-    date: '10/09/2026 09:15'
+    date: '10/10/2026 09:15'
   },
   {
     id: 'DOC-02',
-    title: 'Bases Técnicas y Criterios de Postulación al Subsidio Rural de Agua Potable (APR) Comuna de San Pablo.pdf',
+    title: 'Bases Técnicas y Criterios de Postulación al Subsidio Rural de Agua Potable (APR) Comuna de Purranque.pdf',
     department: 'DIDECO (Social)',
     uploadedBy: 'Marcela Henríquez (DIDECO)',
     tokens: 8150,
     status: 'INDEXADO',
-    date: '09/09/2026 16:40'
+    date: '09/10/2026 16:40'
   },
   {
     id: 'DOC-03',
-    title: 'Ordenanza Local sobre Circulación de Transporte Pesado y Resguardo de Caminos Rurales y Carpetas de Ripio.pdf',
-    department: 'Dirección de Tránsito',
-    uploadedBy: 'Gonzalo Vera (Dir. Tránsito)',
+    title: 'Proyecto SECPLAN: Reposición Plaza Carrasco y Avances Skatepark 2026.pdf',
+    department: 'SECPLAN',
+    uploadedBy: 'Dirección SECPLAN',
     tokens: 5200,
     status: 'INDEXADO',
-    date: '04/09/2026 11:20'
+    date: '04/10/2026 11:20'
   }
 ];
 
@@ -143,10 +143,10 @@ const INITIAL_CITIZENS: Record<string, CitizenRecord> = {
   '15.432.987-4': {
     rut: '15.432.987-4',
     nombre: 'Gladys Monsalve',
-    sector: 'Sector Quilacahuín (Rural)',
+    sector: 'Sector Corte Alto (Urbano)',
     telefono: '+56 9 7612 0041',
     historial: [
-      { fecha: '10/09/2026 09:20', canal: 'WhatsApp', detalle: 'Reporte fotográfico bache vial (#SPB-2026-1082)', funcionario: 'Bot Municipal' },
+      { fecha: '13/10/2026 09:20', canal: 'WhatsApp', detalle: 'Reporte fotográfico bache vial (#PRQ-2026-1082)', funcionario: 'Bot Municipal' },
       { fecha: '14/08/2026 11:15', canal: 'Mesón DIDECO', detalle: 'Actualización tramo Registro Social de Hogares', funcionario: 'M. Soto (Social)' },
       { fecha: '28/03/2026 15:40', canal: 'WhatsApp', detalle: 'Consulta de requisitos y fechas de Permiso de Circulación', funcionario: 'Bot Municipal' }
     ]
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
 
   // Documentos en Cola RAG
   const [docs, setDocs] = useState<IngestedDoc[]>(INITIAL_DOCS);
-  const [selectedDept, setSelectedDept] = useState('Dirección de Tránsito');
+  const [selectedDept, setSelectedDept] = useState('SECPLAN');
   const [docName, setDocName] = useState('');
   const [uploaderName, setUploaderName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -178,25 +178,25 @@ export default function AdminDashboard() {
   const [newRut, setNewRut] = useState('');
   const [newNombre, setNewNombre] = useState('');
   const [newTelefono, setNewTelefono] = useState('');
-  const [newSector, setNewSector] = useState('Chifca');
+  const [newSector, setNewSector] = useState('Corte Alto');
   const [newDept, setNewDept] = useState('DIDECO (Social)');
   const [newDetalle, setNewDetalle] = useState('');
   const [recordSaved, setRecordSaved] = useState(false);
 
   // Upgrade: Difusión Masiva y Consultas Ciudadanas
   const [broadcastMode, setBroadcastMode] = useState<'ALERTA' | 'ENCUESTA'>('ALERTA');
-  const [broadcastSector, setBroadcastSector] = useState('Sector Chifca (APR y Ribera)');
+  const [broadcastSector, setBroadcastSector] = useState('Sector Corte Alto (APR y Ribera)');
   
   const [broadcastMessage, setBroadcastMessage] = useState(
-    'AVISO OFICIAL: Se informa a la comunidad del sector Chifca que hoy entre 14:00 y 18:00 hrs se ejecutarán faenas de mantención en el sistema de Agua Potable Rural (APR). Se recomienda acopio preventivo de agua.'
+    'AVISO OFICIAL: Se informa a la comunidad del sector Corte Alto que hoy entre 14:00 y 18:00 hrs se ejecutarán faenas de mantención en el sistema de Agua Potable Rural (APR). Se recomienda acopio preventivo de agua.'
   );
 
   const [surveyType, setSurveyType] = useState<'SI_NO' | 'MULTIPLE' | 'ESCALA' | 'ABIERTA'>('MULTIPLE');
-  const [surveyQuestion, setSurveyQuestion] = useState('¿Qué obra prioriza para el presupuesto participativo del sector?');
+  const [surveyQuestion, setSurveyQuestion] = useState('Validación de Presupuestos Participativos: ¿Qué obra prioriza para el sector?');
   const [surveyOptions, setSurveyOptions] = useState<string[]>([
-    'Ripio y bacheo de ruta principal',
-    'Ampliación de luminarias solares',
-    'Contenedores para reciclaje y chatarra'
+    'Mejoras en CESFAM local',
+    'Ampliación de Plaza Carrasco',
+    'Avances en nuevo Skatepark'
   ]);
   const [newOptionText, setNewOptionText] = useState('');
 
@@ -205,14 +205,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const syncTicketsFromStorage = () => {
-      const stored = localStorage.getItem('sanpablo_tickets');
+      const stored = localStorage.getItem('purranque_tickets');
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
             const normalizados = parsed.map((t: any) => ({
               ...t,
-              id: t.id.startsWith('#SPB-2026-') ? t.id : `#SPB-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+              id: t.id.startsWith('#PRQ-2026-') ? t.id : `#PRQ-2026-${Math.floor(1000 + Math.random() * 9000)}`,
               imageUrl: t.imageUrl || (t.type === 'CAMINO' ? 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80' : undefined)
             }));
             setTickets(normalizados);
@@ -221,14 +221,14 @@ export default function AdminDashboard() {
           console.error('Error sincronizando tickets:', err);
         }
       } else {
-        localStorage.setItem('sanpablo_tickets', JSON.stringify(INITIAL_TICKETS));
+        localStorage.setItem('purranque_tickets', JSON.stringify(INITIAL_TICKETS));
       }
     };
 
     syncTicketsFromStorage();
 
     const handleStorageEvent = (event: StorageEvent) => {
-      if (event.key === 'sanpablo_tickets' && event.newValue) {
+      if (event.key === 'purranque_tickets' && event.newValue) {
         try {
           const parsed = JSON.parse(event.newValue);
           setTickets(parsed);
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
   const handleStatusChange = (id: string, newStatus: 'PENDIENTE' | 'ATENDIDO' | 'EN_RUTA') => {
     setTickets(prev => {
       const updated = prev.map(t => (t.id === id ? { ...t, status: newStatus } : t));
-      localStorage.setItem('sanpablo_tickets', JSON.stringify(updated));
+      localStorage.setItem('purranque_tickets', JSON.stringify(updated));
       return updated;
     });
     if (selectedTicket && selectedTicket.id === id) {
@@ -374,11 +374,11 @@ export default function AdminDashboard() {
   ];
 
   const sectorDistribution = [
-    { sector: 'Sector Quilacahuín (Costa / Río Bueno)', porcentaje: 32, total: 38, color: 'bg-emerald-500' },
-    { sector: 'Sector Chifca (Agrícola)', porcentaje: 26, total: 31, color: 'bg-blue-500' },
-    { sector: 'Sector Trafún (Troncal Rural)', porcentaje: 18, total: 22, color: 'bg-amber-500' },
-    { sector: 'Sector Cuinco (Misión)', porcentaje: 14, total: 17, color: 'bg-purple-500' },
-    { sector: 'Radio Urbano (San Pablo Centro)', porcentaje: 10, total: 12, color: 'bg-cyan-500' }
+    { sector: 'Sector Corte Alto', porcentaje: 32, total: 38, color: 'bg-emerald-500' },
+    { sector: 'Sector Hueyusca (Forestal)', porcentaje: 26, total: 31, color: 'bg-blue-500' },
+    { sector: 'Sector Crucero', porcentaje: 18, total: 22, color: 'bg-amber-500' },
+    { sector: 'Sector Concordia', porcentaje: 14, total: 17, color: 'bg-purple-500' },
+    { sector: 'Radio Urbano (Purranque Centro)', porcentaje: 10, total: 12, color: 'bg-cyan-500' }
   ];
 
   return (
@@ -391,7 +391,7 @@ export default function AdminDashboard() {
             <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold">Ventanilla Única WhatsApp</span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white mt-1">
-            Centro de Mando & Gestión Territorial • San Pablo
+            Centro de Mando & Gestión Territorial • Purranque
           </h1>
         </div>
         <div className="flex items-center gap-3">
@@ -512,7 +512,7 @@ export default function AdminDashboard() {
                 </span>
               </div>
               <p className="text-xs text-slate-400 mb-4">
-                Porcentaje de incidencias viales y solicitudes canalizadas sin obligar al vecino a viajar a San Pablo Centro.
+                Porcentaje de incidencias viales y solicitudes canalizadas sin obligar al vecino a viajar a Purranque Centro.
               </p>
             </div>
 
@@ -799,6 +799,7 @@ export default function AdminDashboard() {
                   <option>DIDECO (Desarrollo Comunitario)</option>
                   <option>Rentas y Patentes Comerciales</option>
                   <option>Dirección de Operaciones y Medio Ambiente</option>
+                  <option>SECPLAN</option>
                   <option>Secretaría Municipal / Alcaldía</option>
                 </select>
               </div>
@@ -825,7 +826,7 @@ export default function AdminDashboard() {
               </label>
               <textarea
                 rows={3}
-                placeholder="Ej: Decreto Alcaldicio Exento N° 1.482 que aprueba el reglamento sobre extracción, disposición y cobro de derechos por retiro de escombros y chatarra en sectores rurales y urbanos de la comuna de San Pablo..."
+                placeholder="Ej: Decreto Alcaldicio Exento N° 1.482 que aprueba el reglamento sobre extracción, disposición y cobro de derechos por retiro de escombros y chatarra en sectores rurales y urbanos de la comuna de Purranque..."
                 value={docName}
                 onChange={e => setDocName(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed font-sans"
@@ -972,11 +973,11 @@ export default function AdminDashboard() {
                         onChange={e => setNewSector(e.target.value)}
                         className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
                       >
-                        <option>Chifca</option>
-                        <option>Quilacahuín</option>
-                        <option>Trafún</option>
-                        <option>Cuinco</option>
-                        <option>San Pablo Centro</option>
+                        <option>Corte Alto</option>
+                        <option>Hueyusca</option>
+                        <option>Crucero</option>
+                        <option>Concordia</option>
+                        <option>Purranque Centro</option>
                       </select>
                     </div>
                   </div>
@@ -1103,7 +1104,7 @@ export default function AdminDashboard() {
               </span>
             </div>
             <p className="text-xs text-slate-400 mb-6">
-              Plataforma oficial para despachar comunicados de emergencia georreferenciados o generar consultas ciudadanas interactivas (opción múltiple, escala de satisfacción, sí/no o preguntas abiertas) directo a WhatsApp.
+              Plataforma oficial para despachar comunicados de emergencia georreferenciados o generar consultas ciudadanas interactivas (opción múltiple, escala de satisfacción, sí/no o preguntas abiertas) directo a WhatsApp. Validación mediante Clave Única para Presupuestos Participativos disponible.
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1143,11 +1144,11 @@ export default function AdminDashboard() {
                     onChange={e => setBroadcastSector(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
                   >
-                    <option>Sector Chifca (APR y Ribera)</option>
-                    <option>Sector Quilacahuín (Caminos Rurales)</option>
-                    <option>Sector Trafún (Zona Agrícola)</option>
-                    <option>Sector Cuinco (Misión)</option>
-                    <option>Radio Urbano Completo (San Pablo Centro)</option>
+                    <option>Sector Corte Alto (APR y Ribera)</option>
+                    <option>Sector Hueyusca (Caminos Rurales)</option>
+                    <option>Sector Crucero (Zona Agrícola)</option>
+                    <option>Sector Concordia</option>
+                    <option>Radio Urbano Completo (Purranque Centro)</option>
                     <option>Toda la Comuna (Cadena Municipal General)</option>
                   </select>
                 </div>
@@ -1288,7 +1289,7 @@ export default function AdminDashboard() {
                 <div className="bg-[#0b141a] border-4 border-slate-800 rounded-3xl p-3.5 shadow-2xl flex flex-col space-y-2">
                   <div className="bg-[#075E54] text-white p-2 rounded-t-xl text-[11px] font-semibold flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span>Muni San Pablo • Canal Oficial</span>
+                    <span>Muni Purranque • Canal Oficial</span>
                   </div>
 
                   <div className="bg-[#202c33] text-slate-100 p-3 rounded-2xl rounded-tl-none text-xs space-y-2 border border-slate-700/40">
