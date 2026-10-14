@@ -47,64 +47,64 @@ interface CitizenRecord {
 
 const INITIAL_TICKETS: Ticket[] = [
   {
-    id: '#PRQ-2026-1082',
+    id: '#MRM-2026-1082',
     citizen: 'Reporte Anónimo',
     phone: '+56 9 •••• 0041',
-    sector: 'Sector Hueyusca (Cruce)',
+    sector: 'Sector Estaquilla (Caleta)',
     type: 'CAMINO',
-    description: 'Camino cortado por desborde de canaleta en Ruta V-90. Requiere maquinaria.',
+    description: 'Camino cortado por desborde en ruta costera V-90. Requiere maquinaria urgente.',
     slaMinutes: 45,
     status: 'EN_RUTA',
-    createdAt: '13/10/2026 09:20',
+    createdAt: '14/10/2026 09:20',
     imageUrl: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80'
   },
   {
-    id: '#PRQ-2026-1081',
+    id: '#MRM-2026-1081',
     citizen: 'Héctor Manqui',
     rut: '17.894.562-K',
     phone: '+56 9 8451 2290',
-    sector: 'Corte Alto',
+    sector: 'Cañitas',
     type: 'CHATARRA',
-    description: 'Solicitud retiro en predio particular: 3 baterías viejas de tractor y chatarra agrícola.',
+    description: 'Solicitud retiro en predio particular: 3 baterías viejas, mallas y chatarra agrícola.',
     slaMinutes: 14,
     status: 'PENDIENTE',
-    createdAt: '13/10/2026 10:15',
+    createdAt: '14/10/2026 10:15',
     imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&auto=format&fit=crop&q=80'
   },
   {
-    id: '#PRQ-2026-1080',
+    id: '#MRM-2026-1080',
     citizen: 'Carlos Vera',
     rut: '14.220.891-3',
     phone: '+56 9 9341 8812',
-    sector: 'Purranque Centro (Pedro Montt)',
+    sector: 'Los Muermos Centro (Antonio Varas)',
     type: 'PERMISO',
     description: 'Orientación de Permiso de Circulación provista: Requisitos de renovación y enlace oficial a pasarela Webpay comunal.',
     slaMinutes: 0,
     status: 'ATENDIDO',
-    createdAt: '13/10/2026 11:30'
+    createdAt: '14/10/2026 11:30'
   },
   {
-    id: '#PRQ-2026-1079',
+    id: '#MRM-2026-1079',
     citizen: 'Rosa Cárdenas',
     rut: '11.890.345-2',
     phone: '+56 9 8110 5543',
-    sector: 'Crucero',
+    sector: 'Río Frío',
     type: 'DIDECO',
     description: 'Orientación Subsidio APR entregada: Documentación para presentar cartola RSH al 40% y última boleta pagada.',
     slaMinutes: 0,
     status: 'ATENDIDO',
-    createdAt: '13/10/2026 12:10'
+    createdAt: '14/10/2026 12:10'
   },
   {
-    id: '#PRQ-2026-1078',
+    id: '#MRM-2026-1078',
     citizen: 'Reporte Anónimo',
     phone: '+56 9 •••• 1120',
-    sector: 'Concordia',
+    sector: 'Hua Huar',
     type: 'CAMINO',
-    description: 'Foco apagado en paradero principal ruta a Osorno.',
+    description: 'Foco apagado en paradero principal cruce rural.',
     slaMinutes: 95,
     status: 'PENDIENTE',
-    createdAt: '13/10/2026 12:45',
+    createdAt: '14/10/2026 12:45',
     imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80'
   }
 ];
@@ -121,7 +121,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
   },
   {
     id: 'DOC-02',
-    title: 'Bases Técnicas y Criterios de Postulación al Subsidio Rural de Agua Potable (APR) Comuna de Purranque.pdf',
+    title: 'Bases Técnicas y Criterios de Postulación al Subsidio Rural de Agua Potable (APR) Comuna de Los Muermos.pdf',
     department: 'DIDECO (Social)',
     uploadedBy: 'Marcela Henríquez (DIDECO)',
     tokens: 8150,
@@ -130,7 +130,7 @@ const INITIAL_DOCS: IngestedDoc[] = [
   },
   {
     id: 'DOC-03',
-    title: 'Proyecto SECPLAN: Reposición Plaza Carrasco y Avances Skatepark 2026.pdf',
+    title: 'Proyecto SECPLAN: Mejoramiento Borde Costero Estaquilla y Áreas Verdes 2026.pdf',
     department: 'SECPLAN',
     uploadedBy: 'Dirección SECPLAN',
     tokens: 5200,
@@ -143,10 +143,10 @@ const INITIAL_CITIZENS: Record<string, CitizenRecord> = {
   '15.432.987-4': {
     rut: '15.432.987-4',
     nombre: 'Gladys Monsalve',
-    sector: 'Sector Corte Alto (Urbano)',
+    sector: 'Sector Estaquilla (Costa)',
     telefono: '+56 9 7612 0041',
     historial: [
-      { fecha: '13/10/2026 09:20', canal: 'WhatsApp', detalle: 'Reporte fotográfico bache vial (#PRQ-2026-1082)', funcionario: 'Bot Municipal' },
+      { fecha: '14/10/2026 09:20', canal: 'WhatsApp', detalle: 'Reporte fotográfico bache vial (#MRM-2026-1082)', funcionario: 'Bot Municipal' },
       { fecha: '14/08/2026 11:15', canal: 'Mesón DIDECO', detalle: 'Actualización tramo Registro Social de Hogares', funcionario: 'M. Soto (Social)' },
       { fecha: '28/03/2026 15:40', canal: 'WhatsApp', detalle: 'Consulta de requisitos y fechas de Permiso de Circulación', funcionario: 'Bot Municipal' }
     ]
@@ -157,10 +157,8 @@ export default function AdminDashboard() {
   const [tickets, setTickets] = useState<Ticket[]>(INITIAL_TICKETS);
   const [filter, setFilter] = useState<'ALL' | 'CALLBACK' | 'CAMINO' | 'CHATARRA' | 'PERMISO' | 'DIDECO'>('ALL');
   
-  // Modal de Detalle
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
-  // Documentos en Cola RAG
   const [docs, setDocs] = useState<IngestedDoc[]>(INITIAL_DOCS);
   const [selectedDept, setSelectedDept] = useState('SECPLAN');
   const [docName, setDocName] = useState('');
@@ -168,35 +166,32 @@ export default function AdminDashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
-  // Upgrade: CRM Ficha Vecinal
   const [citizensDb, setCitizensDb] = useState<Record<string, CitizenRecord>>(INITIAL_CITIZENS);
   const [searchQuery, setSearchQuery] = useState('');
   const [citizenFound, setCitizenFound] = useState<CitizenRecord | null>(null);
   const [searchError, setSearchError] = useState(false);
 
-  // Formulario nueva atención presencial
   const [newRut, setNewRut] = useState('');
   const [newNombre, setNewNombre] = useState('');
   const [newTelefono, setNewTelefono] = useState('');
-  const [newSector, setNewSector] = useState('Corte Alto');
+  const [newSector, setNewSector] = useState('Estaquilla');
   const [newDept, setNewDept] = useState('DIDECO (Social)');
   const [newDetalle, setNewDetalle] = useState('');
   const [recordSaved, setRecordSaved] = useState(false);
 
-  // Upgrade: Difusión Masiva y Consultas Ciudadanas
   const [broadcastMode, setBroadcastMode] = useState<'ALERTA' | 'ENCUESTA'>('ALERTA');
-  const [broadcastSector, setBroadcastSector] = useState('Sector Corte Alto (APR y Ribera)');
+  const [broadcastSector, setBroadcastSector] = useState('Sector Estaquilla (Borde Costero)');
   
   const [broadcastMessage, setBroadcastMessage] = useState(
-    'AVISO OFICIAL: Se informa a la comunidad del sector Corte Alto que hoy entre 14:00 y 18:00 hrs se ejecutarán faenas de mantención en el sistema de Agua Potable Rural (APR). Se recomienda acopio preventivo de agua.'
+    'AVISO OFICIAL: Se informa a la comunidad del sector Estaquilla que por fuertes marejadas se suspende temporalmente el tránsito de vehículos ligeros por la ruta costera. Precaución.'
   );
 
   const [surveyType, setSurveyType] = useState<'SI_NO' | 'MULTIPLE' | 'ESCALA' | 'ABIERTA'>('MULTIPLE');
-  const [surveyQuestion, setSurveyQuestion] = useState('Validación de Presupuestos Participativos: ¿Qué obra prioriza para el sector?');
+  const [surveyQuestion, setSurveyQuestion] = useState('Validación de Presupuestos Participativos: ¿Qué obra prioriza para el sector costero?');
   const [surveyOptions, setSurveyOptions] = useState<string[]>([
-    'Mejoras en CESFAM local',
-    'Ampliación de Plaza Carrasco',
-    'Avances en nuevo Skatepark'
+    'Mejoras en luminarias caleta',
+    'Ampliación de ruta acceso',
+    'Contenedores para mallas pesqueras'
   ]);
   const [newOptionText, setNewOptionText] = useState('');
 
@@ -205,14 +200,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const syncTicketsFromStorage = () => {
-      const stored = localStorage.getItem('purranque_tickets');
+      const stored = localStorage.getItem('losmuermos_tickets');
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
             const normalizados = parsed.map((t: any) => ({
               ...t,
-              id: t.id.startsWith('#PRQ-2026-') ? t.id : `#PRQ-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+              id: t.id.startsWith('#MRM-2026-') ? t.id : `#MRM-2026-${Math.floor(1000 + Math.random() * 9000)}`,
               imageUrl: t.imageUrl || (t.type === 'CAMINO' ? 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800&auto=format&fit=crop&q=80' : undefined)
             }));
             setTickets(normalizados);
@@ -221,14 +216,14 @@ export default function AdminDashboard() {
           console.error('Error sincronizando tickets:', err);
         }
       } else {
-        localStorage.setItem('purranque_tickets', JSON.stringify(INITIAL_TICKETS));
+        localStorage.setItem('losmuermos_tickets', JSON.stringify(INITIAL_TICKETS));
       }
     };
 
     syncTicketsFromStorage();
 
     const handleStorageEvent = (event: StorageEvent) => {
-      if (event.key === 'purranque_tickets' && event.newValue) {
+      if (event.key === 'losmuermos_tickets' && event.newValue) {
         try {
           const parsed = JSON.parse(event.newValue);
           setTickets(parsed);
@@ -245,7 +240,7 @@ export default function AdminDashboard() {
   const handleStatusChange = (id: string, newStatus: 'PENDIENTE' | 'ATENDIDO' | 'EN_RUTA') => {
     setTickets(prev => {
       const updated = prev.map(t => (t.id === id ? { ...t, status: newStatus } : t));
-      localStorage.setItem('purranque_tickets', JSON.stringify(updated));
+      localStorage.setItem('losmuermos_tickets', JSON.stringify(updated));
       return updated;
     });
     if (selectedTicket && selectedTicket.id === id) {
@@ -364,7 +359,6 @@ export default function AdminDashboard() {
 
   const filteredTickets = filter === 'ALL' ? tickets : tickets.filter(t => t.type === filter);
 
-  // Datos para los nuevos Dashboards y Línea de Tiempo
   const timelineData = [
     { dia: 'Lun', recibidos: 18, atendidos: 16, pct: 88 },
     { dia: 'Mar', recibidos: 24, atendidos: 23, pct: 95 },
@@ -374,16 +368,15 @@ export default function AdminDashboard() {
   ];
 
   const sectorDistribution = [
-    { sector: 'Sector Corte Alto', porcentaje: 32, total: 38, color: 'bg-emerald-500' },
-    { sector: 'Sector Hueyusca (Forestal)', porcentaje: 26, total: 31, color: 'bg-blue-500' },
-    { sector: 'Sector Crucero', porcentaje: 18, total: 22, color: 'bg-amber-500' },
-    { sector: 'Sector Concordia', porcentaje: 14, total: 17, color: 'bg-purple-500' },
-    { sector: 'Radio Urbano (Purranque Centro)', porcentaje: 10, total: 12, color: 'bg-cyan-500' }
+    { sector: 'Sector Estaquilla (Costa)', porcentaje: 32, total: 38, color: 'bg-emerald-500' },
+    { sector: 'Sector Cañitas (Agrícola)', porcentaje: 26, total: 31, color: 'bg-blue-500' },
+    { sector: 'Sector Río Frío', porcentaje: 18, total: 22, color: 'bg-amber-500' },
+    { sector: 'Sector Hua Huar', porcentaje: 14, total: 17, color: 'bg-purple-500' },
+    { sector: 'Radio Urbano (Los Muermos Centro)', porcentaje: 10, total: 12, color: 'bg-cyan-500' }
   ];
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 font-sans">
-      {/* Header */}
       <header className="border-b border-slate-800 bg-slate-950/90 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sticky top-0 z-40 backdrop-blur">
         <div>
           <div className="flex items-center gap-2">
@@ -391,7 +384,7 @@ export default function AdminDashboard() {
             <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold">Ventanilla Única WhatsApp</span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white mt-1">
-            Centro de Mando & Gestión Territorial • Purranque
+            Centro de Mando & Gestión Territorial • Los Muermos
           </h1>
         </div>
         <div className="flex items-center gap-3">
@@ -406,7 +399,6 @@ export default function AdminDashboard() {
 
       <main className="p-6 max-w-7xl mx-auto space-y-8">
         
-        {/* BANNER PEDAGÓGICO: ¿QUÉ ES EL SLA MUNICIPAL? */}
         <div className="bg-slate-800/40 border border-emerald-500/30 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
@@ -424,7 +416,6 @@ export default function AdminDashboard() {
           </span>
         </div>
 
-        {/* KPI CARDS (HONESTOS Y MEDIBLES) */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 shadow-sm">
             <div className="flex justify-between items-start">
@@ -463,9 +454,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* NUEVA SECCIÓN: DASHBOARDS EN LA LÍNEA DE TIEMPO Y DISTRIBUCIÓN TERRITORIAL */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Línea de Tiempo: Evolución de Cumplimiento Semanal */}
           <div className="lg:col-span-6 bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-center mb-1">
@@ -499,7 +488,6 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Distribución Territorial de Requerimientos (Justicia Rural) */}
           <div className="lg:col-span-6 bg-slate-800/50 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-center mb-1">
@@ -512,7 +500,7 @@ export default function AdminDashboard() {
                 </span>
               </div>
               <p className="text-xs text-slate-400 mb-4">
-                Porcentaje de incidencias viales y solicitudes canalizadas sin obligar al vecino a viajar a Purranque Centro.
+                Porcentaje de incidencias viales y solicitudes canalizadas sin obligar al vecino a viajar a Los Muermos Centro.
               </p>
             </div>
 
@@ -535,7 +523,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* BANDEJA DE TICKETS CON FECHA, MODAL Y SELECTOR DE ESTADO */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
           <div className="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
@@ -617,7 +604,6 @@ export default function AdminDashboard() {
                       <span className="text-slate-400">{ticket.description}</span>
                     </td>
                     
-                    {/* Botón Foto */}
                     <td className="p-3 text-center" onClick={(e) => { e.stopPropagation(); setSelectedTicket(ticket); }}>
                       {ticket.imageUrl ? (
                         <button
@@ -652,7 +638,6 @@ export default function AdminDashboard() {
                       )}
                     </td>
 
-                    {/* Selector de Estado en Vivo */}
                     <td className="p-3" onClick={(e) => e.stopPropagation()}>
                       <select
                         value={ticket.status}
@@ -677,7 +662,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* MODAL COMPLETO DE EXPEDIENTE / FOTO */}
         {selectedTicket && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl animate-fadeIn">
@@ -765,7 +749,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* COLA DE CURADURÍA DOCUMENTAL ASISTIDA (CON ÁREA DE TEXTO AMPLIADA) */}
         <div className="bg-slate-800/70 border border-blue-500/30 rounded-xl p-6 shadow-xl">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 border-b border-slate-700/80 pb-4">
             <div>
@@ -819,14 +802,13 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* CAMPO DE TEXTO AMPLIADO PARA TÍTULOS LARGOS DE DECRETOS */}
             <div>
               <label className="block text-xs uppercase font-bold text-slate-300 mb-1.5">
                 Título Completo del Decreto, Ordenanza o Documento Público
               </label>
               <textarea
                 rows={3}
-                placeholder="Ej: Decreto Alcaldicio Exento N° 1.482 que aprueba el reglamento sobre extracción, disposición y cobro de derechos por retiro de escombros y chatarra en sectores rurales y urbanos de la comuna de Purranque..."
+                placeholder="Ej: Decreto Alcaldicio Exento N° 1.482 que aprueba el reglamento sobre extracción, disposición y cobro de derechos por retiro de escombros y chatarra en sectores rurales y urbanos de la comuna de Los Muermos..."
                 value={docName}
                 onChange={e => setDocName(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed font-sans"
@@ -894,7 +876,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* CATÁLOGO DE UPGRADES DISPONIBLES */}
         <div className="border-t border-slate-800 pt-6 space-y-8">
           <div className="flex items-center justify-between">
             <div>
@@ -908,7 +889,6 @@ export default function AdminDashboard() {
             </span>
           </div>
 
-          {/* UPGRADE 1: CRM COMUNAL FICHA VECINAL 360° */}
           <div className="bg-slate-800/40 border border-indigo-500/30 rounded-xl p-6 relative overflow-hidden">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
@@ -924,7 +904,6 @@ export default function AdminDashboard() {
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Formulario Nueva Atención */}
               <div className="lg:col-span-6 bg-slate-900/80 border border-slate-700/80 rounded-xl p-5">
                 <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase mb-4 border-b border-slate-800 pb-2">
                   <UserPlus className="w-4 h-4" /> Registrar Nueva Atención en Mesón
@@ -973,11 +952,11 @@ export default function AdminDashboard() {
                         onChange={e => setNewSector(e.target.value)}
                         className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-indigo-500"
                       >
-                        <option>Corte Alto</option>
-                        <option>Hueyusca</option>
-                        <option>Crucero</option>
-                        <option>Concordia</option>
-                        <option>Purranque Centro</option>
+                        <option>Estaquilla</option>
+                        <option>Cañitas</option>
+                        <option>Río Frío</option>
+                        <option>Hua Huar</option>
+                        <option>Los Muermos Centro</option>
                       </select>
                     </div>
                   </div>
@@ -1024,7 +1003,6 @@ export default function AdminDashboard() {
                 </form>
               </div>
 
-              {/* Buscador de Expedientes */}
               <div className="lg:col-span-6 bg-slate-900/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase mb-4 border-b border-slate-800 pb-2">
@@ -1092,7 +1070,6 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* UPGRADE 2: DIFUSIÓN MASIVA Y CONSTRUCTOR DE CONSULTAS CIUDADANAS */}
           <div className="bg-slate-800/40 border border-amber-500/30 rounded-xl p-6 relative overflow-hidden">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
@@ -1108,7 +1085,6 @@ export default function AdminDashboard() {
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Configuración del Envío */}
               <div className="lg:col-span-8 bg-slate-900/80 border border-slate-700/80 rounded-xl p-5 space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <button
@@ -1144,11 +1120,11 @@ export default function AdminDashboard() {
                     onChange={e => setBroadcastSector(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
                   >
-                    <option>Sector Corte Alto (APR y Ribera)</option>
-                    <option>Sector Hueyusca (Caminos Rurales)</option>
-                    <option>Sector Crucero (Zona Agrícola)</option>
-                    <option>Sector Concordia</option>
-                    <option>Radio Urbano Completo (Purranque Centro)</option>
+                    <option>Sector Estaquilla (APR y Ribera)</option>
+                    <option>Sector Cañitas (Caminos Rurales)</option>
+                    <option>Sector Río Frío (Zona Agrícola)</option>
+                    <option>Sector Hua Huar</option>
+                    <option>Radio Urbano Completo (Los Muermos Centro)</option>
                     <option>Toda la Comuna (Cadena Municipal General)</option>
                   </select>
                 </div>
@@ -1280,7 +1256,6 @@ export default function AdminDashboard() {
                 )}
               </div>
 
-              {/* Vista Previa WhatsApp */}
               <div className="lg:col-span-4 flex flex-col justify-start space-y-3">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase">
                   <Smartphone className="w-4 h-4 text-amber-400" /> Vista Previa en Celular del Vecino
@@ -1289,7 +1264,7 @@ export default function AdminDashboard() {
                 <div className="bg-[#0b141a] border-4 border-slate-800 rounded-3xl p-3.5 shadow-2xl flex flex-col space-y-2">
                   <div className="bg-[#075E54] text-white p-2 rounded-t-xl text-[11px] font-semibold flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span>Muni Purranque • Canal Oficial</span>
+                    <span>Muni Los Muermos • Canal Oficial</span>
                   </div>
 
                   <div className="bg-[#202c33] text-slate-100 p-3 rounded-2xl rounded-tl-none text-xs space-y-2 border border-slate-700/40">

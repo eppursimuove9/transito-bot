@@ -27,7 +27,7 @@ interface AdminTicket {
   imageUrl?: string;
 }
 
-const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱
+const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Los Muermos* 🇨🇱
 
 Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu trámite:
 
@@ -41,7 +41,7 @@ Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu
 
 _Escribe el número de tu opción (1-6 o 0). Para emergencias escribe *SOS*._`;
 
-export default function PurranqueDemoPage() {
+export default function LosMuermosDemoPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -74,14 +74,14 @@ export default function PurranqueDemoPage() {
 
   const syncTicketToAdminDashboard = (ticketData: Partial<AdminTicket>, imageAttached?: string) => {
     try {
-      const stored = localStorage.getItem('purranque_tickets');
+      const stored = localStorage.getItem('losmuermos_tickets');
       const currentTickets: AdminTicket[] = stored ? JSON.parse(stored) : [];
 
       const now = new Date();
       const horaStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       const newTicket: AdminTicket = {
-        id: ticketData.id || `#PRQ-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        id: ticketData.id || `#MRM-2026-${Math.floor(1000 + Math.random() * 9000)}`,
         citizen: ticketData.citizen || 'Reporte Anónimo',
         rut: ticketData.rut || 'No requerido',
         phone: ticketData.phone || '+56 9 ' + Math.floor(70000000 + Math.random() * 29000000),
@@ -95,7 +95,7 @@ export default function PurranqueDemoPage() {
       };
 
       const updated = [newTicket, ...currentTickets];
-      localStorage.setItem('purranque_tickets', JSON.stringify(updated));
+      localStorage.setItem('losmuermos_tickets', JSON.stringify(updated));
     } catch (err) {
       console.error('Error sincronizando ticket con el panel directivo:', err);
     }
@@ -170,10 +170,10 @@ export default function PurranqueDemoPage() {
       <header className="max-w-5xl w-full text-center mb-6">
         <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300 mb-3">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Plataforma de Modernización Territorial • I. Municipalidad de Purranque
+          Plataforma de Modernización Territorial • I. Municipalidad de Los Muermos
         </div>
         <h1 className="text-3xl font-bold text-white tracking-tight">
-          Ventanilla Única WhatsApp Purranque
+          Ventanilla Única WhatsApp Los Muermos
         </h1>
         <p className="text-sm text-slate-400 mt-1">
           Arquitectura no invasiva: Asistente RAG comunal, reportes viales con foto obligatoria y trazabilidad foliada.
@@ -181,7 +181,6 @@ export default function PurranqueDemoPage() {
       </header>
 
       <div className="max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-        {/* Panel Izquierdo: Casos de Prueba */}
         <aside className="md:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 max-h-[660px] overflow-y-auto">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
@@ -200,10 +199,9 @@ export default function PurranqueDemoPage() {
           </div>
 
           <div className="space-y-3 text-xs">
-            {/* 1. Tránsito Asistencial */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="text-emerald-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-1.                 <Car className="w-3.5 h-3.5" />Tránsito & Vehículos (Opción 1)
+                <Car className="w-3.5 h-3.5" /> 1. Tránsito & Vehículos (Opción 1)
               </div>
               <div className="space-y-1.5">
                 <div 
@@ -221,7 +219,6 @@ export default function PurranqueDemoPage() {
               </div>
             </div>
 
-            {/* 2. Rentas Asistencial */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="text-indigo-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                 <Store className="w-3.5 h-3.5" /> 2. Rentas & Comercio (Opción 2)
@@ -240,14 +237,13 @@ export default function PurranqueDemoPage() {
               </div>
             </div>
 
-            {/* 3. Incidencias Comunitarias (Anónimo + Chatarra) */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-2">
               <div className="text-orange-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                 <Home className="w-3.5 h-3.5" /> 3. Reporte de Incidencias (Opción 3)
               </div>
               
               <div 
-                onClick={() => copyToClipboard("Hay una rama grande caída sobre el camino principal frente al CESFAM de Corte Alto")}
+                onClick={() => copyToClipboard("Hay un socavón en la ruta costera camino a Estaquilla cerca de la caleta")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
@@ -255,15 +251,15 @@ export default function PurranqueDemoPage() {
                     <span>Paso 1: Detalle y Ubicación</span>
                     <span className="text-[10px] bg-emerald-950 text-emerald-300 px-1 rounded">100% Anónimo</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Rama caída camino CESFAM Corte Alto</p>
+                  <p className="text-[11px] text-slate-400">Ruta costera camino a Estaquilla</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Hay una rama grande caída sobre el camino principal frente al CESFAM de Corte Alto" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Hay un socavón en la ruta costera camino a Estaquilla cerca de la caleta" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
 
               <div 
-                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Hueyusca, 3 baterías viejas de tractor y fierros en patio trasero")}
+                onClick={() => copyToClipboard("Héctor Manqui, Parcela 14 Cañitas, 3 baterías viejas de tractor y mallas pesqueras")}
                 className="p-2 rounded-lg bg-slate-900/80 border border-slate-700/60 hover:border-orange-500/50 cursor-pointer transition flex justify-between items-center group"
               >
                 <div>
@@ -271,46 +267,39 @@ export default function PurranqueDemoPage() {
                     <span>Chatarra en Domicilio</span>
                     <span className="text-[10px] bg-blue-950 text-blue-300 px-1 rounded">Nombre + Dirección</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">Coordinación directa de cuadrilla en predio Hueyusca</p>
+                  <p className="text-[11px] text-slate-400">Coordinación directa de cuadrilla en predio Cañitas</p>
                 </div>
                 <span className="text-slate-500 group-hover:text-orange-400 text-xs">
-                  {copiedCode === "Héctor Manqui, Parcela 14 Hueyusca, 3 baterías viejas de tractor y fierros en patio trasero" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedCode === "Héctor Manqui, Parcela 14 Cañitas, 3 baterías viejas de tractor y mallas pesqueras" ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </span>
               </div>
             </div>
 
-            {/* 4. DIDECO */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-1 text-[11px] text-slate-300">
               <div className="text-emerald-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-1">
                 <HeartHandshake className="w-3.5 h-3.5" /> 4. DIDECO & Subsidio APR (Opción 4)
               </div>
-              <p>Explica los requisitos del subsidio de agua rural y los documentos necesarios para evitar que el vecino viaje en vano.
-</p>
+              <p>Explica los requisitos del subsidio de agua rural y los documentos necesarios para evitar que el vecino viaje en vano.</p>
             </div>
 
-            {/* Comandos Rápidos */}
             <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-3 space-y-1 text-[11px] text-slate-300">
               <div className="text-cyan-400 font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5 mb-1">
                 <Sparkles className="w-3.5 h-3.5" /> Comandos Rápidos
               </div>
-              <p>Escribe 
-<strong className="text-rose-300 font-mono">SOS</strong> para emergencias inmediatas.</p>
-              <p>Escribe 
-<strong className="text-amber-300 font-mono">6</strong> para activar el Modo Adulto Mayor.</p>
-              <p>Escribe 
-<strong className="text-purple-300 font-mono">0</strong> para pedir que te llame un funcionario.</p>
+              <p>Escribe <strong className="text-rose-300 font-mono">SOS</strong> para emergencias inmediatas.</p>
+              <p>Escribe <strong className="text-amber-300 font-mono">6</strong> para activar el Modo Adulto Mayor.</p>
+              <p>Escribe <strong className="text-purple-300 font-mono">0</strong> para pedir que te llame un funcionario.</p>
             </div>
           </div>
         </aside>
 
-        {/* Panel Derecho: WhatsApp */}
         <main className="md:col-span-7 bg-slate-900 border-4 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[660px]">
           <div className="bg-[#075E54] text-white p-3.5 flex items-center gap-3 shadow-md">
             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm border border-white/20">
               🇨🇱
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm leading-tight truncate">Muni Purranque • Canal Vecinal Oficial</h3>
+              <h3 className="font-semibold text-sm leading-tight truncate">Muni Los Muermos • Canal Vecinal Oficial</h3>
               <p className="text-[11px] text-emerald-200 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span> Verificado Meta Business
               </p>

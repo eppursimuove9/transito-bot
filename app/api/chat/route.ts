@@ -2,25 +2,25 @@ import { NextResponse } from 'next/server';
 
 function generarFolio(anio: number = 2026): string {
   const correlativo = Math.floor(1000 + Math.random() * 9000);
-  return `#PRQ-${anio}-${correlativo}`;
+  return `#MRM-${anio}-${correlativo}`;
 }
 
 const KNOWLEDGE_BASE = [
   {
-    keywords: ["EVENTO", "FIESTA", "CORTE ALTO", "HUEYUSCA", "SEMANA", "COSTUMBRISTA", "CRUCERO"],
-    response: `🎭 *Eventos y Actividades en Purranque 2026*\n\n• *Feria Costumbrista de Corte Alto:* Sábado y Domingo en el recinto techado.\n• *Fiesta Agrícola de Hueyusca:* Fin de semana en sede vecinal.\n• *Semana Purranquina:* Actividades en Plaza de Armas y Estadio Municipal.\n\n_Escribe otra consulta o *MENU* para volver._`
+    keywords: ["EVENTO", "FIESTA", "ESTAQUILLA", "CAÑITAS", "SEMANA", "COSTUMBRISTA", "RIO FRIO", "HUA HUAR"],
+    response: `🎭 *Eventos y Actividades en Los Muermos 2026*\n\n• *Fiesta del Loco en Estaquilla:* Sábado y Domingo en la Caleta.\n• *Feria Costumbrista de Cañitas:* Fin de semana en sede vecinal.\n• *Semana Muermina:* Actividades en Plaza de Armas y Parque Municipal.\n\n_Escribe otra consulta o *MENU* para volver._`
   },
   {
     keywords: ["FARMACIA", "TURNO", "REMEDIO", "SALUD", "HOSPITAL", "CESFAM", "POSTA"],
-    response: `💊 *Farmacias de Turno y Salud Comunal*\n\n• *Farmacia Purranque (Calle Pedro Montt 310)*: Turno activo hoy.\n• *CESFAM Purranque (Urgencias)*: 24/7 en sector centro.\n• *Posta Rural Corte Alto*: Atención diurna y paramédico de turno.\n\n_Escribe otra consulta o *MENU* para volver._`
+    response: `💊 *Farmacias de Turno y Salud Comunal*\n\n• *Farmacia Cruz Verde (Calle Antonio Varas)*: Turno activo hoy.\n• *CESFAM Los Muermos (Urgencias)*: 24/7 en sector centro.\n• *Posta Rural Cañitas*: Atención diurna y paramédico de turno.\n\n_Escribe otra consulta o *MENU* para volver._`
   },
   {
     keywords: ["TELEFONO", "ANEXO", "CONTACTO", "DIDECO", "OBRAS", "TRANSITO", "SECPLAN"],
-    response: `📞 *Directorio Municipal de Purranque*\n\n• *Central Telefónica:* +56 64 232 2000\n• *Tránsito y Licencias:* Anexo 112 • Pedro Montt s/n\n• *Rentas y Finanzas:* Anexo 106 • Pedro Montt s/n\n• *DIDECO (Social):* Anexo 104 • Pedro Montt s/n\n• *SECPLAN:* Anexo 108 • Edificio Consistorial\n• *Operaciones y Emergencias:* +56 64 276 5230 (24/7)\n\n_Escribe otra consulta o *MENU* para volver._`
+    response: `📞 *Directorio Municipal de Los Muermos*\n\n• *Central Telefónica:* +56 65 236 1000\n• *Tránsito y Licencias:* Anexo 112 • Antonio Varas s/n\n• *Rentas y Finanzas:* Anexo 106 • Antonio Varas s/n\n• *DIDECO (Social):* Anexo 104 • Antonio Varas s/n\n• *SECPLAN:* Anexo 108 • Edificio Consistorial\n• *Operaciones y Emergencias:* +56 65 276 5230 (24/7)\n\n_Escribe otra consulta o *MENU* para volver._`
   }
 ];
 
-const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Purranque* 🇨🇱
+const MENSAJE_INICIAL = `👋 ¡Hola! Bienvenido a la *Ventanilla Única Digital de Los Muermos* 🇨🇱
 
 Canal municipal directo y abierto para toda la comuna. Selecciona el área de tu trámite:
 
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   // --- 1. SOS DE EMERGENCIA ---
   if (['SOS', 'EMERGENCIA', 'BOMBEROS', 'CARABINEROS', 'AMBULANCIA'].some(k => cleanMsg.includes(k))) {
     return NextResponse.json({
-      reply: `🚨 *CENTRAL DE EMERGENCIAS • PURRANQUE* 🚨\n\nComunícate de inmediato:\n\n🚒 *Bomberos Purranque:* 132\n🚓 *Carabineros (Subcomisaría Purranque):* 133 / +56 64 276 5230\n🚓 *Retén Corte Alto:* +56 64 276 5240\n🚑 *Ambulancia SAMU:* 131\n📞 *Seguridad Pública Municipal:* +56 64 232 2000\n\n_Escribe *MENU* para volver._`,
+      reply: `🚨 *CENTRAL DE EMERGENCIAS • LOS MUERMOS* 🚨\n\nComunícate de inmediato:\n\n🚒 *Bomberos Los Muermos:* 132\n🚓 *Carabineros (Subcomisaría Los Muermos):* 133 / +56 65 236 1000\n🚓 *Retén Cañitas:* +56 65 236 1020\n🚑 *Ambulancia SAMU:* 131\n📞 *Seguridad Pública Municipal:* +56 65 236 1000\n\n_Escribe *MENU* para volver._`,
       next_step: 'INIT'
     });
   }
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
   // --- 3. MODO ASISTIDO (ADULTO MAYOR) ---
   if (cleanMsg === '6' || cleanMsg === 'MODO SIMPLE') {
     return NextResponse.json({
-      reply: `👵👴 *MODO ASISTIDO (Lenguaje Claro y Letra Grande)*\n\nLe ayudamos con sus dudas sobre trámites en Purranque:\n\n1️⃣ *Cómo pagar el Permiso de Circulación y qué papeles necesita*\n2️⃣ *Avisar de un camino con hoyos, rama caída o luminaria apagada*\n3️⃣ *Pedir que un funcionario le llame por teléfono a su casa*\n4️⃣ *Saber las farmacias de turno hoy*\n\n👉 Escriba el número de su opción (por ejemplo: *1*).\nPara salir escriba *MENU*. Para emergencias escriba *SOS*.`,
+      reply: `👵👴 *MODO ASISTIDO (Lenguaje Claro y Letra Grande)*\n\nLe ayudamos con sus dudas sobre trámites en Los Muermos:\n\n1️⃣ *Cómo pagar el Permiso de Circulación y qué papeles necesita*\n2️⃣ *Avisar de un camino con hoyos, rama caída o luminaria apagada*\n3️⃣ *Pedir que un funcionario le llame por teléfono a su casa*\n4️⃣ *Saber las farmacias de turno hoy*\n\n👉 Escriba el número de su opción (por ejemplo: *1*).\nPara salir escriba *MENU*. Para emergencias escriba *SOS*.`,
       next_step: 'AWAIT_SENIOR_OPTION'
     });
   }
@@ -78,13 +78,13 @@ export async function POST(req: Request) {
   if (step === 'AWAIT_SENIOR_OPTION') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: `🚗 *Información Permiso de Circulación*\n\nPara renovar su permiso en Purranque necesita:\n1. Permiso de circulación anterior pagado.\n2. Revisión técnica y gases al día.\n3. Seguro Obligatorio (SOAP) vigente al 2027.\n\n📍 *Lugar de pago presencial:* Dirección de Tránsito (Calle Pedro Montt s/n).\n🌐 *Pago por internet:* Puede pagar directo en el portal municipal: https://www.munipurranque.cl/pagos\n\n_Escriba *MENU* para volver._`,
+        reply: `🚗 *Información Permiso de Circulación*\n\nPara renovar su permiso en Los Muermos necesita:\n1. Permiso de circulación anterior pagado.\n2. Revisión técnica y gases al día.\n3. Seguro Obligatorio (SOAP) vigente al 2027.\n\n📍 *Lugar de pago presencial:* Dirección de Tránsito (Calle Antonio Varas s/n).\n🌐 *Pago por internet:* Puede pagar directo en el portal municipal: https://www.munilosmuermos.cl/pagos\n\n_Escriba *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: "🚜 *Aviso de Caminos o Luminarias (100% Anónimo)*\n\nIndícanos qué problema hay y dónde se ubica exactamente (por ejemplo: _\"Hay un hoyo en calle Pedro Montt cerca de la plaza\"_):\n\n_Escriba *MENU* para volver._",
+        reply: "🚜 *Aviso de Caminos o Luminarias (100% Anónimo)*\n\nIndícanos qué problema hay y dónde se ubica exactamente (por ejemplo: _\"Hay un socavón camino a Estaquilla\"_):\n\n_Escriba *MENU* para volver._",
         next_step: 'AWAIT_INCIDENCIA_DESCRIPCION'
       });
     }
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
     }
     if (cleanMsg === '4') {
       const farmacia = KNOWLEDGE_BASE.find(k => k.keywords.includes("FARMACIA"));
-      return NextResponse.json({ reply: farmacia ? farmacia.response : "Farmacia Purranque (Calle Pedro Montt 310) de turno.", next_step: 'INIT' });
+      return NextResponse.json({ reply: farmacia ? farmacia.response : "Farmacia Cruz Verde (Calle Antonio Varas) de turno.", next_step: 'INIT' });
     }
   }
 
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
 
     if (cleanMsg === '5' || cleanMsg.includes('INFO') || cleanMsg.includes('GUIA')) {
       return NextResponse.json({
-        reply: `ℹ️ *Consultas Normativas e Información Comunal (RAG)*\n\nPuedes hacerme preguntas directas:\n• _"¿Qué farmacia está de turno hoy?"_\n• _"¿Qué eventos hay este fin de semana en Corte Alto o Hueyusca?"_\n• _"¿Cuál es el estado del proyecto de la Plaza Carrasco?"_\n• _"¿Cuál es el teléfono de Obras o Tránsito?"_\n\n_Escribe tu consulta o *MENU* para volver._`,
+        reply: `ℹ️ *Consultas Normativas e Información Comunal (RAG)*\n\nPuedes hacerme preguntas directas:\n• _"¿Qué farmacia está de turno hoy?"_\n• _"¿Qué eventos hay este fin de semana en Estaquilla o Cañitas?"_\n• _"¿Cuál es el estado del proyecto de Borde Costero?"_\n• _"¿Cuál es el teléfono de Obras o Tránsito?"_\n\n_Escribe tu consulta o *MENU* para volver._`,
         next_step: 'AWAIT_RAG_QUERY'
       });
     }
@@ -149,7 +149,7 @@ export async function POST(req: Request) {
   if (step === 'SUB_INCIDENCIAS') {
     if (cleanMsg === '1' || cleanMsg.includes('HOYO') || cleanMsg.includes('CAMINO') || cleanMsg.includes('LUMINARIA')) {
       return NextResponse.json({
-        reply: `🕳️ *Reporte de Hoyo, Camino, Luminaria o Rama (100% Anónimo)*\n\nPor favor, describe en un mensaje **el problema y la ubicación exacta o referencia cercana**.\n\nEjemplo:\n👉 _"Hay un hoyo profundo en calle Pedro Montt cerca del municipio"_\n👉 _"Camino a Hueyusca km 5 rama grande sobre tendido"_\n\n_Escribe tu detalle o *MENU* para volver._`,
+        reply: `🕳️ *Reporte de Hoyo, Camino, Luminaria o Rama (100% Anónimo)*\n\nPor favor, describe en un mensaje **el problema y la ubicación exacta o referencia cercana**.\n\nEjemplo:\n👉 _"Hay un socavón en la ruta costera hacia Estaquilla"_\n👉 _"Camino a Cañitas km 5 rama grande sobre tendido"_\n\n_Escribe tu detalle o *MENU* para volver._`,
         next_step: 'AWAIT_INCIDENCIA_DESCRIPCION'
       });
     }
@@ -196,7 +196,7 @@ export async function POST(req: Request) {
   if (step === 'CHATARRA_UBICACION_SELECT') {
     if (cleanMsg === 'A' || cleanMsg.includes('DOMICILIO') || cleanMsg.includes('CASA')) {
       return NextResponse.json({
-        reply: `🏠 *Retiro de Chatarra en Domicilio*\n\nIndícanos tu **Nombre**, **Dirección / Sector exacto** y una breve descripción de lo que se va a retirar (ej: _"Héctor Manqui, Parcela 14 Corte Alto, 2 baterías de tractor y fierros"_):\n\n_Escribe tus datos o *MENU* para cancelar._`,
+        reply: `🏠 *Retiro de Chatarra en Domicilio*\n\nIndícanos tu **Nombre**, **Dirección / Sector exacto** y una breve descripción de lo que se va a retirar (ej: _"Héctor Manqui, Parcela 14 Cañitas, 2 baterías de tractor y fierros"_):\n\n_Escribe tus datos o *MENU* para cancelar._`,
         next_step: 'AWAIT_CHATARRA_DOMICILIO_DESC'
       });
     }
@@ -209,7 +209,6 @@ export async function POST(req: Request) {
     }
   }
 
-  // Chatarra Domicilio: Paso 1 Texto -> Paso 2 Foto Obligatoria
   if (step === 'AWAIT_CHATARRA_DOMICILIO_DESC') {
     return NextResponse.json({
       reply: `📝 *Datos de Domicilio Registrados:*\n"${rawMessage}"\n\n📸 **FOTOGRAFÍA OBLIGATORIA:**\nPara evaluar el volumen y destinar el camión adecuado, **es obligatorio adjuntar una fotografía de los objetos/chatarra a retirar**.\n\n👉 Envía la foto usando el botón de la cámara 📷 ahora.\n\n_(Escribe *MENU* para cancelar)._`,
@@ -239,7 +238,6 @@ export async function POST(req: Request) {
     });
   }
 
-  // Chatarra Vía Pública: Paso 1 Texto -> Paso 2 Foto Obligatoria
   if (step === 'AWAIT_CHATARRA_PUBLICA_DESC') {
     return NextResponse.json({
       reply: `📍 *Lugar Informado:*\n"${rawMessage}"\n\n📸 **FOTOGRAFÍA OBLIGATORIA:**\nPara no enviar cuadrillas a verificar avisos sin sustento, **debes adjuntar la fotografía del lugar y la chatarra abandonada**.\n\n👉 Adjunta la foto con el botón 📷 para generar el ticket municipal.\n\n_(Escribe *MENU* para cancelar)._`,
@@ -273,19 +271,19 @@ export async function POST(req: Request) {
   if (step === 'SUB_TRANSITO') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: `🚗 *Guía de Pago: Permiso de Circulación*\n\n📄 *Documentos obligatorios para renovar:*\n1. Permiso de circulación anterior pagado.\n2. Certificado de Revisión Técnica y Gases vigente.\n3. Seguro Obligatorio (SOAP) vigente al 31 de marzo del próximo año.\n4. Padrón del vehículo (si hubo transferencia).\n\n💳 *¿Dónde pagar?*\n• *En línea:* En el portal oficial: https://pagos.munipurranque.cl/transito\n• *Presencial:* Dirección de Tránsito, Calle Pedro Montt s/n (08:30 a 14:00 hrs).\n\n_Escribe *MENU* para volver._`,
+        reply: `🚗 *Guía de Pago: Permiso de Circulación*\n\n📄 *Documentos obligatorios para renovar:*\n1. Permiso de circulación anterior pagado.\n2. Certificado de Revisión Técnica y Gases vigente.\n3. Seguro Obligatorio (SOAP) vigente al 31 de marzo del próximo año.\n4. Padrón del vehículo (si hubo transferencia).\n\n💳 *¿Dónde pagar?*\n• *En línea:* En el portal oficial: https://pagos.munilosmuermos.cl/transito\n• *Presencial:* Dirección de Tránsito, Calle Antonio Varas s/n (08:30 a 14:00 hrs).\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: `🪪 *Licencias de Conducir - Dirección de Tránsito*\n\n• *Atención:* Calle Pedro Montt s/n (08:30 a 13:30 hrs).\n• *Renovaciones:* Cédula de identidad vigente y licencia anterior.\n• *Primera Licencia:* 18 años, certificado de estudios (mínimo 8° básico) y cédula.\n\n📅 *Agendamiento:* Presencial en mesón o al anexo 112 (+56 64 232 2000).\n\n_Escribe *MENU* para volver._`,
+        reply: `🪪 *Licencias de Conducir - Dirección de Tránsito*\n\n• *Atención:* Calle Antonio Varas s/n (08:30 a 13:30 hrs).\n• *Renovaciones:* Cédula de identidad vigente y licencia anterior.\n• *Primera Licencia:* 18 años, certificado de estudios (mínimo 8° básico) y cédula.\n\n📅 *Agendamiento:* Presencial en mesón o al anexo 112 (+56 65 236 1000).\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '3') {
       return NextResponse.json({
-        reply: `⚖️ *Multas y JPL de Purranque*\n\n• *Juzgado de Policía Local:* Calle Pedro Montt 450.\n• *Atención:* Lunes a Viernes de 08:30 a 13:00 hrs.\n\nℹ️ Consulta el Certificado de Multas No Empadronadas en \`registrocivil.cl\` con la patente del vehículo.\n\n_Escribe *MENU* para volver._`,
+        reply: `⚖️ *Multas y JPL de Los Muermos*\n\n• *Juzgado de Policía Local:* Calle Antonio Varas s/n.\n• *Atención:* Lunes a Viernes de 08:30 a 13:00 hrs.\n\nℹ️ Consulta el Certificado de Multas No Empadronadas en \`registrocivil.cl\` con la patente del vehículo.\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
@@ -295,13 +293,13 @@ export async function POST(req: Request) {
   if (step === 'SUB_RENTAS') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: `🏪 *Patentes Comerciales e Industriales*\n\n📅 *Plazos:* Vencen semestralmente en Enero y Julio.\n💳 *Pago en línea:* https://pagos.munipurranque.cl/rentas\n\n_Escribe *MENU* para volver._`,
+        reply: `🏪 *Patentes Comerciales e Industriales*\n\n📅 *Plazos:* Vencen semestralmente en Enero y Julio.\n💳 *Pago en línea:* https://pagos.munilosmuermos.cl/rentas\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: `🧺 *Derechos de Feria Libre y Ambulantes*\n\n• *Oficina:* Departamento de Rentas (Pedro Montt s/n).\n• *Pago:* Primeros 5 días hábiles de cada mes en Tesorería.\n\n_Escribe *MENU* para volver._`,
+        reply: `🧺 *Derechos de Feria Libre y Ambulantes*\n\n• *Oficina:* Departamento de Rentas (Antonio Varas s/n).\n• *Pago:* Primeros 5 días hábiles de cada mes en Tesorería.\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
@@ -317,13 +315,13 @@ export async function POST(req: Request) {
   if (step === 'SUB_DIDECO') {
     if (cleanMsg === '1') {
       return NextResponse.json({
-        reply: `💧 *Orientación: Subsidio Agua Potable Rural (APR)*\n\nRequisitos para postular en DIDECO (Calle Pedro Montt s/n):\n1. Fotocopia cédula de identidad del jefe(a) de hogar.\n2. Cartola Registro Social de Hogares en Purranque (hasta 60%).\n3. Última boleta del comité de APR pagada y al día.\n\n_Escribe *MENU* para volver o *0* para contacto telefónico._`,
+        reply: `💧 *Orientación: Subsidio Agua Potable Rural (APR)*\n\nRequisitos para postular en DIDECO (Calle Antonio Varas s/n):\n1. Fotocopia cédula de identidad del jefe(a) de hogar.\n2. Cartola Registro Social de Hogares en Los Muermos (hasta 60%).\n3. Última boleta del comité de APR pagada y al día.\n\n_Escribe *MENU* para volver o *0* para contacto telefónico._`,
         next_step: 'INIT'
       });
     }
     if (cleanMsg === '2') {
       return NextResponse.json({
-        reply: `📋 *Registro Social de Hogares (RSH)*\n\n• *Presencial:* Calle Pedro Montt s/n (08:30 a 14:00 hrs).\n• *En línea:* https://www.registrosocial.gob.cl (con ClaveÚnica).\n\n_Escribe *MENU* para volver._`,
+        reply: `📋 *Registro Social de Hogares (RSH)*\n\n• *Presencial:* Calle Antonio Varas s/n (08:30 a 14:00 hrs).\n• *En línea:* https://www.registrosocial.gob.cl (con ClaveÚnica).\n\n_Escribe *MENU* para volver._`,
         next_step: 'INIT'
       });
     }
@@ -336,7 +334,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ reply: match.response, next_step: 'AWAIT_RAG_QUERY' });
     }
     return NextResponse.json({
-      reply: `🏛️ *Asistente Comunal de Purranque*\n\nNo se encontró información oficial sobre "${rawMessage}". Recuerda que puedo responder sobre farmacias de turno, eventos comunales, teléfonos o trámites municipales.\n\n_Escribe otra consulta o *MENU* para volver._`,
+      reply: `🏛️ *Asistente Comunal de Los Muermos*\n\nNo se encontró información oficial sobre "${rawMessage}". Recuerda que puedo responder sobre farmacias de turno, eventos comunales, teléfonos o trámites municipales.\n\n_Escribe otra consulta o *MENU* para volver._`,
       next_step: 'AWAIT_RAG_QUERY'
     });
   }
